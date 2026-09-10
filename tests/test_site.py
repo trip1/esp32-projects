@@ -45,6 +45,7 @@ class FirmwarePortalTests(unittest.TestCase):
         self.assertIn('slot="unsupported"', html)
         self.assertIn('fetch("./projects.json")', javascript)
         self.assertIn("selectedProject.manifest", javascript)
+        self.assertIn('setAttribute("manifest", selectedProject.manifest)', javascript)
 
     def test_manifest_generator_uses_factory_image_at_offset_zero(self):
         with tempfile.TemporaryDirectory() as directory:

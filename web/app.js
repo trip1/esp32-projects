@@ -24,6 +24,7 @@ function selectProject(project) {
     item.textContent = feature;
     return item;
   }));
+  installer.setAttribute("manifest", selectedProject.manifest);
   installer.manifest = selectedProject.manifest;
   location.hash = project.slug;
   document.querySelectorAll(".project-row").forEach((row) => {
