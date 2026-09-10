@@ -11,12 +11,14 @@ All four profiles provide the Wi-Fi, BLE, flash, and serial capabilities used by
 
 The S3 LED builds intentionally target **ESP32-S3-DevKitC-1 v1.0**, whose RGB LED is on GPIO48.[3] Espressif's v1.1 revision moves that LED to GPIO38, so the three LED projects are not claimed to support S3 v1.1 yet.[4]
 
-The generic ESP32 DevKit profile receives the twelve projects that do not require an addressable RGB LED. Its documented board controls include a power LED, USB-to-UART bridge, Boot button, and reset button, but not a software-controlled addressable RGB LED.[1]
+The generic ESP32 DevKit profile receives thirteen projects: the twelve projects that do not require an addressable RGB LED plus the BME280 sensor project. Its documented board controls include a power LED, USB-to-UART bridge, Boot button, and reset button, but not a software-controlled addressable RGB LED.[1]
 
 ## Compatibility
 
-- **All four targets:** BLE Proximity Scanner, Wi-Fi Surveyor, Device Console, BLE Presence Beacon, Decision Oracle, BLE Alias Shuffler, Pocket File Drop, Pocket Chat Room, BLE UART Console, Reboot Museum, Tiny Benchmark Lab, and iBeacon Lab.
+- **All four targets:** BLE Proximity Scanner, Wi-Fi Surveyor, Device Console, BLE Presence Beacon, Decision Oracle, BLE Alias Shuffler, Pocket File Drop, Pocket Chat Room, BLE UART Console, Reboot Museum, Tiny Benchmark Lab, iBeacon Lab, and BME280 MQTT Sleep Sensor.
 - **C3, S3 v1.0, and C6 only:** Pocket RGB Lamp, Pomodoro Light, and Morse Beacon.
+
+The BME280 project is the only current project that requires external hardware; its wiring is board-specific and documented in the project README.
 
 Select the exact board in the portal before installing. ESP Web Tools uses the selected target's chip-family manifest and factory image; images are not interchangeable across chip families.
 

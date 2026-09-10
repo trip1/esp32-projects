@@ -39,7 +39,8 @@
         "chip": "ESP32-C6",
         "environment": "scanner--esp32-c6"
       }
-    ]
+    ],
+    "hardware": "Board only"
   },
   {
     "slug": "wifi-surveyor",
@@ -81,7 +82,8 @@
         "chip": "ESP32-C6",
         "environment": "wifi-surveyor--esp32-c6"
       }
-    ]
+    ],
+    "hardware": "Board only"
   },
   {
     "slug": "rgb-lamp",
@@ -117,7 +119,8 @@
         "chip": "ESP32-C6",
         "environment": "rgb-lamp--esp32-c6"
       }
-    ]
+    ],
+    "hardware": "Board only"
   },
   {
     "slug": "device-console",
@@ -159,7 +162,8 @@
         "chip": "ESP32-C6",
         "environment": "device-console--esp32-c6"
       }
-    ]
+    ],
+    "hardware": "Board only"
   },
   {
     "slug": "ble-presence-beacon",
@@ -201,7 +205,8 @@
         "chip": "ESP32-C6",
         "environment": "ble-presence-beacon--esp32-c6"
       }
-    ]
+    ],
+    "hardware": "Board only"
   },
   {
     "slug": "decision-oracle",
@@ -243,7 +248,8 @@
         "chip": "ESP32-C6",
         "environment": "decision-oracle--esp32-c6"
       }
-    ]
+    ],
+    "hardware": "Board only"
   },
   {
     "slug": "pomodoro-light",
@@ -279,7 +285,8 @@
         "chip": "ESP32-C6",
         "environment": "pomodoro-light--esp32-c6"
       }
-    ]
+    ],
+    "hardware": "Board only"
   },
   {
     "slug": "morse-beacon",
@@ -315,7 +322,8 @@
         "chip": "ESP32-C6",
         "environment": "morse-beacon--esp32-c6"
       }
-    ]
+    ],
+    "hardware": "Board only"
   },
   {
     "slug": "ble-alias-shuffler",
@@ -357,7 +365,8 @@
         "chip": "ESP32-C6",
         "environment": "ble-alias-shuffler--esp32-c6"
       }
-    ]
+    ],
+    "hardware": "Board only"
   },
   {
     "slug": "littlefs-dropbox",
@@ -399,7 +408,8 @@
         "chip": "ESP32-C6",
         "environment": "littlefs-dropbox--esp32-c6"
       }
-    ]
+    ],
+    "hardware": "Board only"
   },
   {
     "slug": "local-chat-room",
@@ -441,7 +451,8 @@
         "chip": "ESP32-C6",
         "environment": "local-chat-room--esp32-c6"
       }
-    ]
+    ],
+    "hardware": "Board only"
   },
   {
     "slug": "ble-uart-console",
@@ -483,7 +494,8 @@
         "chip": "ESP32-C6",
         "environment": "ble-uart-console--esp32-c6"
       }
-    ]
+    ],
+    "hardware": "Board only"
   },
   {
     "slug": "boot-counter",
@@ -525,7 +537,8 @@
         "chip": "ESP32-C6",
         "environment": "boot-counter--esp32-c6"
       }
-    ]
+    ],
+    "hardware": "Board only"
   },
   {
     "slug": "cpu-benchmark",
@@ -567,7 +580,8 @@
         "chip": "ESP32-C6",
         "environment": "cpu-benchmark--esp32-c6"
       }
-    ]
+    ],
+    "hardware": "Board only"
   },
   {
     "slug": "ibeacon-lab",
@@ -608,6 +622,50 @@
         "name": "ESP32-C6-DevKitC-1",
         "chip": "ESP32-C6",
         "environment": "ibeacon-lab--esp32-c6"
+      }
+    ],
+    "hardware": "Board only"
+  },
+  {
+    "slug": "bme280-mqtt-sensor",
+    "name": "BME280 MQTT Sleep Sensor",
+    "version": "1.0.0",
+    "category": "Practical",
+    "description": "Reads temperature, humidity, and barometric pressure, publishes one retained MQTT state, then enters configurable timer deep sleep.",
+    "features": [
+      "BME280 forced-mode sampling",
+      "First-boot setup portal",
+      "Retained MQTT state",
+      "Configurable deep sleep"
+    ],
+    "installable": true,
+    "extra_hardware": true,
+    "hardware": "BME280 + four jumper wires",
+    "project_dir": "firmware/bme280-mqtt-sensor",
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "environment": "sensor--esp32"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "environment": "sensor--esp32-c3"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "environment": "sensor--esp32-s3"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "environment": "sensor--esp32-c6"
       }
     ]
   }

@@ -40,6 +40,7 @@ function selectProject(project) {
   document.querySelector("#selected-description").textContent = project.description;
   document.querySelector("#selected-chip").textContent = selectedTarget.name;
   document.querySelector("#selected-version").textContent = project.version;
+  document.querySelector("#selected-hardware").textContent = project.hardware;
   const features = document.querySelector("#selected-features");
   features.replaceChildren(...project.features.map((feature) => {
     const item = document.createElement("li");

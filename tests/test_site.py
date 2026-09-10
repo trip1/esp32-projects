@@ -21,6 +21,7 @@ EXPECTED_NEW_PROJECTS = {
     "boot-counter",
     "cpu-benchmark",
     "ibeacon-lab",
+    "bme280-mqtt-sensor",
 }
 EXPECTED_TARGETS = {
     "esp32-devkit-v1": "ESP32",
@@ -35,14 +36,15 @@ class FirmwarePortalTests(unittest.TestCase):
     def load_catalog(self):
         return json.loads((ROOT / "projects.json").read_text())
 
-    def test_catalog_contains_fourteen_board_only_projects(self):
+    def test_catalog_contains_sixteen_projects(self):
         catalog = self.load_catalog()
         slugs = {project["slug"] for project in catalog}
         self.assertEqual(EXPECTED_NEW_PROJECTS, slugs - {"ble-mqtt-scanner"})
-        self.assertEqual(15, len(catalog))
+        self.assertEqual(16, len(catalog))
         for project in catalog:
             self.assertTrue(project["installable"])
-            self.assertFalse(project["extra_hardware"])
+            self.assertEqual(project["slug"] == "bme280-mqtt-sensor", project["extra_hardware"])
+            self.assertTrue(project["hardware"])
 
     def test_catalog_targets_four_supported_boards(self):
         catalog = self.load_catalog()
@@ -55,7 +57,7 @@ class FirmwarePortalTests(unittest.TestCase):
             for target in project["targets"]:
                 self.assertTrue(target["name"])
                 self.assertTrue(target["environment"])
-        self.assertEqual(57, sum(len(project["targets"]) for project in catalog))
+        self.assertEqual(61, sum(len(project["targets"]) for project in catalog))
 
     def test_catalog_has_practical_and_fun_projects(self):
         categories = {project["category"] for project in self.load_catalog()}
@@ -71,6 +73,11 @@ class FirmwarePortalTests(unittest.TestCase):
         source = (ROOT / "firmware" / "no-hardware-lab" / "src" / "app_support.cpp").read_text()
         self.assertNotIn("ESP32-C6 · LOCAL ONLY", source)
         self.assertIn("ESP.getChipModel()", source)
+
+    def test_bme280_recovery_precedes_pending_processing(self):
+        source = (ROOT / "firmware" / "bme280-mqtt-sensor" / "src" / "main.cpp").read_text()
+        setup = source.split("void setup()", 1)[1].split("void loop()", 1)[0]
+        self.assertLess(setup.index("recoveryRequested()"), setup.index("processConfiguredWake(pending"))
 
     def test_reboot_museum_clears_nvs_with_checked_clear(self):
         source = (ROOT / "firmware" / "no-hardware-lab" / "src" / "apps" / "boot-counter.cpp").read_text()
@@ -92,12 +99,14 @@ class FirmwarePortalTests(unittest.TestCase):
         javascript = (ROOT / "web" / "app.js").read_text()
         self.assertIn('id="project-list"', html)
         self.assertIn('id="board-select"', html)
+        self.assertIn('id="selected-hardware"', html)
         self.assertIn('class="filters" role="group"', html)
         self.assertIn("esp-web-install-button", html)
         self.assertIn('slot="activate"', html)
         self.assertIn('slot="unsupported"', html)
         self.assertIn('fetch("./projects.json")', javascript)
         self.assertIn("selectedTarget.manifest", javascript)
+        self.assertIn("project.hardware", javascript)
         self.assertIn('setAttribute("manifest", selectedTarget.manifest)', javascript)
         self.assertIn('setAttribute("aria-pressed"', javascript)
         self.assertNotIn('id="installer-button" manifest=', html)
@@ -147,6 +156,7 @@ class FirmwarePortalTests(unittest.TestCase):
                         "version": "2.0.0",
                         "category": "Fun",
                         "description": "Test",
+                        "hardware": "Board only",
                         "features": ["Test"],
                         "installable": True,
                         "extra_hardware": False,
@@ -201,6 +211,7 @@ class FirmwarePortalTests(unittest.TestCase):
                     "version": "1.0.0",
                     "category": "Fun",
                     "description": "Test",
+                    "hardware": "Board only",
                     "features": ["Test"],
                     "installable": True,
                     "extra_hardware": False,
@@ -228,6 +239,7 @@ class FirmwarePortalTests(unittest.TestCase):
                 "version": "1.0.0",
                 "category": "Fun",
                 "description": "Test",
+                "hardware": "Board only",
                 "features": ["Test"],
                 "installable": True,
                 "extra_hardware": False,
@@ -254,6 +266,7 @@ class FirmwarePortalTests(unittest.TestCase):
                 "version": "1.0.0",
                 "category": "Fun",
                 "description": "Test",
+                "hardware": "Board only",
                 "features": ["Test"],
                 "installable": True,
                 "extra_hardware": False,
@@ -279,6 +292,7 @@ class FirmwarePortalTests(unittest.TestCase):
                 "version": "1.0.0",
                 "category": "Fun",
                 "description": "Test",
+                "hardware": "Board only",
                 "features": ["Test"],
                 "installable": True,
                 "extra_hardware": False,
@@ -307,6 +321,7 @@ class FirmwarePortalTests(unittest.TestCase):
                 "version": "1.0.0",
                 "category": "Fun",
                 "description": "Test",
+                "hardware": "Board only",
                 "features": ["Test"],
                 "installable": True,
                 "extra_hardware": False,
@@ -328,6 +343,32 @@ class FirmwarePortalTests(unittest.TestCase):
             self.assertNotEqual(0, result.returncode)
             self.assertIn("chip does not match target", result.stderr + result.stdout)
 
+    def test_site_builder_rejects_contradictory_hardware_metadata(self):
+        with tempfile.TemporaryDirectory() as directory:
+            temp = Path(directory)
+            project = {
+                "slug": "sensor",
+                "name": "Sensor",
+                "version": "1.0.0",
+                "category": "Practical",
+                "description": "Test",
+                "hardware": "BME280 required",
+                "features": ["Test"],
+                "installable": True,
+                "extra_hardware": False,
+                "project_dir": "firmware",
+                "targets": [{"id": "esp32-c6-devkitc-1", "name": "C6", "chip": "ESP32-C6", "environment": "sensor"}],
+            }
+            catalog_path = temp / "projects.json"
+            catalog_path.write_text(json.dumps([project]))
+            result = subprocess.run(
+                ["python3", str(ROOT / "scripts" / "build_site.py"), "--catalog", str(catalog_path), "--output", str(temp / "site")],
+                capture_output=True,
+                text=True,
+            )
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("hardware metadata contradicts", result.stderr + result.stdout)
+
     def test_site_builder_rejects_environment_board_mismatch(self):
         with tempfile.TemporaryDirectory() as directory:
             temp = Path(directory)
@@ -340,6 +381,7 @@ class FirmwarePortalTests(unittest.TestCase):
                 "version": "1.0.0",
                 "category": "Fun",
                 "description": "Test",
+                "hardware": "Board only",
                 "features": ["Test"],
                 "installable": True,
                 "extra_hardware": False,
@@ -368,6 +410,7 @@ class FirmwarePortalTests(unittest.TestCase):
                 "version": "1.0.0",
                 "category": "Fun",
                 "description": "Test",
+                "hardware": "Board only",
                 "features": ["Test"],
                 "installable": True,
                 "extra_hardware": False,
@@ -397,6 +440,8 @@ class FirmwarePortalTests(unittest.TestCase):
         self.assertIn("permissions:\n      pages: write\n      id-token: write", deploy_job)
         self.assertIn("firmware/no-hardware-lab/test/native/test_main.cpp", workflow)
         self.assertIn("pio run -d firmware/no-hardware-lab", workflow)
+        self.assertIn("bme280-mqtt-sensor/test/native/test_main.cpp", workflow)
+        self.assertIn("pio run -d firmware/bme280-mqtt-sensor", workflow)
         self.assertIn("python scripts/build_site.py --output _site", workflow)
 
 

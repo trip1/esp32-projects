@@ -15,6 +15,7 @@ A public monorepo of browser-flashable firmware for ESP32 DevKit V1, ESP32-C3-De
 - **BLE UART Console** — Nordic-UART-compatible BLE and USB serial bridge
 - **Tiny Benchmark Lab** — bounded CPU and memory performance experiments
 - **iBeacon Lab** — standards-shaped beacon payload for scanner testing
+- **BME280 MQTT Sleep Sensor** — temperature, humidity, and pressure telemetry with captive setup and configurable deep sleep
 
 ### Fun
 
@@ -25,7 +26,7 @@ A public monorepo of browser-flashable firmware for ESP32 DevKit V1, ESP32-C3-De
 - **Pocket Chat Room** — temporary nearby WebSocket chat over the board's access point
 - **Reboot Museum** — persistent NVS boot counter with unnecessary drama
 
-The catalog contains 57 board-specific firmware targets across 15 projects. Twelve projects support all four board profiles. Pocket RGB Lamp, Pomodoro Light, and Morse Beacon support the C3, S3 v1.0, and C6 profiles because the generic ESP32 DevKit has no addressable RGB LED. See [`docs/board-support.md`](docs/board-support.md) for the exact compatibility matrix and S3 revision caveat, and [`docs/internet-inspiration.md`](docs/internet-inspiration.md) for the examples and libraries surveyed for this collection.
+The catalog contains 61 board-specific firmware targets across 16 projects. Thirteen projects support all four board profiles. Pocket RGB Lamp, Pomodoro Light, and Morse Beacon support the C3, S3 v1.0, and C6 profiles because the generic ESP32 DevKit has no addressable RGB LED. The BME280 project is the first entry that requires external hardware. See [`docs/board-support.md`](docs/board-support.md) for the exact board matrix, [`firmware/bme280-mqtt-sensor/README.md`](firmware/bme280-mqtt-sensor/README.md) for sensor wiring, and [`docs/internet-inspiration.md`](docs/internet-inspiration.md) for the examples and libraries surveyed for the original collection.
 
 AP-based projects create an open local network and serve a UI at `http://192.168.4.1`. Do not enter or store sensitive information on those experimental networks.
 
@@ -41,6 +42,7 @@ Published portal: <https://trip1.github.io/esp32-projects/>
 projects.json                     Build and public catalog source of truth
 firmware/ble-mqtt-scanner/        BLE/MQTT scanner project
 firmware/no-hardware-lab/         Fourteen hardware-free build environments
+firmware/bme280-mqtt-sensor/      Four-board BME280 MQTT/deep-sleep sensor
 web/                              Static installer source
 scripts/                          Manifest and site assembly tools
 tests/                            Portal packaging tests
@@ -62,6 +64,7 @@ g++ -std=c++17 \
 ~/.venvs/platformio/bin/pio test -d firmware/ble-mqtt-scanner -e native
 ~/.venvs/platformio/bin/pio run -d firmware/ble-mqtt-scanner
 ~/.venvs/platformio/bin/pio run -d firmware/no-hardware-lab
+~/.venvs/platformio/bin/pio run -d firmware/bme280-mqtt-sensor
 python3 scripts/build_site.py --output _site
 ```
 

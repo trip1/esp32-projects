@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PRIVATE_CATALOG_FIELDS = {"project_dir"}
 IDENTIFIER = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")
 REQUIRED_FIELDS = {
-    "slug", "name", "version", "category", "description", "features",
+    "slug", "name", "version", "category", "description", "hardware", "features",
     "installable", "extra_hardware", "project_dir", "targets",
 }
 REQUIRED_TARGET_FIELDS = {"id", "name", "chip", "environment"}
@@ -103,11 +103,14 @@ def validate_catalog(projects: object, catalog_root: Path) -> list[dict]:
             fail(f"features must be a non-empty string array for {slug}")
         if project["category"] not in {"Practical", "Fun"}:
             fail(f"invalid category for {slug}")
-        for field in ("name", "version", "description"):
+        for field in ("name", "version", "description", "hardware"):
             if not isinstance(project[field], str) or not project[field].strip():
                 fail(f"{field} must be a non-empty string for {slug}")
         if not isinstance(project["installable"], bool) or not isinstance(project["extra_hardware"], bool):
             fail(f"boolean catalog flags are invalid for {slug}")
+        hardware_is_external = project["hardware"] != "Board only"
+        if project["extra_hardware"] != hardware_is_external:
+            fail(f"hardware metadata contradicts extra_hardware for {slug}")
 
         validated.append({**project, "targets": validated_targets, "_resolved_project_dir": project_dir})
     return validated
