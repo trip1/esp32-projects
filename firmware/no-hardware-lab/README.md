@@ -1,6 +1,6 @@
 # ESP32-C6 No-Hardware Lab
 
-Eight independently flashable firmware experiments that use only the ESP32-C6 DevKitC-1 itself. No sensors, displays, relays, or other add-ons are required.
+Fourteen independently flashable firmware experiments that use only the ESP32-C6 DevKitC-1 itself. No sensors, displays, relays, or other add-ons are required.
 
 ## Projects
 
@@ -12,8 +12,14 @@ Eight independently flashable firmware experiments that use only the ESP32-C6 De
 - **Pomodoro Light** — onboard-LED focus timer
 - **Morse Beacon** — onboard-LED Morse experiment
 - **BLE Alias Shuffler** — rotating harmless joke BLE names
+- **Pocket File Drop** — LittleFS upload/download portal
+- **Pocket Chat Room** — local WebSocket group chat
+- **BLE UART Console** — Nordic UART service and USB serial bridge
+- **Reboot Museum** — persistent NVS boot history
+- **Tiny Benchmark Lab** — bounded CPU and memory benchmarks
+- **iBeacon Lab** — fixed lab beacon for scanner testing
 
-The AP-based projects create an open local network named after the project and serve their UI at `http://192.168.4.1`. They do not provide internet access. Do not enter sensitive information into these experimental portals.
+The AP-based projects create an open local network named after the project and serve their UI at `http://192.168.4.1`. They do not provide internet access. Anyone nearby who joins an experimental AP can use its controls; for Pocket File Drop that includes downloading, replacing, and deleting stored files, and for Reboot Museum it includes rebooting or clearing history. Do not enter or store sensitive information.
 
 The LED projects expect the ESP32-C6-DevKitC-1 onboard addressable RGB LED on GPIO 8. Board revisions without that LED still run and report over serial but cannot show colors.
 

@@ -31,5 +31,26 @@ int main() {
     assert(boundedChoice(0, 6) == 0);
     assert(boundedChoice(13, 6) == 1);
     assert(boundedChoice(99, 0) == 0);
+
+    assert(isSafeFilename("notes.txt"));
+    assert(isSafeFilename("photo-01.bin"));
+    assert(!isSafeFilename("../secrets.txt"));
+    assert(!isSafeFilename("folder/file.txt"));
+    assert(!isSafeFilename(".hidden"));
+    assert(!isSafeFilename(std::string(49, 'a')));
+
+    assert(boundedText("hello", 3) == "hel");
+    assert(boundedText("hello", 10) == "hello");
+    assert(boundedText("hello", 0).empty());
+
+    assert(shouldFormatFilesystem(true, false, false));
+    assert(!shouldFormatFilesystem(false, false, false));
+    assert(!shouldFormatFilesystem(true, true, false));
+    assert(!shouldFormatFilesystem(true, false, true));
+
+    assert(filesystemInitializationIsDurable(true, true, false));
+    assert(filesystemInitializationIsDurable(true, false, true));
+    assert(!filesystemInitializationIsDurable(true, false, false));
+    assert(!filesystemInitializationIsDurable(false, false, true));
     return 0;
 }

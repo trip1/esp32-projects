@@ -2,7 +2,7 @@
 
 void LocalPortal::begin(const char* ssid) {
     WiFi.mode(WIFI_AP_STA);
-    WiFi.softAP(ssid);
+    WiFi.softAP(ssid, nullptr, 1, 0, 4);
     dns_.start(53, "*", WiFi.softAPIP());
     server.on("/generate_204", [this]() { server.sendHeader("Location", "/", true); server.send(302); });
     server.on("/hotspot-detect.html", [this]() { server.sendHeader("Location", "/", true); server.send(302); });

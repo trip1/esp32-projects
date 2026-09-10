@@ -80,3 +80,23 @@ const char* aliasAt(std::size_t index) {
 std::size_t boundedChoice(std::uint32_t random_value, std::size_t choice_count) {
     return choice_count == 0 ? 0 : random_value % choice_count;
 }
+
+bool isSafeFilename(const std::string& filename) {
+    if (filename.empty() || filename.size() > 48 || filename.front() == '.') return false;
+    for (const unsigned char character : filename) {
+        if (!std::isalnum(character) && character != '-' && character != '_' && character != '.') return false;
+    }
+    return filename.find("..") == std::string::npos;
+}
+
+std::string boundedText(const std::string& text, std::size_t maximum_bytes) {
+    return text.substr(0, maximum_bytes);
+}
+
+bool shouldFormatFilesystem(bool state_store_ready, bool initialized_before, bool mounted) {
+    return state_store_ready && !initialized_before && !mounted;
+}
+
+bool filesystemInitializationIsDurable(bool mounted, bool initialized_before, bool marker_persisted) {
+    return mounted && (initialized_before || marker_persisted);
+}

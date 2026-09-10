@@ -115,5 +115,83 @@
     "extra_hardware": false,
     "project_dir": "firmware/no-hardware-lab",
     "environment": "ble-alias-shuffler"
+  },
+  {
+    "slug": "littlefs-dropbox",
+    "name": "Pocket File Drop",
+    "chip": "ESP32-C6",
+    "version": "1.0.0",
+    "category": "Practical",
+    "description": "Creates a room-local Wi-Fi file drop backed by LittleFS for moving small files without a router or internet connection.",
+    "features": ["LittleFS storage", "Upload and download", "128 KiB file limit", "Offline access point"],
+    "installable": true,
+    "extra_hardware": false,
+    "project_dir": "firmware/no-hardware-lab",
+    "environment": "littlefs-dropbox"
+  },
+  {
+    "slug": "local-chat-room",
+    "name": "Pocket Chat Room",
+    "chip": "ESP32-C6",
+    "version": "1.0.0",
+    "category": "Fun",
+    "description": "Hosts a tiny real-time WebSocket chat room for nearby phones connected directly to the board's Wi-Fi network.",
+    "features": ["WebSocket chat", "Local-only network", "Four clients", "No message history"],
+    "installable": true,
+    "extra_hardware": false,
+    "project_dir": "firmware/no-hardware-lab",
+    "environment": "local-chat-room"
+  },
+  {
+    "slug": "ble-uart-console",
+    "name": "BLE UART Console",
+    "chip": "ESP32-C6",
+    "version": "1.0.0",
+    "category": "Practical",
+    "description": "Exposes a Nordic-UART-compatible BLE service that echoes bounded text between a BLE terminal app and the USB serial console.",
+    "features": ["Nordic UART service", "BLE notifications", "Serial bridge", "Bounded messages"],
+    "installable": true,
+    "extra_hardware": false,
+    "project_dir": "firmware/no-hardware-lab",
+    "environment": "ble-uart-console"
+  },
+  {
+    "slug": "boot-counter",
+    "name": "Reboot Museum",
+    "chip": "ESP32-C6",
+    "version": "1.0.0",
+    "category": "Fun",
+    "description": "Uses non-volatile Preferences storage to count every boot and presents the board's increasingly dramatic reboot history.",
+    "features": ["Persistent boot count", "NVS Preferences", "Reset control", "Local dashboard"],
+    "installable": true,
+    "extra_hardware": false,
+    "project_dir": "firmware/no-hardware-lab",
+    "environment": "boot-counter"
+  },
+  {
+    "slug": "cpu-benchmark",
+    "name": "Tiny Benchmark Lab",
+    "chip": "ESP32-C6",
+    "version": "1.0.0",
+    "category": "Practical",
+    "description": "Runs bounded integer and volatile-memory-access benchmarks on demand and reports timings through a local browser dashboard.",
+    "features": ["CPU timing", "Memory access timing", "Repeatable workload", "JSON results"],
+    "installable": true,
+    "extra_hardware": false,
+    "project_dir": "firmware/no-hardware-lab",
+    "environment": "cpu-benchmark"
+  },
+  {
+    "slug": "ibeacon-lab",
+    "name": "iBeacon Lab",
+    "chip": "ESP32-C6",
+    "version": "1.0.0",
+    "category": "Practical",
+    "description": "Advertises a standards-shaped iBeacon payload for testing mobile beacon scanners, distance estimates, and presence experiments.",
+    "features": ["iBeacon payload", "100 ms advertising", "Fixed lab UUID", "Scanner testing"],
+    "installable": true,
+    "extra_hardware": false,
+    "project_dir": "firmware/no-hardware-lab",
+    "environment": "ibeacon-lab"
   }
 ]

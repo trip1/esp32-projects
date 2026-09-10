@@ -11,6 +11,10 @@ A public monorepo of browser-flashable ESP32-C6 firmware projects and the GitHub
 - **Pocket RGB Lamp** — local browser control for the onboard RGB LED
 - **Device Console** — live chip, heap, flash, uptime, and reset diagnostics
 - **BLE Presence Beacon** — stable BLE advertisement for scanner and automation experiments
+- **Pocket File Drop** — local LittleFS uploads and downloads without a router
+- **BLE UART Console** — Nordic-UART-compatible BLE and USB serial bridge
+- **Tiny Benchmark Lab** — bounded CPU and memory performance experiments
+- **iBeacon Lab** — standards-shaped beacon payload for scanner testing
 
 ### Fun
 
@@ -18,8 +22,10 @@ A public monorepo of browser-flashable ESP32-C6 firmware projects and the GitHub
 - **Pomodoro Light** — self-running 25/5 focus timer on the onboard RGB LED
 - **Morse Beacon** — repeats `HELLO WORLD` in light and over serial
 - **BLE Alias Shuffler** — cycles through harmless ridiculous BLE device names
+- **Pocket Chat Room** — temporary nearby WebSocket chat over the board's access point
+- **Reboot Museum** — persistent NVS boot counter with unnecessary drama
 
-The eight projects in `firmware/no-hardware-lab` require only an ESP32-C6-DevKitC-1. AP-based projects create an open local network and serve a UI at `http://192.168.4.1`. LED projects expect the board's onboard RGB LED on GPIO 8.
+The fourteen projects in `firmware/no-hardware-lab` require only an ESP32-C6-DevKitC-1. AP-based projects create an open local network and serve a UI at `http://192.168.4.1`. LED projects expect the board's onboard RGB LED on GPIO 8. See [`docs/internet-inspiration.md`](docs/internet-inspiration.md) for the official examples and libraries surveyed for this collection.
 
 ## Firmware portal
 
@@ -32,7 +38,7 @@ Published portal: <https://trip1.github.io/esp32-projects/>
 ```text
 projects.json                     Build and public catalog source of truth
 firmware/ble-mqtt-scanner/        BLE/MQTT scanner project
-firmware/no-hardware-lab/         Eight hardware-free build environments
+firmware/no-hardware-lab/         Fourteen hardware-free build environments
 web/                              Static installer source
 scripts/                          Manifest and site assembly tools
 tests/                            Portal packaging tests

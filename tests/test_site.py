@@ -15,6 +15,12 @@ EXPECTED_NEW_PROJECTS = {
     "pomodoro-light",
     "morse-beacon",
     "ble-alias-shuffler",
+    "littlefs-dropbox",
+    "local-chat-room",
+    "ble-uart-console",
+    "boot-counter",
+    "cpu-benchmark",
+    "ibeacon-lab",
 }
 
 
@@ -22,11 +28,11 @@ class FirmwarePortalTests(unittest.TestCase):
     def load_catalog(self):
         return json.loads((ROOT / "projects.json").read_text())
 
-    def test_catalog_contains_eight_new_hardware_free_projects(self):
+    def test_catalog_contains_fourteen_board_only_projects(self):
         catalog = self.load_catalog()
         slugs = {project["slug"] for project in catalog}
         self.assertEqual(EXPECTED_NEW_PROJECTS, slugs - {"ble-mqtt-scanner"})
-        self.assertEqual(9, len(catalog))
+        self.assertEqual(15, len(catalog))
         for project in catalog:
             self.assertEqual("ESP32-C6", project["chip"])
             self.assertTrue(project["installable"])
@@ -35,6 +41,21 @@ class FirmwarePortalTests(unittest.TestCase):
     def test_catalog_has_practical_and_fun_projects(self):
         categories = {project["category"] for project in self.load_catalog()}
         self.assertEqual({"Practical", "Fun"}, categories)
+
+    def test_reboot_museum_clears_nvs_with_checked_clear(self):
+        source = (ROOT / "firmware" / "no-hardware-lab" / "src" / "apps" / "boot-counter.cpp").read_text()
+        clear_handler = source.split("void clearHistory()", 1)[1].split("}\n", 1)[0]
+        self.assertIn("preferences.clear()", clear_handler)
+        self.assertIn("if (!persistence_ready || !preferences.clear())", clear_handler)
+
+    def test_file_drop_blocks_all_file_operations_when_unavailable(self):
+        source = (ROOT / "firmware" / "no-hardware-lab" / "src" / "apps" / "littlefs-dropbox.cpp").read_text()
+        download_handler = source.split("void downloadFile()", 1)[1].split("}\n", 1)[0]
+        delete_handler = source.split("void deleteFile()", 1)[1].split("}\n", 1)[0]
+        mount_handler = source.split("void mountFilesystem()", 1)[1].split("}  // namespace", 1)[0]
+        self.assertIn("if (!filesystem_ready)", download_handler)
+        self.assertIn("if (!filesystem_ready)", delete_handler)
+        self.assertIn("LittleFS.end()", mount_handler)
 
     def test_portal_renders_catalog_and_selected_manifest(self):
         html = (ROOT / "web" / "index.html").read_text()
