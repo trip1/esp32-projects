@@ -8,6 +8,7 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import NoReturn
+from urllib.parse import parse_qs, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 PRIVATE_CATALOG_FIELDS = {"project_dir"}
@@ -35,6 +36,68 @@ def is_within(path: Path, root: Path) -> bool:
         return True
     except ValueError:
         return False
+
+
+def has_symlink_component(path: Path, root: Path) -> bool:
+    """Return true when path or any descendant component below root is a symlink."""
+    current = path
+    while current != root:
+        if current.is_symlink():
+            return True
+        if current.parent == current:
+            return True
+        current = current.parent
+    return root.is_symlink()
+
+
+def is_allowed_amazon_search(value: str) -> bool:
+    try:
+        parsed = urlsplit(value)
+        parameters = parse_qs(parsed.query, keep_blank_values=True, strict_parsing=True)
+        if parsed.port not in (None, 443):
+            return False
+    except (TypeError, ValueError):
+        return False
+    return (
+        parsed.scheme == "https"
+        and parsed.hostname == "www.amazon.com"
+        and parsed.username is None
+        and parsed.password is None
+        and parsed.path == "/s"
+        and not parsed.fragment
+        and set(parameters) == {"k"}
+        and len(parameters["k"]) == 1
+        and bool(parameters["k"][0].strip())
+    )
+
+
+def validate_firmware_artifact(image: Path, build: Path, project_dir: Path | None = None) -> None:
+    containment_root = project_dir or build
+    if has_symlink_component(image, containment_root):
+        fail(f"firmware artifact cannot contain a symlink: {image}")
+    resolved_project = containment_root.resolve()
+    resolved_build = build.resolve()
+    resolved_image = image.resolve()
+    if (
+        not is_within(resolved_build, resolved_project)
+        or not is_within(resolved_image, resolved_build)
+        or not image.is_file()
+        or image.stat().st_size == 0
+    ):
+        fail(f"required firmware artifact missing, empty, or outside build directory: {image}")
+
+
+def validate_static_web_tree(web: Path, catalog_root: Path) -> None:
+    if has_symlink_component(web, catalog_root):
+        fail(f"static web root cannot contain a symlink: {web}")
+    resolved_web = web.resolve()
+    if not web.is_dir() or not is_within(resolved_web, catalog_root.resolve()):
+        fail(f"static web root is invalid: {web}")
+    for entry in web.rglob("*"):
+        if entry.is_symlink():
+            fail(f"static web assets cannot contain symlinks: {entry}")
+        if not (entry.is_file() or entry.is_dir()) or not is_within(entry.resolve(), resolved_web):
+            fail(f"static web asset is invalid: {entry}")
 
 
 def validate_catalog(projects: object, catalog_root: Path) -> list[dict]:
@@ -111,6 +174,51 @@ def validate_catalog(projects: object, catalog_root: Path) -> list[dict]:
         hardware_is_external = project["hardware"] != "Board only"
         if project["extra_hardware"] != hardware_is_external:
             fail(f"hardware metadata contradicts extra_hardware for {slug}")
+        parts = project.get("parts")
+        if project["extra_hardware"]:
+            if not isinstance(parts, list) or not parts:
+                fail(f"extra-hardware project must declare parts for {slug}")
+            for part in parts:
+                if not isinstance(part, dict) or set(part) != {"quantity", "name", "specification", "required", "url"}:
+                    fail(f"part metadata is invalid for {slug}")
+                if not isinstance(part["quantity"], int) or isinstance(part["quantity"], bool) or part["quantity"] < 1:
+                    fail(f"part quantity is invalid for {slug}")
+                if not all(isinstance(part[field], str) and part[field].strip() for field in ("name", "specification", "url")):
+                    fail(f"part values are invalid for {slug}")
+                if not isinstance(part["required"], bool):
+                    fail(f"part required flag is invalid for {slug}")
+                if not is_allowed_amazon_search(part["url"]):
+                    fail(f"part URL must use an Amazon HTTPS search for {slug}")
+            wiring_root_path = catalog_root / "web" / "wiring"
+            wiring_root = wiring_root_path.resolve()
+            for target in validated_targets:
+                wiring = target.get("wiring")
+                if not isinstance(wiring, dict) or set(wiring) != {"diagram", "connections", "warnings"}:
+                    fail(f"target wiring metadata is invalid for {slug}: {target['id']}")
+                diagram_value = wiring["diagram"]
+                if not isinstance(diagram_value, str) or not diagram_value.startswith("./wiring/") or not diagram_value.endswith(".svg"):
+                    fail(f"target wiring diagram is invalid for {slug}: {target['id']}")
+                connections = wiring["connections"]
+                if not isinstance(connections, list) or not connections:
+                    fail(f"target wiring connections are invalid for {slug}: {target['id']}")
+                for connection in connections:
+                    if not isinstance(connection, dict) or set(connection) != {"from", "to", "wire"}:
+                        fail(f"target wiring connection is invalid for {slug}: {target['id']}")
+                    if not all(isinstance(value, str) and value.strip() for value in connection.values()):
+                        fail(f"target wiring connection values are invalid for {slug}: {target['id']}")
+                warnings = wiring["warnings"]
+                if not isinstance(warnings, list) or not warnings or not all(
+                    isinstance(warning, str) and warning.strip() for warning in warnings
+                ):
+                    fail(f"target wiring warnings are invalid for {slug}: {target['id']}")
+                diagram_path = catalog_root / "web" / diagram_value.removeprefix("./")
+                if has_symlink_component(diagram_path, catalog_root):
+                    fail(f"target wiring asset cannot contain a symlink for {slug}: {target['id']}")
+                diagram = diagram_path.resolve()
+                if not is_within(diagram, wiring_root) or not diagram.is_file():
+                    fail(f"target wiring asset is invalid for {slug}: {target['id']}")
+        elif parts not in (None, []):
+            fail(f"board-only project cannot declare external parts for {slug}")
         setup = project.get("setup")
         if not isinstance(setup, dict) or not isinstance(setup.get("required"), bool):
             fail(f"setup metadata is invalid for {slug}")
@@ -128,10 +236,11 @@ def validate_catalog(projects: object, catalog_root: Path) -> list[dict]:
 
 
 def validate_output(output: Path, catalog_root: Path, catalog_path: Path, project_dirs: list[Path]) -> Path:
-    if output.is_symlink():
-        fail("output directory cannot be a symlink")
-    resolved = output.resolve()
-    if output.name not in {"_site", "site"}:
+    candidate = output.absolute()
+    if has_symlink_component(candidate, catalog_root):
+        fail("output directory cannot contain a symlink component")
+    resolved = candidate.resolve()
+    if candidate.name not in {"_site", "site"}:
         fail("output directory must be named _site or site")
     if resolved == catalog_root or not is_within(resolved, catalog_root):
         fail("output directory must be a child of the catalog root")
@@ -205,9 +314,11 @@ def main() -> None:
     )
     verify_environment_boards(projects)
 
+    web_source = catalog_root / "web"
+    validate_static_web_tree(web_source, catalog_root)
     if output.exists():
         shutil.rmtree(output)
-    shutil.copytree(ROOT / "web", output)
+    shutil.copytree(web_source, output)
 
     public_catalog = []
     for project in projects:
@@ -222,8 +333,7 @@ def main() -> None:
             factory_image = build / "firmware.factory.bin"
             ota_image = build / "firmware.bin"
             for image in (factory_image, ota_image):
-                if not image.is_file() or image.stat().st_size == 0:
-                    fail(f"required firmware artifact missing or empty: {image}")
+                validate_firmware_artifact(image, build, project["_resolved_project_dir"])
 
             release = output / "firmware" / slug / target["id"]
             release.mkdir(parents=True)

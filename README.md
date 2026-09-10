@@ -31,6 +31,8 @@ A public monorepo of browser-flashable firmware for ESP32 DevKit V1, ESP32-C3-De
 
 The catalog contains 73 board-specific firmware targets across 19 projects. Sixteen projects support all four board profiles. Pocket RGB Lamp, Pomodoro Light, and Morse Beacon support the C3, S3 v1.0, and C6 profiles because the generic ESP32 DevKit has no addressable RGB LED. Four projects require external hardware. See [`docs/board-support.md`](docs/board-support.md) for the exact board matrix, [`firmware/hardware-lab/README.md`](firmware/hardware-lab/README.md) for the new hardware wiring, and [`docs/internet-inspiration.md`](docs/internet-inspiration.md) for research sources.
 
+Every external-hardware project includes a board-specific, color-coded wiring diagram and a non-affiliate Amazon search list for the required sensor, display, breadboard, jumpers, and safety components. The diagram changes with the exact board selected in the portal.
+
 BLE Proximity Scanner, BME280 MQTT Sleep Sensor, and NTP Desk Clock require first-boot network setup. Each creates a temporary password-protected setup network; its random password is printed only over USB serial. The portal identifies required fields before flashing. All other projects work from their local/offline defaults without first-boot settings.
 
 The local-dashboard AP projects create an open local network and serve a UI at `http://192.168.4.1`; those experimental networks never request router or broker credentials. Do not enter or store sensitive information on them.
@@ -51,6 +53,7 @@ firmware/bme280-mqtt-sensor/      Four-board BME280 MQTT/deep-sleep sensor
 firmware/hardware-lab/            HC-SR04, PIR, and TM1637/NTP projects
 web/                              Static installer source
 scripts/                          Manifest and site assembly tools
+web/wiring/                       Generated board-specific SVG wiring diagrams
 tests/                            Portal packaging tests
 .github/workflows/pages.yml       Firmware CI and Pages deployment
 ```

@@ -727,25 +727,145 @@
         "id": "esp32-devkit-v1",
         "name": "ESP32 DevKit V1",
         "chip": "ESP32",
-        "environment": "sensor--esp32"
+        "environment": "sensor--esp32",
+        "wiring": {
+          "diagram": "./wiring/bme280-mqtt-sensor/esp32-devkit-v1.svg",
+          "connections": [
+            {
+              "from": "BME280 VIN",
+              "to": "3V3",
+              "wire": "red"
+            },
+            {
+              "from": "BME280 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "BME280 SDA",
+              "to": "GPIO21",
+              "wire": "green"
+            },
+            {
+              "from": "BME280 SCL",
+              "to": "GPIO22",
+              "wire": "yellow"
+            }
+          ],
+          "warnings": [
+            "Use 3.3 V power; confirm the breakout includes I²C pull-ups.",
+            "Wiring and sensor behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        }
       },
       {
         "id": "esp32-c3-devkitm-1",
         "name": "ESP32-C3-DevKitM-1",
         "chip": "ESP32-C3",
-        "environment": "sensor--esp32-c3"
+        "environment": "sensor--esp32-c3",
+        "wiring": {
+          "diagram": "./wiring/bme280-mqtt-sensor/esp32-c3-devkitm-1.svg",
+          "connections": [
+            {
+              "from": "BME280 VIN",
+              "to": "3V3",
+              "wire": "red"
+            },
+            {
+              "from": "BME280 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "BME280 SDA",
+              "to": "GPIO4",
+              "wire": "green"
+            },
+            {
+              "from": "BME280 SCL",
+              "to": "GPIO5",
+              "wire": "yellow"
+            }
+          ],
+          "warnings": [
+            "Use 3.3 V power; confirm the breakout includes I²C pull-ups.",
+            "Wiring and sensor behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        }
       },
       {
         "id": "esp32-s3-devkitc-1",
         "name": "ESP32-S3-DevKitC-1 v1.0",
         "chip": "ESP32-S3",
-        "environment": "sensor--esp32-s3"
+        "environment": "sensor--esp32-s3",
+        "wiring": {
+          "diagram": "./wiring/bme280-mqtt-sensor/esp32-s3-devkitc-1.svg",
+          "connections": [
+            {
+              "from": "BME280 VIN",
+              "to": "3V3",
+              "wire": "red"
+            },
+            {
+              "from": "BME280 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "BME280 SDA",
+              "to": "GPIO8",
+              "wire": "green"
+            },
+            {
+              "from": "BME280 SCL",
+              "to": "GPIO9",
+              "wire": "yellow"
+            }
+          ],
+          "warnings": [
+            "Use 3.3 V power; confirm the breakout includes I²C pull-ups.",
+            "Wiring and sensor behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        }
       },
       {
         "id": "esp32-c6-devkitc-1",
         "name": "ESP32-C6-DevKitC-1",
         "chip": "ESP32-C6",
-        "environment": "sensor--esp32-c6"
+        "environment": "sensor--esp32-c6",
+        "wiring": {
+          "diagram": "./wiring/bme280-mqtt-sensor/esp32-c6-devkitc-1.svg",
+          "connections": [
+            {
+              "from": "BME280 VIN",
+              "to": "3V3",
+              "wire": "red"
+            },
+            {
+              "from": "BME280 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "BME280 SDA",
+              "to": "GPIO6",
+              "wire": "green"
+            },
+            {
+              "from": "BME280 SCL",
+              "to": "GPIO7",
+              "wire": "yellow"
+            }
+          ],
+          "warnings": [
+            "Use 3.3 V power; confirm the breakout includes I²C pull-ups.",
+            "Wiring and sensor behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        }
       }
     ],
     "setup": {
@@ -758,7 +878,30 @@
         "Wake interval"
       ],
       "summary": "On first boot, join the password-protected setup network using the password shown in the serial console, then enter Wi-Fi, MQTT, and wake settings."
-    }
+    },
+    "parts": [
+      {
+        "quantity": 1,
+        "name": "BME280 I²C breakout",
+        "specification": "3.3 V-compatible breakout with installed 2.54 mm male header and onboard I²C pull-ups; address 0x76 or 0x77",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=BME280+3.3V+I2C+sensor+module"
+      },
+      {
+        "quantity": 1,
+        "name": "Female-to-female jumper-wire set",
+        "specification": "2.54 mm Dupont socket jumpers; at least four conductors",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=female+to+female+dupont+jumper+wires"
+      },
+      {
+        "quantity": 1,
+        "name": "Solderless breadboard",
+        "specification": "Half-size or larger",
+        "required": false,
+        "url": "https://www.amazon.com/s?k=solderless+breadboard+electronics"
+      }
+    ]
   },
   {
     "slug": "hc-sr04-parking",
@@ -786,25 +929,175 @@
         "id": "esp32-devkit-v1",
         "name": "ESP32 DevKit V1",
         "chip": "ESP32",
-        "environment": "hc-sr04-parking--esp32"
+        "environment": "hc-sr04-parking--esp32",
+        "wiring": {
+          "diagram": "./wiring/hc-sr04-parking/esp32-devkit-v1.svg",
+          "connections": [
+            {
+              "from": "HC-SR04 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "HC-SR04 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "HC-SR04 TRIG",
+              "to": "GPIO25",
+              "wire": "blue"
+            },
+            {
+              "from": "HC-SR04 ECHO",
+              "to": "GPIO26 through 1 kΩ/2 kΩ divider",
+              "wire": "purple"
+            }
+          ],
+          "warnings": [
+            "Never connect the 5 V Echo output directly to an ESP32 GPIO; use the shown 1 kΩ series and 2 kΩ-to-GND divider.",
+            "Wiring and distance behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        }
       },
       {
         "id": "esp32-c3-devkitm-1",
         "name": "ESP32-C3-DevKitM-1",
         "chip": "ESP32-C3",
-        "environment": "hc-sr04-parking--esp32-c3"
+        "environment": "hc-sr04-parking--esp32-c3",
+        "wiring": {
+          "diagram": "./wiring/hc-sr04-parking/esp32-c3-devkitm-1.svg",
+          "connections": [
+            {
+              "from": "HC-SR04 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "HC-SR04 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "HC-SR04 TRIG",
+              "to": "GPIO4",
+              "wire": "blue"
+            },
+            {
+              "from": "HC-SR04 ECHO",
+              "to": "GPIO5 through 1 kΩ/2 kΩ divider",
+              "wire": "purple"
+            }
+          ],
+          "warnings": [
+            "Never connect the 5 V Echo output directly to an ESP32 GPIO; use the shown 1 kΩ series and 2 kΩ-to-GND divider.",
+            "Wiring and distance behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        }
       },
       {
         "id": "esp32-s3-devkitc-1",
         "name": "ESP32-S3-DevKitC-1 v1.0",
         "chip": "ESP32-S3",
-        "environment": "hc-sr04-parking--esp32-s3"
+        "environment": "hc-sr04-parking--esp32-s3",
+        "wiring": {
+          "diagram": "./wiring/hc-sr04-parking/esp32-s3-devkitc-1.svg",
+          "connections": [
+            {
+              "from": "HC-SR04 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "HC-SR04 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "HC-SR04 TRIG",
+              "to": "GPIO4",
+              "wire": "blue"
+            },
+            {
+              "from": "HC-SR04 ECHO",
+              "to": "GPIO5 through 1 kΩ/2 kΩ divider",
+              "wire": "purple"
+            }
+          ],
+          "warnings": [
+            "Never connect the 5 V Echo output directly to an ESP32 GPIO; use the shown 1 kΩ series and 2 kΩ-to-GND divider.",
+            "Wiring and distance behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        }
       },
       {
         "id": "esp32-c6-devkitc-1",
         "name": "ESP32-C6-DevKitC-1",
         "chip": "ESP32-C6",
-        "environment": "hc-sr04-parking--esp32-c6"
+        "environment": "hc-sr04-parking--esp32-c6",
+        "wiring": {
+          "diagram": "./wiring/hc-sr04-parking/esp32-c6-devkitc-1.svg",
+          "connections": [
+            {
+              "from": "HC-SR04 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "HC-SR04 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "HC-SR04 TRIG",
+              "to": "GPIO6",
+              "wire": "blue"
+            },
+            {
+              "from": "HC-SR04 ECHO",
+              "to": "GPIO7 through 1 kΩ/2 kΩ divider",
+              "wire": "purple"
+            }
+          ],
+          "warnings": [
+            "Never connect the 5 V Echo output directly to an ESP32 GPIO; use the shown 1 kΩ series and 2 kΩ-to-GND divider.",
+            "Wiring and distance behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        }
+      }
+    ],
+    "parts": [
+      {
+        "quantity": 1,
+        "name": "HC-SR04 ultrasonic sensor",
+        "specification": "5 V module with TRIG and ECHO pins",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=HC-SR04+ultrasonic+distance+sensor"
+      },
+      {
+        "quantity": 1,
+        "name": "1 kΩ and 2 kΩ resistor assortment",
+        "specification": "One 1 kΩ and one 2 kΩ resistor, 1/4 W or greater, for the Echo divider",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=resistor+kit+1k+2k+ohm"
+      },
+      {
+        "quantity": 1,
+        "name": "Female-to-male jumper-wire set",
+        "specification": "2.54 mm Dupont jumpers; at least four conductors",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=female+to+male+dupont+jumper+wires"
+      },
+      {
+        "quantity": 1,
+        "name": "Solderless breadboard",
+        "specification": "Half-size or larger for the voltage divider",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=solderless+breadboard+electronics"
       }
     ]
   },
@@ -834,25 +1127,148 @@
         "id": "esp32-devkit-v1",
         "name": "ESP32 DevKit V1",
         "chip": "ESP32",
-        "environment": "pir-occupancy--esp32"
+        "environment": "pir-occupancy--esp32",
+        "wiring": {
+          "diagram": "./wiring/pir-occupancy-timer/esp32-devkit-v1.svg",
+          "connections": [
+            {
+              "from": "AM312 VCC",
+              "to": "3V3",
+              "wire": "red"
+            },
+            {
+              "from": "AM312 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "AM312 OUT",
+              "to": "GPIO27",
+              "wire": "orange"
+            }
+          ],
+          "warnings": [
+            "Use an AM312 or another PIR module with a 3.3 V-safe output; verify the module pin order.",
+            "Wiring and motion behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        }
       },
       {
         "id": "esp32-c3-devkitm-1",
         "name": "ESP32-C3-DevKitM-1",
         "chip": "ESP32-C3",
-        "environment": "pir-occupancy--esp32-c3"
+        "environment": "pir-occupancy--esp32-c3",
+        "wiring": {
+          "diagram": "./wiring/pir-occupancy-timer/esp32-c3-devkitm-1.svg",
+          "connections": [
+            {
+              "from": "AM312 VCC",
+              "to": "3V3",
+              "wire": "red"
+            },
+            {
+              "from": "AM312 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "AM312 OUT",
+              "to": "GPIO4",
+              "wire": "orange"
+            }
+          ],
+          "warnings": [
+            "Use an AM312 or another PIR module with a 3.3 V-safe output; verify the module pin order.",
+            "Wiring and motion behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        }
       },
       {
         "id": "esp32-s3-devkitc-1",
         "name": "ESP32-S3-DevKitC-1 v1.0",
         "chip": "ESP32-S3",
-        "environment": "pir-occupancy--esp32-s3"
+        "environment": "pir-occupancy--esp32-s3",
+        "wiring": {
+          "diagram": "./wiring/pir-occupancy-timer/esp32-s3-devkitc-1.svg",
+          "connections": [
+            {
+              "from": "AM312 VCC",
+              "to": "3V3",
+              "wire": "red"
+            },
+            {
+              "from": "AM312 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "AM312 OUT",
+              "to": "GPIO4",
+              "wire": "orange"
+            }
+          ],
+          "warnings": [
+            "Use an AM312 or another PIR module with a 3.3 V-safe output; verify the module pin order.",
+            "Wiring and motion behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        }
       },
       {
         "id": "esp32-c6-devkitc-1",
         "name": "ESP32-C6-DevKitC-1",
         "chip": "ESP32-C6",
-        "environment": "pir-occupancy--esp32-c6"
+        "environment": "pir-occupancy--esp32-c6",
+        "wiring": {
+          "diagram": "./wiring/pir-occupancy-timer/esp32-c6-devkitc-1.svg",
+          "connections": [
+            {
+              "from": "AM312 VCC",
+              "to": "3V3",
+              "wire": "red"
+            },
+            {
+              "from": "AM312 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "AM312 OUT",
+              "to": "GPIO6",
+              "wire": "orange"
+            }
+          ],
+          "warnings": [
+            "Use an AM312 or another PIR module with a 3.3 V-safe output; verify the module pin order.",
+            "Wiring and motion behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        }
+      }
+    ],
+    "parts": [
+      {
+        "quantity": 1,
+        "name": "AM312 mini PIR sensor",
+        "specification": "3.3 V supply and 3.3 V-safe OUT signal",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=AM312+mini+PIR+motion+sensor"
+      },
+      {
+        "quantity": 1,
+        "name": "Female-to-female jumper-wire set",
+        "specification": "2.54 mm Dupont jumpers; at least three conductors",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=female+to+female+dupont+jumper+wires"
+      },
+      {
+        "quantity": 1,
+        "name": "Solderless breadboard",
+        "specification": "Half-size or larger",
+        "required": false,
+        "url": "https://www.amazon.com/s?k=solderless+breadboard+electronics"
       }
     ]
   },
@@ -885,25 +1301,168 @@
         "id": "esp32-devkit-v1",
         "name": "ESP32 DevKit V1",
         "chip": "ESP32",
-        "environment": "ntp-desk-clock--esp32"
+        "environment": "ntp-desk-clock--esp32",
+        "wiring": {
+          "diagram": "./wiring/ntp-desk-clock/esp32-devkit-v1.svg",
+          "connections": [
+            {
+              "from": "TM1637 VCC",
+              "to": "3V3",
+              "wire": "red"
+            },
+            {
+              "from": "TM1637 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "TM1637 CLK",
+              "to": "GPIO18",
+              "wire": "yellow"
+            },
+            {
+              "from": "TM1637 DIO",
+              "to": "GPIO19",
+              "wire": "green"
+            }
+          ],
+          "warnings": [
+            "Power the TM1637 module from 3.3 V so CLK/DIO pull-ups do not exceed ESP32 GPIO voltage.",
+            "Wiring and display behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        }
       },
       {
         "id": "esp32-c3-devkitm-1",
         "name": "ESP32-C3-DevKitM-1",
         "chip": "ESP32-C3",
-        "environment": "ntp-desk-clock--esp32-c3"
+        "environment": "ntp-desk-clock--esp32-c3",
+        "wiring": {
+          "diagram": "./wiring/ntp-desk-clock/esp32-c3-devkitm-1.svg",
+          "connections": [
+            {
+              "from": "TM1637 VCC",
+              "to": "3V3",
+              "wire": "red"
+            },
+            {
+              "from": "TM1637 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "TM1637 CLK",
+              "to": "GPIO4",
+              "wire": "yellow"
+            },
+            {
+              "from": "TM1637 DIO",
+              "to": "GPIO5",
+              "wire": "green"
+            }
+          ],
+          "warnings": [
+            "Power the TM1637 module from 3.3 V so CLK/DIO pull-ups do not exceed ESP32 GPIO voltage.",
+            "Wiring and display behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        }
       },
       {
         "id": "esp32-s3-devkitc-1",
         "name": "ESP32-S3-DevKitC-1 v1.0",
         "chip": "ESP32-S3",
-        "environment": "ntp-desk-clock--esp32-s3"
+        "environment": "ntp-desk-clock--esp32-s3",
+        "wiring": {
+          "diagram": "./wiring/ntp-desk-clock/esp32-s3-devkitc-1.svg",
+          "connections": [
+            {
+              "from": "TM1637 VCC",
+              "to": "3V3",
+              "wire": "red"
+            },
+            {
+              "from": "TM1637 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "TM1637 CLK",
+              "to": "GPIO4",
+              "wire": "yellow"
+            },
+            {
+              "from": "TM1637 DIO",
+              "to": "GPIO5",
+              "wire": "green"
+            }
+          ],
+          "warnings": [
+            "Power the TM1637 module from 3.3 V so CLK/DIO pull-ups do not exceed ESP32 GPIO voltage.",
+            "Wiring and display behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        }
       },
       {
         "id": "esp32-c6-devkitc-1",
         "name": "ESP32-C6-DevKitC-1",
         "chip": "ESP32-C6",
-        "environment": "ntp-desk-clock--esp32-c6"
+        "environment": "ntp-desk-clock--esp32-c6",
+        "wiring": {
+          "diagram": "./wiring/ntp-desk-clock/esp32-c6-devkitc-1.svg",
+          "connections": [
+            {
+              "from": "TM1637 VCC",
+              "to": "3V3",
+              "wire": "red"
+            },
+            {
+              "from": "TM1637 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "TM1637 CLK",
+              "to": "GPIO6",
+              "wire": "yellow"
+            },
+            {
+              "from": "TM1637 DIO",
+              "to": "GPIO7",
+              "wire": "green"
+            }
+          ],
+          "warnings": [
+            "Power the TM1637 module from 3.3 V so CLK/DIO pull-ups do not exceed ESP32 GPIO voltage.",
+            "Wiring and display behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        }
+      }
+    ],
+    "parts": [
+      {
+        "quantity": 1,
+        "name": "TM1637 four-digit display",
+        "specification": "Four-pin module with installed 2.54 mm male header, confirmed to operate from 3.3 V",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=TM1637+4+digit+7+segment+display+module+3.3V"
+      },
+      {
+        "quantity": 1,
+        "name": "Female-to-female jumper-wire set",
+        "specification": "2.54 mm Dupont socket jumpers; at least four conductors",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=female+to+female+dupont+jumper+wires"
+      },
+      {
+        "quantity": 1,
+        "name": "Solderless breadboard",
+        "specification": "Half-size or larger",
+        "required": false,
+        "url": "https://www.amazon.com/s?k=solderless+breadboard+electronics"
       }
     ]
   }

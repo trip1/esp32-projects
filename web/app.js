@@ -42,6 +42,53 @@ function selectProject(project) {
   document.querySelector("#selected-version").textContent = project.version;
   document.querySelector("#selected-hardware").textContent = project.hardware;
   document.querySelector("#selected-setup").textContent = project.setup.summary;
+  const hardwareGuide = document.querySelector("#hardware-guide");
+  const wiring = document.querySelector("#selected-wiring");
+  const connections = document.querySelector("#selected-connections");
+  const warnings = document.querySelector("#selected-warnings");
+  const parts = document.querySelector("#selected-parts");
+  if (project.extra_hardware && selectedTarget.wiring && project.parts.length > 0) {
+    hardwareGuide.hidden = false;
+    wiring.src = selectedTarget.wiring.diagram;
+    wiring.alt = `${project.name} wiring diagram for ${selectedTarget.name}`;
+    connections.replaceChildren(...selectedTarget.wiring.connections.map((connection) => {
+      const row = document.createElement("tr");
+      [connection.from, connection.to, connection.wire].forEach((value) => {
+        const cell = document.createElement("td");
+        cell.textContent = value;
+        row.append(cell);
+      });
+      return row;
+    }));
+    warnings.replaceChildren(...selectedTarget.wiring.warnings.map((warning) => {
+      const item = document.createElement("li");
+      item.textContent = warning;
+      return item;
+    }));
+    parts.replaceChildren(...project.parts.map((part) => {
+      const item = document.createElement("li");
+      const description = document.createElement("span");
+      const name = document.createElement("strong");
+      name.textContent = `${part.quantity}× ${part.name} · ${part.required ? "Required" : "Optional"}`;
+      const specification = document.createElement("small");
+      specification.textContent = part.specification;
+      description.append(name, specification);
+      const link = document.createElement("a");
+      link.href = part.url;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = "Amazon search";
+      item.append(description, link);
+      return item;
+    }));
+  } else {
+    hardwareGuide.hidden = true;
+    wiring.removeAttribute("src");
+    wiring.alt = "";
+    connections.replaceChildren();
+    warnings.replaceChildren();
+    parts.replaceChildren();
+  }
   const features = document.querySelector("#selected-features");
   features.replaceChildren(...project.features.map((feature) => {
     const item = document.createElement("li");

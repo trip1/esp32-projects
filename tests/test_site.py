@@ -1,9 +1,13 @@
+import configparser
 import hashlib
 import json
+import re
 import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+
+from scripts import build_site
 
 ROOT = Path(__file__).resolve().parents[1]
 EXPECTED_NEW_PROJECTS = {
@@ -81,6 +85,80 @@ class FirmwarePortalTests(unittest.TestCase):
                 if project["slug"] != "ntp-desk-clock":
                     self.assertIn("MQTT", setup["fields"])
 
+    def test_extra_hardware_projects_have_parts_and_board_wiring(self):
+        diagrams = set()
+        for project in self.load_catalog():
+            if not project["extra_hardware"]:
+                self.assertNotIn("parts", project)
+                continue
+            self.assertTrue(project["parts"], project["slug"])
+            for part in project["parts"]:
+                self.assertIsInstance(part["quantity"], int)
+                self.assertGreater(part["quantity"], 0)
+                self.assertTrue(part["name"])
+                self.assertTrue(part["specification"])
+                self.assertIsInstance(part["required"], bool)
+                self.assertTrue(part["url"].startswith("https://www.amazon.com/"))
+            for target in project["targets"]:
+                wiring = target["wiring"]
+                self.assertTrue(wiring["diagram"].startswith("./wiring/"))
+                self.assertTrue(wiring["connections"])
+                for connection in wiring["connections"]:
+                    self.assertEqual({"from", "to", "wire"}, set(connection))
+                    self.assertTrue(all(connection.values()))
+                self.assertIsInstance(wiring["warnings"], list)
+                self.assertTrue(any("not yet physically verified" in warning for warning in wiring["warnings"]))
+                diagram = ROOT / "web" / wiring["diagram"].removeprefix("./")
+                self.assertTrue(diagram.is_file(), diagram)
+                self.assertGreater(diagram.stat().st_size, 1000)
+                svg = diagram.read_text()
+                for connection in wiring["connections"]:
+                    self.assertIn(connection["from"], svg)
+                    self.assertIn(connection["to"], svg)
+                for warning in wiring["warnings"]:
+                    self.assertIn(warning, svg)
+                diagrams.add(diagram)
+        self.assertEqual(16, len(diagrams))
+
+    def test_c6_external_wiring_avoids_gpio4_and_gpio5(self):
+        for project in self.load_catalog():
+            if not project["extra_hardware"]:
+                continue
+            target = next(target for target in project["targets"] if target["id"] == "esp32-c6-devkitc-1")
+            wiring_text = json.dumps(target["wiring"])
+            self.assertNotIn("GPIO4", wiring_text)
+            self.assertNotIn("GPIO5", wiring_text)
+            self.assertIn("GPIO6", wiring_text)
+
+    def test_hc_sr04_wiring_documents_voltage_divider(self):
+        project = next(project for project in self.load_catalog() if project["slug"] == "hc-sr04-parking")
+        for target in project["targets"]:
+            wiring_text = json.dumps(target["wiring"], ensure_ascii=False)
+            self.assertIn("1 kΩ", wiring_text)
+            self.assertIn("2 kΩ", wiring_text)
+            self.assertIn("5 V Echo", wiring_text)
+
+    def test_wiring_gpio_labels_match_compiled_build_flags(self):
+        macro_sets = {
+            "bme280-mqtt-sensor": ("SENSOR_SDA_PIN", "SENSOR_SCL_PIN"),
+            "hc-sr04-parking": ("TRIGGER_PIN", "ECHO_PIN"),
+            "pir-occupancy-timer": ("PIR_PIN",),
+            "ntp-desk-clock": ("CLOCK_CLK_PIN", "CLOCK_DIO_PIN"),
+        }
+        projects = {project["slug"]: project for project in self.load_catalog()}
+        for slug, macros in macro_sets.items():
+            project = projects[slug]
+            config = configparser.ConfigParser(interpolation=None)
+            config.read(ROOT / project["project_dir"] / "platformio.ini")
+            for target in project["targets"]:
+                flags = config[f"env:{target['environment']}"]["build_flags"]
+                wiring_text = json.dumps(target["wiring"], ensure_ascii=False)
+                for macro in macros:
+                    match = re.search(rf"-D\s*{macro}\s*=\s*(\d+)", flags)
+                    if match is None:
+                        self.fail(f"{slug} {target['id']} missing {macro}")
+                    self.assertIn(f"GPIO{match.group(1)}", wiring_text)
+
     def test_multiboard_scanner_preserves_c6_identity_prefix(self):
         source = (ROOT / "firmware" / "ble-mqtt-scanner" / "src" / "main.cpp").read_text()
         self.assertIn("CONFIG_IDF_TARGET_ESP32C6", source)
@@ -139,6 +217,10 @@ class FirmwarePortalTests(unittest.TestCase):
         self.assertIn('id="board-select"', html)
         self.assertIn('id="selected-hardware"', html)
         self.assertIn('id="selected-setup"', html)
+        self.assertIn('id="selected-wiring"', html)
+        self.assertIn('id="selected-connections"', html)
+        self.assertIn('id="selected-warnings"', html)
+        self.assertIn('id="selected-parts"', html)
         self.assertIn('class="filters" role="group"', html)
         self.assertIn("esp-web-install-button", html)
         self.assertIn('slot="activate"', html)
@@ -147,9 +229,86 @@ class FirmwarePortalTests(unittest.TestCase):
         self.assertIn("selectedTarget.manifest", javascript)
         self.assertIn("project.hardware", javascript)
         self.assertIn("project.setup.summary", javascript)
+        self.assertIn("selectedTarget.wiring.diagram", javascript)
+        self.assertIn("selectedTarget.wiring.connections", javascript)
+        self.assertIn("selectedTarget.wiring.warnings", javascript)
+        self.assertIn("project.parts", javascript)
         self.assertIn('setAttribute("manifest", selectedTarget.manifest)', javascript)
         self.assertIn('setAttribute("aria-pressed"', javascript)
         self.assertNotIn('id="installer-button" manifest=', html)
+
+    def test_safety_warning_color_meets_wcag_aa(self):
+        css = (ROOT / "web" / "styles.css").read_text()
+        match = re.search(r"\.warning-list\{color:(#[0-9a-fA-F]{6})\}", css)
+        if match is None:
+            self.fail("warning-list color is missing")
+
+        def luminance(color):
+            channels = [int(color[index:index + 2], 16) / 255 for index in (1, 3, 5)]
+            linear = [value / 12.92 if value <= 0.04045 else ((value + 0.055) / 1.055) ** 2.4 for value in channels]
+            return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2]
+
+        foreground = luminance(match.group(1))
+        background = luminance("#172127")
+        contrast = (max(foreground, background) + 0.05) / (min(foreground, background) + 0.05)
+        self.assertGreaterEqual(contrast, 4.5)
+
+    def test_amazon_search_url_rejects_tracking_and_invalid_hosts(self):
+        self.assertTrue(build_site.is_allowed_amazon_search("https://www.amazon.com/s?k=BME280+sensor"))
+        self.assertFalse(build_site.is_allowed_amazon_search("https://www.amazon.com/s?k=BME280&tag=affiliate-20"))
+        self.assertFalse(build_site.is_allowed_amazon_search("https://www.amazon.com.evil.example/s?k=BME280"))
+        self.assertFalse(build_site.is_allowed_amazon_search("https://www.amazon.com/s?k="))
+
+    def test_firmware_artifact_validator_rejects_symlink(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            build = root / "build"
+            build.mkdir()
+            outside = root / "outside.bin"
+            outside.write_bytes(b"firmware")
+            image = build / "firmware.bin"
+            image.symlink_to(outside)
+            with self.assertRaises(SystemExit):
+                build_site.validate_firmware_artifact(image, build)
+
+    def test_output_validator_rejects_symlinked_ancestor(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            docs = root / "docs"
+            existing = docs / "site"
+            existing.mkdir(parents=True)
+            marker = existing / "KEEP"
+            marker.write_text("preserve")
+            (root / "alias").symlink_to(docs, target_is_directory=True)
+            catalog = root / "projects.json"
+            catalog.write_text("[]")
+            with self.assertRaises(SystemExit):
+                build_site.validate_output(root / "alias" / "site", root, catalog, [])
+            self.assertEqual("preserve", marker.read_text())
+
+    def test_static_web_tree_rejects_non_wiring_symlink(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            web = root / "web"
+            web.mkdir()
+            outside = root / "private.txt"
+            outside.write_text("not public")
+            (web / "favicon.svg").symlink_to(outside)
+            with self.assertRaises(SystemExit):
+                build_site.validate_static_web_tree(web, root)
+
+    def test_optional_breadboard_projects_include_direct_connector_path(self):
+        projects = {project["slug"]: project for project in self.load_catalog()}
+        for slug in ("bme280-mqtt-sensor", "ntp-desk-clock"):
+            required = [part for part in projects[slug]["parts"] if part["required"]]
+            self.assertTrue(any("Female-to-female" in part["name"] for part in required), slug)
+            self.assertTrue(any("male header" in part["specification"] for part in required), slug)
+
+    def test_wiring_reproducibility_gate_detects_untracked_assets(self):
+        workflow = (ROOT / ".github" / "workflows" / "pages.yml").read_text()
+        generator = (ROOT / "scripts" / "generate_wiring_diagrams.py").read_text()
+        self.assertIn("git status --porcelain -- web/wiring", workflow)
+        self.assertIn("unexpected.unlink()", generator)
 
     def test_manifest_generator_uses_factory_image_at_offset_zero(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -212,6 +371,9 @@ class FirmwarePortalTests(unittest.TestCase):
                 )
             catalog_path = temp / "projects.json"
             catalog_path.write_text(json.dumps(catalog))
+            web = temp / "web"
+            web.mkdir()
+            (web / "index.html").write_text("<!doctype html><title>Custom portal</title>")
             output = temp / "site"
 
             subprocess.run(
@@ -227,6 +389,7 @@ class FirmwarePortalTests(unittest.TestCase):
             )
 
             public_catalog = json.loads((output / "projects.json").read_text())
+            self.assertIn("Custom portal", (output / "index.html").read_text())
             self.assertEqual(["alpha", "beta"], [project["slug"] for project in public_catalog])
             self.assertNotIn("project_dir", public_catalog[0])
             self.assertNotIn("environment", public_catalog[0]["targets"][0])
@@ -450,6 +613,54 @@ class FirmwarePortalTests(unittest.TestCase):
             )
             self.assertNotEqual(0, result.returncode)
             self.assertIn("environment board does not match target", result.stderr + result.stdout)
+
+    def test_site_builder_rejects_wiring_asset_symlink(self):
+        with tempfile.TemporaryDirectory() as directory:
+            temp = Path(directory)
+            wiring_dir = temp / "web" / "wiring" / "sensor"
+            wiring_dir.mkdir(parents=True)
+            (wiring_dir / "real.svg").write_text("<svg xmlns=\"http://www.w3.org/2000/svg\"/>")
+            (wiring_dir / "esp32-c6-devkitc-1.svg").symlink_to("real.svg")
+            project = {
+                "slug": "sensor",
+                "name": "Sensor",
+                "version": "1.0.0",
+                "category": "Practical",
+                "description": "Test",
+                "hardware": "Sensor required",
+                "features": ["Test"],
+                "installable": True,
+                "extra_hardware": True,
+                "setup": {"required": False, "fields": [], "summary": "No setup."},
+                "project_dir": "firmware",
+                "parts": [{
+                    "quantity": 1,
+                    "name": "Sensor",
+                    "specification": "3.3 V",
+                    "required": True,
+                    "url": "https://www.amazon.com/s?k=sensor",
+                }],
+                "targets": [{
+                    "id": "esp32-c6-devkitc-1",
+                    "name": "C6",
+                    "chip": "ESP32-C6",
+                    "environment": "sensor",
+                    "wiring": {
+                        "diagram": "./wiring/sensor/esp32-c6-devkitc-1.svg",
+                        "connections": [{"from": "Sensor OUT", "to": "GPIO6", "wire": "green"}],
+                        "warnings": ["Not physically verified."],
+                    },
+                }],
+            }
+            catalog_path = temp / "projects.json"
+            catalog_path.write_text(json.dumps([project]))
+            result = subprocess.run(
+                ["python3", str(ROOT / "scripts" / "build_site.py"), "--catalog", str(catalog_path), "--output", str(temp / "site")],
+                capture_output=True,
+                text=True,
+            )
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("symlink", result.stderr + result.stdout)
 
     def test_site_builder_rejects_shared_artifact_source(self):
         with tempfile.TemporaryDirectory() as directory:

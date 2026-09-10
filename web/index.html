@@ -58,6 +58,22 @@
             <div><dt>Release</dt><dd id="selected-version">1.0.0</dd></div>
             <div><dt>Hardware</dt><dd id="selected-hardware">Board only</dd></div>
           </dl>
+          <section class="hardware-guide" id="hardware-guide" hidden aria-labelledby="wiring-title">
+            <h3 id="wiring-title">Wiring for this board</h3>
+            <img id="selected-wiring" alt="" loading="lazy">
+            <h3>Connections</h3>
+            <div class="connection-table-wrap">
+              <table class="connection-table">
+                <thead><tr><th scope="col">Equipment pin</th><th scope="col">Board connection</th><th scope="col">Wire</th></tr></thead>
+                <tbody id="selected-connections"></tbody>
+              </table>
+            </div>
+            <h3>Electrical notes</h3>
+            <ul class="warning-list" id="selected-warnings"></ul>
+            <h3>Parts list</h3>
+            <ul id="selected-parts"></ul>
+            <p class="privacy-note">Amazon links open product searches and are not affiliate links. Confirm voltage and pin labels before powering hardware.</p>
+          </section>
           <div class="install-action">
             <esp-web-install-button id="installer-button">
               <button class="install-button" slot="activate" type="button"><span>Install selected firmware</span><span aria-hidden="true">→</span></button>
