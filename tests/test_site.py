@@ -22,6 +22,9 @@ EXPECTED_NEW_PROJECTS = {
     "cpu-benchmark",
     "ibeacon-lab",
     "bme280-mqtt-sensor",
+    "hc-sr04-parking",
+    "pir-occupancy-timer",
+    "ntp-desk-clock",
 }
 EXPECTED_TARGETS = {
     "esp32-devkit-v1": "ESP32",
@@ -30,20 +33,21 @@ EXPECTED_TARGETS = {
     "esp32-c6-devkitc-1": "ESP32-C6",
 }
 LED_PROJECTS = {"rgb-lamp", "pomodoro-light", "morse-beacon"}
+EXTRA_HARDWARE_PROJECTS = {"bme280-mqtt-sensor", "hc-sr04-parking", "pir-occupancy-timer", "ntp-desk-clock"}
 
 
 class FirmwarePortalTests(unittest.TestCase):
     def load_catalog(self):
         return json.loads((ROOT / "projects.json").read_text())
 
-    def test_catalog_contains_sixteen_projects(self):
+    def test_catalog_contains_nineteen_projects(self):
         catalog = self.load_catalog()
         slugs = {project["slug"] for project in catalog}
         self.assertEqual(EXPECTED_NEW_PROJECTS, slugs - {"ble-mqtt-scanner"})
-        self.assertEqual(16, len(catalog))
+        self.assertEqual(19, len(catalog))
         for project in catalog:
             self.assertTrue(project["installable"])
-            self.assertEqual(project["slug"] == "bme280-mqtt-sensor", project["extra_hardware"])
+            self.assertEqual(project["slug"] in EXTRA_HARDWARE_PROJECTS, project["extra_hardware"])
             self.assertTrue(project["hardware"])
 
     def test_catalog_targets_four_supported_boards(self):
@@ -57,17 +61,51 @@ class FirmwarePortalTests(unittest.TestCase):
             for target in project["targets"]:
                 self.assertTrue(target["name"])
                 self.assertTrue(target["environment"])
-        self.assertEqual(61, sum(len(project["targets"]) for project in catalog))
+        self.assertEqual(73, sum(len(project["targets"]) for project in catalog))
 
     def test_catalog_has_practical_and_fun_projects(self):
         categories = {project["category"] for project in self.load_catalog()}
         self.assertEqual({"Practical", "Fun"}, categories)
+
+    def test_catalog_declares_first_boot_setup_for_every_project(self):
+        catalog = self.load_catalog()
+        setup_required = {"ble-mqtt-scanner", "bme280-mqtt-sensor", "ntp-desk-clock"}
+        for project in catalog:
+            setup = project["setup"]
+            self.assertIsInstance(setup["required"], bool)
+            self.assertEqual(project["slug"] in setup_required, setup["required"])
+            self.assertTrue(setup["summary"])
+            self.assertIsInstance(setup["fields"], list)
+            if setup["required"]:
+                self.assertIn("Wi-Fi", setup["fields"])
+                if project["slug"] != "ntp-desk-clock":
+                    self.assertIn("MQTT", setup["fields"])
 
     def test_multiboard_scanner_preserves_c6_identity_prefix(self):
         source = (ROOT / "firmware" / "ble-mqtt-scanner" / "src" / "main.cpp").read_text()
         self.assertIn("CONFIG_IDF_TARGET_ESP32C6", source)
         self.assertIn('"esp32c6"', source)
         self.assertIn('"esp32"', source)
+
+    def test_scanner_does_not_retain_online_before_promotion(self):
+        source = (ROOT / "firmware" / "ble-mqtt-scanner" / "src" / "main.cpp").read_text()
+        validation = source.split("bool validatePendingConfiguration", 1)[1].split("}\n", 1)[0]
+        self.assertNotIn('mqtt.publish(status_topic, "online", true)', validation)
+        self.assertIn('mqtt.publish(status_topic, "validating", false)', validation)
+        self.assertNotIn('status_topic, 0, true, "offline"', validation)
+
+    def test_bme_pending_validation_does_not_retain_before_promotion(self):
+        source = (ROOT / "firmware" / "bme280-mqtt-sensor" / "src" / "main.cpp").read_text()
+        wake = source.split("void processConfiguredWake", 1)[1].split("}  // namespace", 1)[0]
+        self.assertIn("publishReading(reading, value, !pending)", wake)
+        self.assertLess(wake.index("promotePending(value)"), wake.index("publishReading(reading, value, true)"))
+
+    def test_ntp_clock_requires_a_fresh_sync_before_promotion(self):
+        source = (ROOT / "firmware" / "hardware-lab" / "src" / "apps" / "ntp-desk-clock.cpp").read_text()
+        validation = source.split("bool connectAndSynchronize", 1)[1].split("void showUnavailable", 1)[0]
+        self.assertIn("fresh_ntp_sync", validation)
+        self.assertIn("sntp_set_time_sync_notification_cb", source)
+        self.assertIn("std::atomic<bool> fresh_ntp_sync", source)
 
     def test_local_portal_labels_the_actual_chip(self):
         source = (ROOT / "firmware" / "no-hardware-lab" / "src" / "app_support.cpp").read_text()
@@ -100,6 +138,7 @@ class FirmwarePortalTests(unittest.TestCase):
         self.assertIn('id="project-list"', html)
         self.assertIn('id="board-select"', html)
         self.assertIn('id="selected-hardware"', html)
+        self.assertIn('id="selected-setup"', html)
         self.assertIn('class="filters" role="group"', html)
         self.assertIn("esp-web-install-button", html)
         self.assertIn('slot="activate"', html)
@@ -107,6 +146,7 @@ class FirmwarePortalTests(unittest.TestCase):
         self.assertIn('fetch("./projects.json")', javascript)
         self.assertIn("selectedTarget.manifest", javascript)
         self.assertIn("project.hardware", javascript)
+        self.assertIn("project.setup.summary", javascript)
         self.assertIn('setAttribute("manifest", selectedTarget.manifest)', javascript)
         self.assertIn('setAttribute("aria-pressed"', javascript)
         self.assertNotIn('id="installer-button" manifest=', html)
@@ -160,6 +200,7 @@ class FirmwarePortalTests(unittest.TestCase):
                         "features": ["Test"],
                         "installable": True,
                         "extra_hardware": False,
+                        "setup": {"required": False, "fields": [], "summary": "No setup."},
                         "project_dir": slug,
                         "targets": [{
                             "id": "esp32-c3-devkitm-1",
@@ -215,6 +256,7 @@ class FirmwarePortalTests(unittest.TestCase):
                     "features": ["Test"],
                     "installable": True,
                     "extra_hardware": False,
+                        "setup": {"required": False, "fields": [], "summary": "No setup."},
                     "project_dir": "firmware",
                     "targets": [{"id": "esp32-c6-devkitc-1", "name": "C6", "chip": "ESP32-C6", "environment": "escape"}],
                 }
@@ -243,6 +285,7 @@ class FirmwarePortalTests(unittest.TestCase):
                 "features": ["Test"],
                 "installable": True,
                 "extra_hardware": False,
+                        "setup": {"required": False, "fields": [], "summary": "No setup."},
                 "project_dir": "firmware",
                 "targets": [{"id": "esp32-c6-devkitc-1", "name": "C6", "chip": "ESP32-C6", "environment": "same"}],
             }
@@ -270,6 +313,7 @@ class FirmwarePortalTests(unittest.TestCase):
                 "features": ["Test"],
                 "installable": True,
                 "extra_hardware": False,
+                        "setup": {"required": False, "fields": [], "summary": "No setup."},
                 "project_dir": "firmware",
                 "targets": [{"id": "esp32-c6-devkitc-1", "name": "C6", "chip": "ESP32-C6", "environment": "same"}],
             }
@@ -296,6 +340,7 @@ class FirmwarePortalTests(unittest.TestCase):
                 "features": ["Test"],
                 "installable": True,
                 "extra_hardware": False,
+                        "setup": {"required": False, "fields": [], "summary": "No setup."},
                 "project_dir": "firmware",
                 "targets": [
                     {"id": "esp32-devkit-v1", "name": "ESP32", "chip": "ESP32", "environment": "same"},
@@ -325,6 +370,7 @@ class FirmwarePortalTests(unittest.TestCase):
                 "features": ["Test"],
                 "installable": True,
                 "extra_hardware": False,
+                        "setup": {"required": False, "fields": [], "summary": "No setup."},
                 "project_dir": "firmware",
                 "targets": [{
                     "id": "esp32-c6-devkitc-1",
@@ -356,6 +402,7 @@ class FirmwarePortalTests(unittest.TestCase):
                 "features": ["Test"],
                 "installable": True,
                 "extra_hardware": False,
+                        "setup": {"required": False, "fields": [], "summary": "No setup."},
                 "project_dir": "firmware",
                 "targets": [{"id": "esp32-c6-devkitc-1", "name": "C6", "chip": "ESP32-C6", "environment": "sensor"}],
             }
@@ -385,6 +432,7 @@ class FirmwarePortalTests(unittest.TestCase):
                 "features": ["Test"],
                 "installable": True,
                 "extra_hardware": False,
+                        "setup": {"required": False, "fields": [], "summary": "No setup."},
                 "project_dir": "firmware",
                 "targets": [{
                     "id": "esp32-c6-devkitc-1",
@@ -414,6 +462,7 @@ class FirmwarePortalTests(unittest.TestCase):
                 "features": ["Test"],
                 "installable": True,
                 "extra_hardware": False,
+                        "setup": {"required": False, "fields": [], "summary": "No setup."},
                 "project_dir": "firmware",
                 "targets": [{"id": "esp32-c6-devkitc-1", "name": "C6", "chip": "ESP32-C6", "environment": "shared"}],
             }

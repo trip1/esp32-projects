@@ -107,6 +107,10 @@ bool parseBoundedHttpHeaders(
         while (value_begin < line_end && (*value_begin == ' ' || *value_begin == '\t')) ++value_begin;
         const char* value_end = line_end;
         while (value_end > value_begin && (value_end[-1] == ' ' || value_end[-1] == '\t')) --value_end;
+        for (const char* value = value_begin; value < value_end; ++value) {
+            const unsigned char character = static_cast<unsigned char>(*value);
+            if (character < 0x20U && character != '\t') return false;
+        }
         if (equalHeaderName(cursor, colon, "transfer-encoding")) return false;
         if (equalHeaderName(cursor, colon, "content-length")) {
             if (has_content_length || value_begin == value_end) return false;
@@ -135,13 +139,17 @@ bool parseBoundedHttpRequest(
     std::size_t target_capacity,
     std::size_t& content_length,
     bool& has_content_length) {
-    if (method == nullptr || target == nullptr || method_capacity == 0U || target_capacity == 0U ||
-        !parseBoundedHttpHeaders(data, length, maximum_body_bytes, content_length, has_content_length)) return false;
-    const char* line_end = findCrlf(data, data + length);
-    if (line_end == nullptr) return false;
-    const char* first_space = static_cast<const char*>(std::memchr(data, ' ', line_end - data));
+    content_length = 0U;
+    has_content_length = false;
+    if (data == nullptr || method == nullptr || target == nullptr || method_capacity == 0U || target_capacity == 0U ||
+        length < 4U || std::memchr(data, '\0', length) != nullptr ||
+        std::memcmp(data + length - 4U, "\r\n\r\n", 4U) != 0) return false;
+    const char* end = data + length;
+    const char* request_end = findCrlf(data, end);
+    if (request_end == nullptr || !validRequestLine(data, request_end)) return false;
+    const char* first_space = static_cast<const char*>(std::memchr(data, ' ', request_end - data));
     const char* second_space = first_space == nullptr ? nullptr :
-        static_cast<const char*>(std::memchr(first_space + 1, ' ', line_end - first_space - 1));
+        static_cast<const char*>(std::memchr(first_space + 1, ' ', request_end - first_space - 1));
     if (first_space == nullptr || second_space == nullptr) return false;
     const size_t method_length = static_cast<size_t>(first_space - data);
     const size_t target_length = static_cast<size_t>(second_space - first_space - 1);
@@ -150,11 +158,57 @@ bool parseBoundedHttpRequest(
         const unsigned char character = static_cast<unsigned char>(*cursor);
         if (character <= 0x20U || character == 0x7fU) return false;
     }
-    std::memcpy(method, data, method_length);
-    method[method_length] = '\0';
-    std::memcpy(target, first_space + 1, target_length);
-    target[target_length] = '\0';
-    return true;
+    std::memcpy(method, data, method_length); method[method_length] = '\0';
+    std::memcpy(target, first_space + 1, target_length); target[target_length] = '\0';
+    const bool state_changing = std::strcmp(method, "POST") == 0;
+    bool host_seen = false; bool origin_seen = false; bool referer_seen = false;
+    const char* cursor = request_end + 2;
+    while (cursor < end) {
+        const char* line_end = findCrlf(cursor, end);
+        if (line_end == nullptr) return false;
+        if (line_end == cursor) return line_end + 2 == end && host_seen;
+        const char* colon = static_cast<const char*>(std::memchr(cursor, ':', line_end - cursor));
+        if (colon == nullptr || colon == cursor) return false;
+        for (const char* name = cursor; name < colon; ++name) {
+            const unsigned char character = static_cast<unsigned char>(*name);
+            if (!std::isalnum(character) && character != '-') return false;
+        }
+        const char* value_begin = colon + 1;
+        while (value_begin < line_end && (*value_begin == ' ' || *value_begin == '\t')) ++value_begin;
+        const char* value_end = line_end;
+        while (value_end > value_begin && (value_end[-1] == ' ' || value_end[-1] == '\t')) --value_end;
+        for (const char* value = value_begin; value < value_end; ++value) {
+            const unsigned char character = static_cast<unsigned char>(*value);
+            if (character < 0x20U && character != '\t') return false;
+        }
+        if (equalHeaderName(cursor, colon, "transfer-encoding")) return false;
+        if (equalHeaderName(cursor, colon, "host")) {
+            const std::string value(value_begin, value_end);
+            if (host_seen || (value != "192.168.4.1" && value != "192.168.4.1:80")) return false;
+            host_seen = true;
+        } else if (equalHeaderName(cursor, colon, "origin")) {
+            const std::string value(value_begin, value_end);
+            if (origin_seen || (state_changing && value != "http://192.168.4.1")) return false;
+            origin_seen = true;
+        } else if (equalHeaderName(cursor, colon, "referer")) {
+            const std::string value(value_begin, value_end);
+            if (referer_seen || (state_changing && value.rfind("http://192.168.4.1/", 0U) != 0U)) return false;
+            referer_seen = true;
+        } else if (equalHeaderName(cursor, colon, "content-length")) {
+            if (has_content_length || value_begin == value_end) return false;
+            size_t parsed = 0U;
+            for (const char* digit = value_begin; digit < value_end; ++digit) {
+                if (*digit < '0' || *digit > '9') return false;
+                const size_t next = parsed * 10U + static_cast<size_t>(*digit - '0');
+                if (next < parsed || next > maximum_body_bytes) return false;
+                parsed = next;
+            }
+            content_length = parsed;
+            has_content_length = true;
+        }
+        cursor = line_end + 2;
+    }
+    return false;
 }
 
 bool shouldProcessPending(bool pending_record_valid, bool rejected_pending_retained) {

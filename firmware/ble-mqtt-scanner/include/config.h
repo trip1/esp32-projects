@@ -1,10 +1,5 @@
 #pragma once
 
-#if __has_include("secrets.h")
-#include "secrets.h"
-#else
-#include "secrets.example.h"
-#endif
 
 #ifndef DEVICE_REGISTRY_CAPACITY
 #define DEVICE_REGISTRY_CAPACITY 256
@@ -19,7 +14,7 @@
 #endif
 
 #ifndef LOCAL_LOG_MAX_BYTES
-#define LOCAL_LOG_MAX_BYTES (512UL * 1024UL)
+#define LOCAL_LOG_MAX_BYTES (384UL * 1024UL)
 #endif
 
 #ifndef PRESENCE_ENTER_RSSI

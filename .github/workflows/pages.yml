@@ -43,12 +43,22 @@ jobs:
           firmware/bme280-mqtt-sensor/test/native/test_main.cpp
           -o /tmp/bme280-config-tests
           && /tmp/bme280-config-tests
+      - name: Test hardware lab policy
+        run: >-
+          g++ -std=c++17
+          -I firmware/hardware-lab/include
+          firmware/hardware-lab/src/hardware_logic.cpp
+          firmware/hardware-lab/test/native/test_main.cpp
+          -o /tmp/hardware-lab-tests
+          && /tmp/hardware-lab-tests
       - name: Build BLE scanner firmware
         run: pio run -d firmware/ble-mqtt-scanner
       - name: Build no-hardware firmware collection
         run: pio run -d firmware/no-hardware-lab
       - name: Build BME280 MQTT sensor firmware
         run: pio run -d firmware/bme280-mqtt-sensor
+      - name: Build hardware lab firmware
+        run: pio run -d firmware/hardware-lab
       - name: Assemble static portal
         run: python scripts/build_site.py --output _site
       - name: Upload Pages artifact

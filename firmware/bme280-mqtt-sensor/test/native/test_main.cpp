@@ -68,6 +68,8 @@ int main() {
     assert(!has_content_length);
     const std::string chunked = "POST / HTTP/1.1\r\nTransfer-Encoding: chunked\r\n\r\n";
     assert(!parseBoundedHttpHeaders(chunked.data(), chunked.size(), 1024, content_length, has_content_length));
+    const std::string control_value = "GET / HTTP/1.1\r\nX-Test: bad\nvalue\r\n\r\n";
+    assert(!parseBoundedHttpHeaders(control_value.data(), control_value.size(), 1024, content_length, has_content_length));
     std::string nul_header = "GET / HTTP/1.1\r\nHost: bad\r\n\r\n";
     nul_header[20] = '\0';
     assert(!parseBoundedHttpHeaders(nul_header.data(), nul_header.size(), 1024, content_length, has_content_length));
@@ -90,6 +92,16 @@ int main() {
     assert(!parseBoundedHttpRequest(overlong_target.data(), overlong_target.size(), 1024,
                                     method, sizeof(method), target, sizeof(target),
                                     content_length, has_content_length));
+    const std::string valid_host = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nOrigin: http://192.168.4.1\r\nContent-Length: 7\r\n\r\n";
+    assert(parseBoundedHttpRequest(valid_host.data(), valid_host.size(), 1024, method, sizeof(method), target, sizeof(target), content_length, has_content_length));
+    const std::string hostile_host = "GET / HTTP/1.1\r\nHost: attacker.example\r\n\r\n";
+    assert(!parseBoundedHttpRequest(hostile_host.data(), hostile_host.size(), 1024, method, sizeof(method), target, sizeof(target), content_length, has_content_length));
+    const std::string hostile_origin = "POST /clear HTTP/1.1\r\nHost: 192.168.4.1\r\nOrigin: http://attacker.example\r\nContent-Length: 7\r\n\r\n";
+    assert(!parseBoundedHttpRequest(hostile_origin.data(), hostile_origin.size(), 1024, method, sizeof(method), target, sizeof(target), content_length, has_content_length));
+    const std::string missing_host = "GET / HTTP/1.1\r\n\r\n";
+    assert(!parseBoundedHttpRequest(missing_host.data(), missing_host.size(), 1024, method, sizeof(method), target, sizeof(target), content_length, has_content_length));
+    const std::string duplicate_host = "GET / HTTP/1.1\r\nHost: 192.168.4.1\r\nHost: 192.168.4.1\r\n\r\n";
+    assert(!parseBoundedHttpRequest(duplicate_host.data(), duplicate_host.size(), 1024, method, sizeof(method), target, sizeof(target), content_length, has_content_length));
 
     assert(shouldProcessPending(true, false));
     assert(!shouldProcessPending(true, true));

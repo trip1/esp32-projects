@@ -16,6 +16,7 @@
 #include "config.h"
 #include "device_registry.h"
 #include "presence_tracker.h"
+#include "scanner_runtime_config.h"
 
 namespace {
 constexpr char kLogPath[] = "/sightings.jsonl";
@@ -47,6 +48,8 @@ uint32_t last_overflow_report_ms = 0;
 std::atomic<uint32_t> dropped_observations{0};
 std::atomic<bool> scan_restart_requested{false};
 bool time_configured = false;
+ScannerRuntimeConfig runtime_config{};
+bool runtime_config_ready = false;
 
 std::string bytesToHex(const std::string& bytes) {
     static constexpr char hex[] = "0123456789abcdef";
@@ -171,7 +174,7 @@ void publishPendingPresence() {
 
         char topic[192];
         const int topic_length = std::snprintf(
-            topic, sizeof(topic), "%s/%s/presence/%s", MQTT_TOPIC_PREFIX, device_id, address_token);
+            topic, sizeof(topic), "%s/%s/presence/%s", runtime_config.topic_prefix, device_id, address_token);
         if (topic_length <= 0 || static_cast<std::size_t>(topic_length) >= sizeof(topic)) {
             Serial.println("Presence topic exceeded buffer; dropped");
             continue;
@@ -204,25 +207,25 @@ void publishPendingPresence() {
 }
 
 void connectWiFi(uint32_t now_ms) {
-    if (WiFi.status() == WL_CONNECTED || WIFI_SSID[0] == '\0') return;
+    if (WiFi.status() == WL_CONNECTED || !runtime_config_ready) return;
     if (now_ms - last_wifi_attempt_ms < 10000) return;
     last_wifi_attempt_ms = now_ms;
-    Serial.printf("Connecting Wi-Fi to %s\n", WIFI_SSID);
+    Serial.printf("Connecting Wi-Fi to %s\n", runtime_config.wifi_ssid);
     WiFi.mode(WIFI_STA);
-    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+    WiFi.begin(runtime_config.wifi_ssid, runtime_config.wifi_password);
 }
 
 void connectMqtt(uint32_t now_ms) {
-    if (WiFi.status() != WL_CONNECTED || mqtt.connected() || MQTT_HOST[0] == '\0') return;
+    if (WiFi.status() != WL_CONNECTED || mqtt.connected() || !runtime_config_ready) return;
     if (now_ms - last_mqtt_attempt_ms < 5000) return;
     last_mqtt_attempt_ms = now_ms;
 
     bool connected;
-    if (MQTT_USERNAME[0] == '\0') {
+    if (runtime_config.mqtt_username[0] == '\0') {
         connected = mqtt.connect(device_id, status_topic, 0, true, "offline");
     } else {
         connected = mqtt.connect(
-            device_id, MQTT_USERNAME, MQTT_PASSWORD,
+            device_id, runtime_config.mqtt_username, runtime_config.mqtt_password,
             status_topic, 0, true, "offline");
     }
     if (connected) {
@@ -269,20 +272,76 @@ const char* identityPrefix() {
 #endif
 }
 
-void configureIdentity() {
+void configureIdentity(const ScannerRuntimeConfig& value) {
     uint8_t mac[6];
     esp_read_mac(mac, ESP_MAC_WIFI_STA);
     std::snprintf(device_id, sizeof(device_id), "%s-%02x%02x%02x%02x%02x%02x",
                   identityPrefix(), mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-    std::snprintf(event_topic, sizeof(event_topic), "%s/%s/events", MQTT_TOPIC_PREFIX, device_id);
-    std::snprintf(status_topic, sizeof(status_topic), "%s/%s/status", MQTT_TOPIC_PREFIX, device_id);
+    std::snprintf(event_topic, sizeof(event_topic), "%s/%s/events", value.topic_prefix, device_id);
+    std::snprintf(status_topic, sizeof(status_topic), "%s/%s/status", value.topic_prefix, device_id);
+}
+
+void configureMqtt(const ScannerRuntimeConfig& value) {
+    mqtt.setServer(value.mqtt_host, value.mqtt_port);
+    mqtt.setBufferSize(2048);
+    mqtt.setKeepAlive(30);
+    mqtt.setSocketTimeout(1);
+    network_client.setTimeout(1000);
+    network_client.setConnectionTimeout(1000);
+}
+
+bool validatePendingConfiguration(const ScannerRuntimeConfig& value) {
+    configureIdentity(value);
+    configureMqtt(value);
+    WiFi.persistent(false);
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(value.wifi_ssid, value.wifi_password);
+    const uint32_t started = millis();
+    while (WiFi.status() != WL_CONNECTED && static_cast<uint32_t>(millis() - started) < 15000U) delay(100);
+    if (WiFi.status() != WL_CONNECTED) return false;
+    const bool connected = value.mqtt_username[0] == '\0'
+        ? mqtt.connect(device_id)
+        : mqtt.connect(device_id, value.mqtt_username, value.mqtt_password);
+    const bool published = connected && mqtt.publish(status_topic, "validating", false);
+    if (connected) mqtt.disconnect();
+    WiFi.disconnect(true, false);
+    return published;
 }
 }  // namespace
 
 void setup() {
     Serial.begin(115200);
     delay(250);
-    configureIdentity();
+    pinMode(SETUP_BUTTON_PIN, INPUT_PULLUP);
+    runtime_config_ready = scannerLoadConfig("active", runtime_config);
+    ScannerRuntimeConfig pending{};
+    const bool pending_valid = scannerLoadConfig("pending", pending);
+    const bool pending_matches_active = pending_valid && runtime_config_ready &&
+        std::memcmp(&pending, &runtime_config, sizeof(pending)) == 0;
+    const bool pending_ready = pending_valid && !pending_matches_active && !scannerPendingSuppressed();
+    if (!pending_valid) scannerRemoveConfig("pending");
+    else if (pending_matches_active && !scannerRemoveConfig("pending")) {
+        Serial.println("Already-promoted pending record could not be removed; active configuration remains authoritative");
+    }
+    if ((runtime_config_ready || pending_ready) && scannerRecoveryRequested()) {
+        if (!scannerStartProvisioning()) ESP.restart();
+        return;
+    }
+    if (pending_ready) {
+        if (validatePendingConfiguration(pending) && scannerPromotePending(pending)) {
+            runtime_config = pending;
+            runtime_config_ready = true;
+            Serial.println("Pending Wi-Fi and MQTT settings verified and promoted");
+        } else {
+            scannerRejectPending();
+            Serial.println("Pending settings rejected; active settings preserved");
+        }
+    }
+    if (!runtime_config_ready) {
+        if (!scannerStartProvisioning()) ESP.restart();
+        return;
+    }
+    configureIdentity(runtime_config);
     Serial.printf("Starting %s\n", device_id);
 
     if (!LittleFS.begin(true)) {
@@ -295,12 +354,7 @@ void setup() {
         abort();
     }
 
-    mqtt.setServer(MQTT_HOST, MQTT_PORT);
-    mqtt.setBufferSize(2048);
-    mqtt.setKeepAlive(30);
-    mqtt.setSocketTimeout(1);
-    network_client.setTimeout(1000);
-    network_client.setConnectionTimeout(1000);
+    configureMqtt(runtime_config);
 
     NimBLEDevice::init("");
     scanner = NimBLEDevice::getScan();
@@ -313,6 +367,11 @@ void setup() {
 }
 
 void loop() {
+    if (scannerProvisioningActive()) {
+        scannerHandleProvisioning();
+        delay(2);
+        return;
+    }
     const uint32_t now_ms = millis();
     connectWiFi(now_ms);
     if (WiFi.status() == WL_CONNECTED && !time_configured) {

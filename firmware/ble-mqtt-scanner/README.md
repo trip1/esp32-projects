@@ -7,7 +7,7 @@ Continuously scans nearby **Bluetooth Low Energy** advertisements, keeps a bound
 - Active BLE scan in repeating 30-second windows.
 - Tracks up to 256 recently observed addresses.
 - Logs and publishes the first sighting, then at most once every five minutes per address.
-- Local logs rotate between `/sightings.jsonl` and `/sightings.1.jsonl` at 512 KiB each.
+- Local logs rotate between `/sightings.jsonl` and `/sightings.1.jsonl` at 384 KiB each.
 - MQTT status is retained as `online`/`offline` using a last will; queue overflows are reported in status JSON and on serial.
 - Devices stronger than `-75 dBm` enter proximity; they change to away after 90 seconds without an advertisement.
 - Presence changes missed during an MQTT outage remain pending in RAM and are published after reconnect.
@@ -17,29 +17,24 @@ Addresses can be randomized by modern BLE devices, so an address is an observed 
 
 The proximity feature works best with BLE tags and sensors that advertise stable addresses. Phones and watches may rotate addresses, stop advertising while locked, or omit a useful name, so they are not dependable identity beacons.
 
-## Configure
+## First-boot setup
 
-```bash
-cp include/secrets.example.h include/secrets.h
-```
+1. Flash the image for the exact board and open USB serial at 115200 baud.
+2. Copy the random setup password printed by the scanner.
+3. Join `BLE-Scanner-Setup-XXXXXX` with that password.
+4. Open `http://192.168.4.1` if the captive page does not appear.
+5. Enter Wi-Fi, MQTT broker, optional MQTT credentials, and topic-prefix settings.
+6. Save. The scanner stores the candidate separately, reboots, and promotes it only after both Wi-Fi and a non-retained MQTT validation publication succeed.
 
-Edit `include/secrets.h` locally:
+To reopen setup, press **RESET normally**, then hold **BOOT for two seconds during the five-second serial recovery window**. Do not hold BOOT while resetting because that can select ROM download mode instead of running the firmware.
 
-```cpp
-#define WIFI_SSID "your-network"
-#define WIFI_PASSWORD "your-password"
-#define MQTT_HOST "10.0.0.10"
-#define MQTT_PORT 1883
-#define MQTT_USERNAME ""
-#define MQTT_PASSWORD ""
-#define MQTT_TOPIC_PREFIX "esp32/ble-sightings"
-```
+The setup network uses a new random WPA2 password each session and accepts one station. State changes require a per-boot token. HTTP headers and bodies are bounded to 1 KiB each, malformed framing and duplicate/unknown form fields are rejected, and the portal rotates after ten minutes. The last verified active configuration remains available when replacement settings fail.
 
-`include/secrets.h` is ignored by Git, but credentials compiled into firmware and local LittleFS sighting logs are not encrypted at rest. Protect physical access to the board. This starter uses MQTT over the trusted LAN; use a VPN or add `WiFiClientSecure` and broker certificate validation before sending sightings over an untrusted network.
+Credentials and local LittleFS sighting logs are not encrypted at rest. Protect physical access to the board. MQTT is plain TCP for a trusted LAN; use a VPN or a future certificate-validated TLS profile before sending sightings over an untrusted network.
 
 ## MQTT topics
 
-Each board derives a stable scanner ID from its Wi-Fi station MAC:
+Each board derives a stable scanner ID from its Wi-Fi station MAC. The setup page defaults the topic prefix to `esp32/ble-sightings`:
 
 ```text
 esp32/ble-sightings/<chip-prefix>-<mac>/events

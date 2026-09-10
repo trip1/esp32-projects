@@ -2,14 +2,14 @@
   {
     "slug": "ble-mqtt-scanner",
     "name": "BLE Proximity Scanner",
-    "version": "2.0.0",
+    "version": "3.0.0",
     "category": "Practical",
     "description": "Scans nearby BLE advertisements, records bounded sighting history, and publishes sightings and retained proximity state over MQTT.",
     "features": [
       "BLE scanning",
       "MQTT",
       "LittleFS logs",
-      "Presence detection"
+      "First-boot setup portal"
     ],
     "installable": true,
     "extra_hardware": false,
@@ -40,7 +40,17 @@
         "environment": "scanner--esp32-c6"
       }
     ],
-    "hardware": "Board only"
+    "hardware": "Board only",
+    "setup": {
+      "required": true,
+      "fields": [
+        "Wi-Fi",
+        "MQTT",
+        "MQTT credentials",
+        "Topic prefix"
+      ],
+      "summary": "On first boot, join the password-protected setup network using the password shown in the serial console, then enter Wi-Fi and MQTT settings."
+    }
   },
   {
     "slug": "wifi-surveyor",
@@ -83,7 +93,12 @@
         "environment": "wifi-surveyor--esp32-c6"
       }
     ],
-    "hardware": "Board only"
+    "hardware": "Board only",
+    "setup": {
+      "required": false,
+      "fields": [],
+      "summary": "No first-boot configuration is required; this firmware starts its local or offline function after flashing."
+    }
   },
   {
     "slug": "rgb-lamp",
@@ -120,7 +135,12 @@
         "environment": "rgb-lamp--esp32-c6"
       }
     ],
-    "hardware": "Board only"
+    "hardware": "Board only",
+    "setup": {
+      "required": false,
+      "fields": [],
+      "summary": "No first-boot configuration is required; this firmware starts its local or offline function after flashing."
+    }
   },
   {
     "slug": "device-console",
@@ -163,7 +183,12 @@
         "environment": "device-console--esp32-c6"
       }
     ],
-    "hardware": "Board only"
+    "hardware": "Board only",
+    "setup": {
+      "required": false,
+      "fields": [],
+      "summary": "No first-boot configuration is required; this firmware starts its local or offline function after flashing."
+    }
   },
   {
     "slug": "ble-presence-beacon",
@@ -206,7 +231,12 @@
         "environment": "ble-presence-beacon--esp32-c6"
       }
     ],
-    "hardware": "Board only"
+    "hardware": "Board only",
+    "setup": {
+      "required": false,
+      "fields": [],
+      "summary": "No first-boot configuration is required; this firmware starts its local or offline function after flashing."
+    }
   },
   {
     "slug": "decision-oracle",
@@ -249,7 +279,12 @@
         "environment": "decision-oracle--esp32-c6"
       }
     ],
-    "hardware": "Board only"
+    "hardware": "Board only",
+    "setup": {
+      "required": false,
+      "fields": [],
+      "summary": "No first-boot configuration is required; this firmware starts its local or offline function after flashing."
+    }
   },
   {
     "slug": "pomodoro-light",
@@ -286,7 +321,12 @@
         "environment": "pomodoro-light--esp32-c6"
       }
     ],
-    "hardware": "Board only"
+    "hardware": "Board only",
+    "setup": {
+      "required": false,
+      "fields": [],
+      "summary": "No first-boot configuration is required; this firmware starts its local or offline function after flashing."
+    }
   },
   {
     "slug": "morse-beacon",
@@ -323,7 +363,12 @@
         "environment": "morse-beacon--esp32-c6"
       }
     ],
-    "hardware": "Board only"
+    "hardware": "Board only",
+    "setup": {
+      "required": false,
+      "fields": [],
+      "summary": "No first-boot configuration is required; this firmware starts its local or offline function after flashing."
+    }
   },
   {
     "slug": "ble-alias-shuffler",
@@ -366,7 +411,12 @@
         "environment": "ble-alias-shuffler--esp32-c6"
       }
     ],
-    "hardware": "Board only"
+    "hardware": "Board only",
+    "setup": {
+      "required": false,
+      "fields": [],
+      "summary": "No first-boot configuration is required; this firmware starts its local or offline function after flashing."
+    }
   },
   {
     "slug": "littlefs-dropbox",
@@ -409,7 +459,12 @@
         "environment": "littlefs-dropbox--esp32-c6"
       }
     ],
-    "hardware": "Board only"
+    "hardware": "Board only",
+    "setup": {
+      "required": false,
+      "fields": [],
+      "summary": "No first-boot configuration is required; this firmware starts its local or offline function after flashing."
+    }
   },
   {
     "slug": "local-chat-room",
@@ -452,7 +507,12 @@
         "environment": "local-chat-room--esp32-c6"
       }
     ],
-    "hardware": "Board only"
+    "hardware": "Board only",
+    "setup": {
+      "required": false,
+      "fields": [],
+      "summary": "No first-boot configuration is required; this firmware starts its local or offline function after flashing."
+    }
   },
   {
     "slug": "ble-uart-console",
@@ -495,7 +555,12 @@
         "environment": "ble-uart-console--esp32-c6"
       }
     ],
-    "hardware": "Board only"
+    "hardware": "Board only",
+    "setup": {
+      "required": false,
+      "fields": [],
+      "summary": "No first-boot configuration is required; this firmware starts its local or offline function after flashing."
+    }
   },
   {
     "slug": "boot-counter",
@@ -538,7 +603,12 @@
         "environment": "boot-counter--esp32-c6"
       }
     ],
-    "hardware": "Board only"
+    "hardware": "Board only",
+    "setup": {
+      "required": false,
+      "fields": [],
+      "summary": "No first-boot configuration is required; this firmware starts its local or offline function after flashing."
+    }
   },
   {
     "slug": "cpu-benchmark",
@@ -581,7 +651,12 @@
         "environment": "cpu-benchmark--esp32-c6"
       }
     ],
-    "hardware": "Board only"
+    "hardware": "Board only",
+    "setup": {
+      "required": false,
+      "fields": [],
+      "summary": "No first-boot configuration is required; this firmware starts its local or offline function after flashing."
+    }
   },
   {
     "slug": "ibeacon-lab",
@@ -624,7 +699,12 @@
         "environment": "ibeacon-lab--esp32-c6"
       }
     ],
-    "hardware": "Board only"
+    "hardware": "Board only",
+    "setup": {
+      "required": false,
+      "fields": [],
+      "summary": "No first-boot configuration is required; this firmware starts its local or offline function after flashing."
+    }
   },
   {
     "slug": "bme280-mqtt-sensor",
@@ -666,6 +746,164 @@
         "name": "ESP32-C6-DevKitC-1",
         "chip": "ESP32-C6",
         "environment": "sensor--esp32-c6"
+      }
+    ],
+    "setup": {
+      "required": true,
+      "fields": [
+        "Wi-Fi",
+        "MQTT",
+        "MQTT credentials",
+        "Topic prefix",
+        "Wake interval"
+      ],
+      "summary": "On first boot, join the password-protected setup network using the password shown in the serial console, then enter Wi-Fi, MQTT, and wake settings."
+    }
+  },
+  {
+    "slug": "hc-sr04-parking",
+    "name": "Ultrasonic Parking Assistant",
+    "version": "1.0.0",
+    "category": "Practical",
+    "description": "Measures filtered HC-SR04 distance and serves a live parking or tank-level gauge from a local dashboard.",
+    "features": [
+      "Bounded ultrasonic ranging",
+      "Five-sample median",
+      "Live local gauge",
+      "No router"
+    ],
+    "installable": true,
+    "extra_hardware": true,
+    "hardware": "HC-SR04 + Echo voltage divider + jumper wires",
+    "project_dir": "firmware/hardware-lab",
+    "setup": {
+      "required": false,
+      "fields": [],
+      "summary": "Join the open ESP32-Parking-Assistant network and open the local dashboard; no first-boot settings are required."
+    },
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "environment": "hc-sr04-parking--esp32"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "environment": "hc-sr04-parking--esp32-c3"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "environment": "hc-sr04-parking--esp32-s3"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "environment": "hc-sr04-parking--esp32-c6"
+      }
+    ]
+  },
+  {
+    "slug": "pir-occupancy-timer",
+    "name": "PIR Occupancy Timer",
+    "version": "1.0.0",
+    "category": "Practical",
+    "description": "Counts PIR motion events and maintains a rollover-safe occupied state for 30 seconds after the latest event.",
+    "features": [
+      "Interrupt-driven motion",
+      "30-second occupancy hold",
+      "Live event counter",
+      "No router"
+    ],
+    "installable": true,
+    "extra_hardware": true,
+    "hardware": "3.3 V-safe PIR module + three jumper wires",
+    "project_dir": "firmware/hardware-lab",
+    "setup": {
+      "required": false,
+      "fields": [],
+      "summary": "Join the open ESP32-PIR-Occupancy network and open the local dashboard; no first-boot settings are required."
+    },
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "environment": "pir-occupancy--esp32"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "environment": "pir-occupancy--esp32-c3"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "environment": "pir-occupancy--esp32-s3"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "environment": "pir-occupancy--esp32-c6"
+      }
+    ]
+  },
+  {
+    "slug": "ntp-desk-clock",
+    "name": "NTP Desk Clock",
+    "version": "1.0.0",
+    "category": "Practical",
+    "description": "Synchronizes network time, applies a POSIX timezone, and drives a four-digit TM1637 display with a blinking colon.",
+    "features": [
+      "NTP synchronization",
+      "Timezone and DST",
+      "TM1637 display",
+      "First-boot setup portal"
+    ],
+    "installable": true,
+    "extra_hardware": true,
+    "hardware": "TM1637 four-digit display + four jumper wires",
+    "project_dir": "firmware/hardware-lab",
+    "setup": {
+      "required": true,
+      "fields": [
+        "Wi-Fi",
+        "POSIX timezone"
+      ],
+      "summary": "On first boot, join the password-protected setup network using the serial password, then enter Wi-Fi and a POSIX timezone."
+    },
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "environment": "ntp-desk-clock--esp32"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "environment": "ntp-desk-clock--esp32-c3"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "environment": "ntp-desk-clock--esp32-s3"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "environment": "ntp-desk-clock--esp32-c6"
       }
     ]
   }

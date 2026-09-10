@@ -111,6 +111,17 @@ def validate_catalog(projects: object, catalog_root: Path) -> list[dict]:
         hardware_is_external = project["hardware"] != "Board only"
         if project["extra_hardware"] != hardware_is_external:
             fail(f"hardware metadata contradicts extra_hardware for {slug}")
+        setup = project.get("setup")
+        if not isinstance(setup, dict) or not isinstance(setup.get("required"), bool):
+            fail(f"setup metadata is invalid for {slug}")
+        if not isinstance(setup.get("summary"), str) or not setup["summary"].strip():
+            fail(f"setup summary must be non-empty for {slug}")
+        if not isinstance(setup.get("fields"), list) or not all(
+            isinstance(field, str) and field.strip() for field in setup["fields"]
+        ):
+            fail(f"setup fields must be a string array for {slug}")
+        if setup["required"] != bool(setup["fields"]):
+            fail(f"required setup must declare fields and optional setup must not for {slug}")
 
         validated.append({**project, "targets": validated_targets, "_resolved_project_dir": project_dir})
     return validated

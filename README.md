@@ -16,6 +16,9 @@ A public monorepo of browser-flashable firmware for ESP32 DevKit V1, ESP32-C3-De
 - **Tiny Benchmark Lab** — bounded CPU and memory performance experiments
 - **iBeacon Lab** — standards-shaped beacon payload for scanner testing
 - **BME280 MQTT Sleep Sensor** — temperature, humidity, and pressure telemetry with captive setup and configurable deep sleep
+- **Ultrasonic Parking Assistant** — filtered HC-SR04 distance with a local parking/tank gauge
+- **PIR Occupancy Timer** — interrupt-driven motion events with a rollover-safe hold timer
+- **NTP Desk Clock** — network-synchronized local time on a TM1637 four-digit display
 
 ### Fun
 
@@ -26,9 +29,11 @@ A public monorepo of browser-flashable firmware for ESP32 DevKit V1, ESP32-C3-De
 - **Pocket Chat Room** — temporary nearby WebSocket chat over the board's access point
 - **Reboot Museum** — persistent NVS boot counter with unnecessary drama
 
-The catalog contains 61 board-specific firmware targets across 16 projects. Thirteen projects support all four board profiles. Pocket RGB Lamp, Pomodoro Light, and Morse Beacon support the C3, S3 v1.0, and C6 profiles because the generic ESP32 DevKit has no addressable RGB LED. The BME280 project is the first entry that requires external hardware. See [`docs/board-support.md`](docs/board-support.md) for the exact board matrix, [`firmware/bme280-mqtt-sensor/README.md`](firmware/bme280-mqtt-sensor/README.md) for sensor wiring, and [`docs/internet-inspiration.md`](docs/internet-inspiration.md) for the examples and libraries surveyed for the original collection.
+The catalog contains 73 board-specific firmware targets across 19 projects. Sixteen projects support all four board profiles. Pocket RGB Lamp, Pomodoro Light, and Morse Beacon support the C3, S3 v1.0, and C6 profiles because the generic ESP32 DevKit has no addressable RGB LED. Four projects require external hardware. See [`docs/board-support.md`](docs/board-support.md) for the exact board matrix, [`firmware/hardware-lab/README.md`](firmware/hardware-lab/README.md) for the new hardware wiring, and [`docs/internet-inspiration.md`](docs/internet-inspiration.md) for research sources.
 
-AP-based projects create an open local network and serve a UI at `http://192.168.4.1`. Do not enter or store sensitive information on those experimental networks.
+BLE Proximity Scanner, BME280 MQTT Sleep Sensor, and NTP Desk Clock require first-boot network setup. Each creates a temporary password-protected setup network; its random password is printed only over USB serial. The portal identifies required fields before flashing. All other projects work from their local/offline defaults without first-boot settings.
+
+The local-dashboard AP projects create an open local network and serve a UI at `http://192.168.4.1`; those experimental networks never request router or broker credentials. Do not enter or store sensitive information on them.
 
 ## Firmware portal
 
@@ -43,6 +48,7 @@ projects.json                     Build and public catalog source of truth
 firmware/ble-mqtt-scanner/        BLE/MQTT scanner project
 firmware/no-hardware-lab/         Fourteen hardware-free build environments
 firmware/bme280-mqtt-sensor/      Four-board BME280 MQTT/deep-sleep sensor
+firmware/hardware-lab/            HC-SR04, PIR, and TM1637/NTP projects
 web/                              Static installer source
 scripts/                          Manifest and site assembly tools
 tests/                            Portal packaging tests

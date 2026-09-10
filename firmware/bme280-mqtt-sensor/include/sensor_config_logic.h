@@ -27,6 +27,7 @@ bool parseBoundedHttpRequest(
     std::size_t target_capacity,
     std::size_t& content_length,
     bool& has_content_length);
+
 bool shouldProcessPending(bool pending_record_valid, bool rejected_pending_retained);
 std::uint32_t sleepMinutesAfterPendingAttempt(
     bool pending,

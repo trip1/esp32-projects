@@ -344,6 +344,7 @@ bool readHttpRequest(WiFiClient& client, char* request, size_t capacity, size_t&
                 bool has_content_length = false;
                 if (!parseBoundedHttpRequest(request, header_end, kMaximumBodyBytes,
                         method, method_capacity, path, path_capacity, content_length, has_content_length)) return false;
+
             }
             if (header_end != 0U && used >= header_end + content_length) return true;
         }
@@ -401,7 +402,11 @@ void startProvisioning() {
         Serial.println("Provisioning AP failed; entering fail-safe sleep");
         return;
     }
-    dns.start(53, "*", WiFi.softAPIP());
+    if (!dns.start(53, "*", WiFi.softAPIP())) {
+        Serial.println("Provisioning DNS failed; entering fail-safe sleep");
+        WiFi.softAPdisconnect(true);
+        return;
+    }
     provisioning_server.begin();
     provisioning = true;
     provisioning_started_ms = millis();
@@ -457,7 +462,7 @@ const char* chipPrefix() {
 #endif
 }
 
-bool publishReading(const Reading& reading, const StoredConfig& value) {
+bool publishReading(const Reading& reading, const StoredConfig& value, bool retained) {
     uint8_t mac[6]{};
     esp_read_mac(mac, ESP_MAC_WIFI_STA);
     char device_id[32];
@@ -489,7 +494,7 @@ bool publishReading(const Reading& reading, const StoredConfig& value) {
     document["awake_ms"] = millis();
     char payload[512];
     const size_t length = serializeJson(document, payload, sizeof(payload));
-    const bool published = length > 0U && length < sizeof(payload) && mqtt.publish(topic, payload, true);
+    const bool published = length > 0U && length < sizeof(payload) && mqtt.publish(topic, payload, retained);
     mqtt.disconnect();
     return published;
 }
@@ -528,7 +533,7 @@ bool recoveryRequested() {
 void processConfiguredWake(const StoredConfig& value, bool pending) {
     const Reading reading = readSensor();
     const bool wifi_ready = connectWifi(value);
-    const bool published = wifi_ready && publishReading(reading, value);
+    const bool published = wifi_ready && publishReading(reading, value, !pending);
     bool promoted = !pending;
     if (pending) {
         if (published && promotePending(value)) {
@@ -536,6 +541,9 @@ void processConfiguredWake(const StoredConfig& value, bool pending) {
             active_config = value;
             active_config_ready = true;
             promoted = true;
+            if (!publishReading(reading, value, true)) {
+                Serial.println("Configuration promoted, but retained operational publication failed");
+            }
         } else {
             Serial.println("Pending configuration failed; preserving active configuration");
             rejected_pending_marker = removeRecord("pending") ? 0U : kRejectedPendingMarker;
@@ -556,10 +564,14 @@ void setup() {
     active_config_ready = loadRecord("active", active_config);
     StoredConfig pending{};
     const bool pending_record_valid = loadRecord("pending", pending);
+    const bool pending_matches_active = pending_record_valid && active_config_ready &&
+        std::memcmp(&pending, &active_config, sizeof(pending)) == 0;
     const bool pending_ready = shouldProcessPending(
-        pending_record_valid, rejected_pending_marker == kRejectedPendingMarker);
+        pending_record_valid && !pending_matches_active, rejected_pending_marker == kRejectedPendingMarker);
     if (!pending_record_valid) {
         if (removeRecord("pending")) rejected_pending_marker = 0U;
+    } else if (pending_matches_active && !removeRecord("pending")) {
+        Serial.println("Already-promoted pending record could not be removed; active configuration remains authoritative");
     }
     if ((active_config_ready || pending_ready) && recoveryRequested()) {
         startProvisioning();
