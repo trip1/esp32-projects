@@ -1,6 +1,6 @@
-# ESP32-C6 BLE → MQTT Scanner
+# ESP32 BLE → MQTT Scanner
 
-Continuously scans nearby **Bluetooth Low Energy** advertisements, keeps a bounded JSONL sighting log in LittleFS, publishes deduplicated sightings, and maintains retained MQTT proximity state. ESP32-C6 does not support Bluetooth Classic scanning.
+Continuously scans nearby **Bluetooth Low Energy** advertisements, keeps a bounded JSONL sighting log in LittleFS, publishes deduplicated sightings, and maintains retained MQTT proximity state. The firmware intentionally scans BLE only on every target.
 
 ## Default behavior
 
@@ -42,10 +42,12 @@ Edit `include/secrets.h` locally:
 Each board derives a stable scanner ID from its Wi-Fi station MAC:
 
 ```text
-esp32/ble-sightings/esp32c6-<mac>/events
-esp32/ble-sightings/esp32c6-<mac>/status
-esp32/ble-sightings/esp32c6-<mac>/presence/<address-without-colons>
+esp32/ble-sightings/<chip-prefix>-<mac>/events
+esp32/ble-sightings/<chip-prefix>-<mac>/status
+esp32/ble-sightings/<chip-prefix>-<mac>/presence/<address-without-colons>
 ```
+
+Prefixes are `esp32`, `esp32c3`, `esp32s3`, and `esp32c6`. Existing C6 installations keep the original `esp32c6-<mac>` identity, so their retained MQTT topics do not move during the multi-board upgrade.
 
 Presence topics are retained and contain `present`, `state`, RSSI, name, address, and last-seen time. Tune proximity behavior in `include/config.h` or with build flags:
 
@@ -79,17 +81,17 @@ PlatformIO is installed at `~/.venvs/platformio/bin/pio` on this development mac
 
 ```bash
 ~/.venvs/platformio/bin/pio test -e native
-~/.venvs/platformio/bin/pio run -e esp32-c6-devkitc-1
+~/.venvs/platformio/bin/pio run
 ```
 
 Flash and monitor after connecting the board:
 
 ```bash
-~/.venvs/platformio/bin/pio run -e esp32-c6-devkitc-1 -t upload
+~/.venvs/platformio/bin/pio run -e scanner--esp32-c6 -t upload
 ~/.venvs/platformio/bin/pio device monitor -b 115200
 ```
 
-If your C6 is not an Espressif ESP32-C6-DevKitC-1, change `board` in `platformio.ini` to the matching PlatformIO board ID.
+Available upload environments are `scanner--esp32`, `scanner--esp32-c3`, `scanner--esp32-s3`, and `scanner--esp32-c6`.
 
 ## Local log access
 

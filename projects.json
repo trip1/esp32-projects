@@ -2,196 +2,613 @@
   {
     "slug": "ble-mqtt-scanner",
     "name": "BLE Proximity Scanner",
-    "chip": "ESP32-C6",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "category": "Practical",
     "description": "Scans nearby BLE advertisements, records bounded sighting history, and publishes sightings and retained proximity state over MQTT.",
-    "features": ["BLE scanning", "MQTT", "LittleFS logs", "Presence detection"],
+    "features": [
+      "BLE scanning",
+      "MQTT",
+      "LittleFS logs",
+      "Presence detection"
+    ],
     "installable": true,
     "extra_hardware": false,
     "project_dir": "firmware/ble-mqtt-scanner",
-    "environment": "esp32-c6-devkitc-1"
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "environment": "scanner--esp32"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "environment": "scanner--esp32-c3"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "environment": "scanner--esp32-s3"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "environment": "scanner--esp32-c6"
+      }
+    ]
   },
   {
     "slug": "wifi-surveyor",
     "name": "Wi-Fi Surveyor",
-    "chip": "ESP32-C6",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "category": "Practical",
     "description": "Creates a local access point and dashboard showing nearby Wi-Fi networks, channels, security, and signal strength.",
-    "features": ["Wi-Fi scan", "Channel survey", "Local dashboard", "No credentials"],
+    "features": [
+      "Wi-Fi scan",
+      "Channel survey",
+      "Local dashboard",
+      "No credentials"
+    ],
     "installable": true,
     "extra_hardware": false,
     "project_dir": "firmware/no-hardware-lab",
-    "environment": "wifi-surveyor"
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "environment": "wifi-surveyor--esp32"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "environment": "wifi-surveyor--esp32-c3"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "environment": "wifi-surveyor--esp32-s3"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "environment": "wifi-surveyor--esp32-c6"
+      }
+    ]
   },
   {
     "slug": "rgb-lamp",
     "name": "Pocket RGB Lamp",
-    "chip": "ESP32-C6",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "category": "Practical",
     "description": "Turns the DevKit's onboard RGB LED into a tiny browser-controlled lamp with color and brightness controls.",
-    "features": ["Onboard RGB LED", "Local web control", "No router", "Color presets"],
+    "features": [
+      "Onboard RGB LED",
+      "Local web control",
+      "No router",
+      "Color presets"
+    ],
     "installable": true,
     "extra_hardware": false,
     "project_dir": "firmware/no-hardware-lab",
-    "environment": "rgb-lamp"
+    "targets": [
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "environment": "rgb-lamp--esp32-c3"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "environment": "rgb-lamp--esp32-s3"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "environment": "rgb-lamp--esp32-c6"
+      }
+    ]
   },
   {
     "slug": "device-console",
     "name": "Device Console",
-    "chip": "ESP32-C6",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "category": "Practical",
     "description": "Hosts a local diagnostics console for chip details, uptime, heap, flash, reset reason, and Wi-Fi radio state.",
-    "features": ["System diagnostics", "JSON status API", "Restart control", "Local access point"],
+    "features": [
+      "System diagnostics",
+      "JSON status API",
+      "Restart control",
+      "Local access point"
+    ],
     "installable": true,
     "extra_hardware": false,
     "project_dir": "firmware/no-hardware-lab",
-    "environment": "device-console"
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "environment": "device-console--esp32"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "environment": "device-console--esp32-c3"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "environment": "device-console--esp32-s3"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "environment": "device-console--esp32-c6"
+      }
+    ]
   },
   {
     "slug": "ble-presence-beacon",
     "name": "BLE Presence Beacon",
-    "chip": "ESP32-C6",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "category": "Practical",
     "description": "Advertises a stable BLE beacon name for experiments with room presence scanners and automations.",
-    "features": ["BLE advertising", "Stable identity", "Scanner testing", "Serial status"],
+    "features": [
+      "BLE advertising",
+      "Stable identity",
+      "Scanner testing",
+      "Serial status"
+    ],
     "installable": true,
     "extra_hardware": false,
     "project_dir": "firmware/no-hardware-lab",
-    "environment": "ble-presence-beacon"
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "environment": "ble-presence-beacon--esp32"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "environment": "ble-presence-beacon--esp32-c3"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "environment": "ble-presence-beacon--esp32-s3"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "environment": "ble-presence-beacon--esp32-c6"
+      }
+    ]
   },
   {
     "slug": "decision-oracle",
     "name": "Decision Oracle",
-    "chip": "ESP32-C6",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "category": "Fun",
     "description": "Runs an offline pocket oracle over Wi-Fi for coin flips, dice rolls, yes-or-no answers, and questionable advice.",
-    "features": ["Hardware randomness", "Dice and coins", "Funny answers", "Offline web app"],
+    "features": [
+      "Hardware randomness",
+      "Dice and coins",
+      "Funny answers",
+      "Offline web app"
+    ],
     "installable": true,
     "extra_hardware": false,
     "project_dir": "firmware/no-hardware-lab",
-    "environment": "decision-oracle"
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "environment": "decision-oracle--esp32"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "environment": "decision-oracle--esp32-c3"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "environment": "decision-oracle--esp32-s3"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "environment": "decision-oracle--esp32-c6"
+      }
+    ]
   },
   {
     "slug": "pomodoro-light",
     "name": "Pomodoro Light",
-    "chip": "ESP32-C6",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "category": "Fun",
     "description": "Uses the onboard RGB LED as a self-running focus timer: green work sessions, blue breaks, and a short transition flash.",
-    "features": ["25-minute focus", "5-minute break", "Onboard RGB LED", "Serial countdown"],
+    "features": [
+      "25-minute focus",
+      "5-minute break",
+      "Onboard RGB LED",
+      "Serial countdown"
+    ],
     "installable": true,
     "extra_hardware": false,
     "project_dir": "firmware/no-hardware-lab",
-    "environment": "pomodoro-light"
+    "targets": [
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "environment": "pomodoro-light--esp32-c3"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "environment": "pomodoro-light--esp32-s3"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "environment": "pomodoro-light--esp32-c6"
+      }
+    ]
   },
   {
     "slug": "morse-beacon",
     "name": "Morse Beacon",
-    "chip": "ESP32-C6",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "category": "Fun",
     "description": "Blinks HELLO WORLD forever in Morse code using only the onboard RGB LED, with decoded output on serial.",
-    "features": ["Morse code", "Onboard RGB LED", "Timing experiment", "Serial decoder"],
+    "features": [
+      "Morse code",
+      "Onboard RGB LED",
+      "Timing experiment",
+      "Serial decoder"
+    ],
     "installable": true,
     "extra_hardware": false,
     "project_dir": "firmware/no-hardware-lab",
-    "environment": "morse-beacon"
+    "targets": [
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "environment": "morse-beacon--esp32-c3"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "environment": "morse-beacon--esp32-s3"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "environment": "morse-beacon--esp32-c6"
+      }
+    ]
   },
   {
     "slug": "ble-alias-shuffler",
     "name": "BLE Alias Shuffler",
-    "chip": "ESP32-C6",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "category": "Fun",
     "description": "Rotates through harmless ridiculous BLE names so you can test scanners or confuse your own Bluetooth dashboard.",
-    "features": ["Rotating BLE names", "Scanner testing", "No connections", "Serial log"],
+    "features": [
+      "Rotating BLE names",
+      "Scanner testing",
+      "No connections",
+      "Serial log"
+    ],
     "installable": true,
     "extra_hardware": false,
     "project_dir": "firmware/no-hardware-lab",
-    "environment": "ble-alias-shuffler"
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "environment": "ble-alias-shuffler--esp32"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "environment": "ble-alias-shuffler--esp32-c3"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "environment": "ble-alias-shuffler--esp32-s3"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "environment": "ble-alias-shuffler--esp32-c6"
+      }
+    ]
   },
   {
     "slug": "littlefs-dropbox",
     "name": "Pocket File Drop",
-    "chip": "ESP32-C6",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "category": "Practical",
     "description": "Creates a room-local Wi-Fi file drop backed by LittleFS for moving small files without a router or internet connection.",
-    "features": ["LittleFS storage", "Upload and download", "128 KiB file limit", "Offline access point"],
+    "features": [
+      "LittleFS storage",
+      "Upload and download",
+      "128 KiB file limit",
+      "Offline access point"
+    ],
     "installable": true,
     "extra_hardware": false,
     "project_dir": "firmware/no-hardware-lab",
-    "environment": "littlefs-dropbox"
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "environment": "littlefs-dropbox--esp32"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "environment": "littlefs-dropbox--esp32-c3"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "environment": "littlefs-dropbox--esp32-s3"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "environment": "littlefs-dropbox--esp32-c6"
+      }
+    ]
   },
   {
     "slug": "local-chat-room",
     "name": "Pocket Chat Room",
-    "chip": "ESP32-C6",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "category": "Fun",
     "description": "Hosts a tiny real-time WebSocket chat room for nearby phones connected directly to the board's Wi-Fi network.",
-    "features": ["WebSocket chat", "Local-only network", "Four clients", "No message history"],
+    "features": [
+      "WebSocket chat",
+      "Local-only network",
+      "Four clients",
+      "No message history"
+    ],
     "installable": true,
     "extra_hardware": false,
     "project_dir": "firmware/no-hardware-lab",
-    "environment": "local-chat-room"
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "environment": "local-chat-room--esp32"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "environment": "local-chat-room--esp32-c3"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "environment": "local-chat-room--esp32-s3"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "environment": "local-chat-room--esp32-c6"
+      }
+    ]
   },
   {
     "slug": "ble-uart-console",
     "name": "BLE UART Console",
-    "chip": "ESP32-C6",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "category": "Practical",
     "description": "Exposes a Nordic-UART-compatible BLE service that echoes bounded text between a BLE terminal app and the USB serial console.",
-    "features": ["Nordic UART service", "BLE notifications", "Serial bridge", "Bounded messages"],
+    "features": [
+      "Nordic UART service",
+      "BLE notifications",
+      "Serial bridge",
+      "Bounded messages"
+    ],
     "installable": true,
     "extra_hardware": false,
     "project_dir": "firmware/no-hardware-lab",
-    "environment": "ble-uart-console"
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "environment": "ble-uart-console--esp32"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "environment": "ble-uart-console--esp32-c3"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "environment": "ble-uart-console--esp32-s3"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "environment": "ble-uart-console--esp32-c6"
+      }
+    ]
   },
   {
     "slug": "boot-counter",
     "name": "Reboot Museum",
-    "chip": "ESP32-C6",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "category": "Fun",
     "description": "Uses non-volatile Preferences storage to count every boot and presents the board's increasingly dramatic reboot history.",
-    "features": ["Persistent boot count", "NVS Preferences", "Reset control", "Local dashboard"],
+    "features": [
+      "Persistent boot count",
+      "NVS Preferences",
+      "Reset control",
+      "Local dashboard"
+    ],
     "installable": true,
     "extra_hardware": false,
     "project_dir": "firmware/no-hardware-lab",
-    "environment": "boot-counter"
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "environment": "boot-counter--esp32"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "environment": "boot-counter--esp32-c3"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "environment": "boot-counter--esp32-s3"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "environment": "boot-counter--esp32-c6"
+      }
+    ]
   },
   {
     "slug": "cpu-benchmark",
     "name": "Tiny Benchmark Lab",
-    "chip": "ESP32-C6",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "category": "Practical",
     "description": "Runs bounded integer and volatile-memory-access benchmarks on demand and reports timings through a local browser dashboard.",
-    "features": ["CPU timing", "Memory access timing", "Repeatable workload", "JSON results"],
+    "features": [
+      "CPU timing",
+      "Memory access timing",
+      "Repeatable workload",
+      "JSON results"
+    ],
     "installable": true,
     "extra_hardware": false,
     "project_dir": "firmware/no-hardware-lab",
-    "environment": "cpu-benchmark"
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "environment": "cpu-benchmark--esp32"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "environment": "cpu-benchmark--esp32-c3"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "environment": "cpu-benchmark--esp32-s3"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "environment": "cpu-benchmark--esp32-c6"
+      }
+    ]
   },
   {
     "slug": "ibeacon-lab",
     "name": "iBeacon Lab",
-    "chip": "ESP32-C6",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "category": "Practical",
     "description": "Advertises a standards-shaped iBeacon payload for testing mobile beacon scanners, distance estimates, and presence experiments.",
-    "features": ["iBeacon payload", "100 ms advertising", "Fixed lab UUID", "Scanner testing"],
+    "features": [
+      "iBeacon payload",
+      "100 ms advertising",
+      "Fixed lab UUID",
+      "Scanner testing"
+    ],
     "installable": true,
     "extra_hardware": false,
     "project_dir": "firmware/no-hardware-lab",
-    "environment": "ibeacon-lab"
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "environment": "ibeacon-lab--esp32"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "environment": "ibeacon-lab--esp32-c3"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "environment": "ibeacon-lab--esp32-s3"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "environment": "ibeacon-lab--esp32-c6"
+      }
+    ]
   }
 ]

@@ -1,6 +1,6 @@
 # DS9 ESP32 Projects
 
-A public monorepo of browser-flashable ESP32-C6 firmware projects and the GitHub Pages installer that publishes them.
+A public monorepo of browser-flashable firmware for ESP32 DevKit V1, ESP32-C3-DevKitM-1, ESP32-S3-DevKitC-1 v1.0, and ESP32-C6-DevKitC-1 boards, plus the GitHub Pages installer that publishes them.
 
 ## Firmware catalog
 
@@ -25,7 +25,9 @@ A public monorepo of browser-flashable ESP32-C6 firmware projects and the GitHub
 - **Pocket Chat Room** — temporary nearby WebSocket chat over the board's access point
 - **Reboot Museum** — persistent NVS boot counter with unnecessary drama
 
-The fourteen projects in `firmware/no-hardware-lab` require only an ESP32-C6-DevKitC-1. AP-based projects create an open local network and serve a UI at `http://192.168.4.1`. LED projects expect the board's onboard RGB LED on GPIO 8. See [`docs/internet-inspiration.md`](docs/internet-inspiration.md) for the official examples and libraries surveyed for this collection.
+The catalog contains 57 board-specific firmware targets across 15 projects. Twelve projects support all four board profiles. Pocket RGB Lamp, Pomodoro Light, and Morse Beacon support the C3, S3 v1.0, and C6 profiles because the generic ESP32 DevKit has no addressable RGB LED. See [`docs/board-support.md`](docs/board-support.md) for the exact compatibility matrix and S3 revision caveat, and [`docs/internet-inspiration.md`](docs/internet-inspiration.md) for the examples and libraries surveyed for this collection.
+
+AP-based projects create an open local network and serve a UI at `http://192.168.4.1`. Do not enter or store sensitive information on those experimental networks.
 
 ## Firmware portal
 
@@ -58,12 +60,12 @@ g++ -std=c++17 \
 /tmp/no-hardware-lab-tests
 
 ~/.venvs/platformio/bin/pio test -d firmware/ble-mqtt-scanner -e native
-~/.venvs/platformio/bin/pio run -d firmware/ble-mqtt-scanner -e esp32-c6-devkitc-1
+~/.venvs/platformio/bin/pio run -d firmware/ble-mqtt-scanner
 ~/.venvs/platformio/bin/pio run -d firmware/no-hardware-lab
 python3 scripts/build_site.py --output _site
 ```
 
-Each catalog project publishes:
+Each compatible project/board pair publishes:
 
 - `firmware.factory.bin` — complete image for browser installation and recovery
 - `firmware.bin` — application-only image for future OTA

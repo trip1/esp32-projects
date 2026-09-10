@@ -257,11 +257,23 @@ void reportQueueOverflow(uint32_t now_ms) {
     }
 }
 
+const char* identityPrefix() {
+#if defined(CONFIG_IDF_TARGET_ESP32C6)
+    return "esp32c6";
+#elif defined(CONFIG_IDF_TARGET_ESP32C3)
+    return "esp32c3";
+#elif defined(CONFIG_IDF_TARGET_ESP32S3)
+    return "esp32s3";
+#else
+    return "esp32";
+#endif
+}
+
 void configureIdentity() {
     uint8_t mac[6];
     esp_read_mac(mac, ESP_MAC_WIFI_STA);
-    std::snprintf(device_id, sizeof(device_id), "esp32c6-%02x%02x%02x%02x%02x%02x",
-                  mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    std::snprintf(device_id, sizeof(device_id), "%s-%02x%02x%02x%02x%02x%02x",
+                  identityPrefix(), mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
     std::snprintf(event_topic, sizeof(event_topic), "%s/%s/events", MQTT_TOPIC_PREFIX, device_id);
     std::snprintf(status_topic, sizeof(status_topic), "%s/%s/status", MQTT_TOPIC_PREFIX, device_id);
 }

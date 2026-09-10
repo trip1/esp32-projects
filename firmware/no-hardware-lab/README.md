@@ -1,6 +1,6 @@
-# ESP32-C6 No-Hardware Lab
+# ESP32 No-Hardware Lab
 
-Fourteen independently flashable firmware experiments that use only the ESP32-C6 DevKitC-1 itself. No sensors, displays, relays, or other add-ons are required.
+This collection contains fourteen independently flashable experiments. Twelve support ESP32 DevKit V1, ESP32-C3-DevKitM-1, ESP32-S3-DevKitC-1 v1.0, and ESP32-C6-DevKitC-1; the three RGB projects support C3, S3 v1.0, and C6. No sensors, displays, relays, or other add-ons are required.
 
 ## Projects
 
@@ -21,7 +21,7 @@ Fourteen independently flashable firmware experiments that use only the ESP32-C6
 
 The AP-based projects create an open local network named after the project and serve their UI at `http://192.168.4.1`. They do not provide internet access. Anyone nearby who joins an experimental AP can use its controls; for Pocket File Drop that includes downloading, replacing, and deleting stored files, and for Reboot Museum it includes rebooting or clearing history. Do not enter or store sensitive information.
 
-The LED projects expect the ESP32-C6-DevKitC-1 onboard addressable RGB LED on GPIO 8. Board revisions without that LED still run and report over serial but cannot show colors.
+The three LED projects are not built for the generic ESP32 DevKit profile. They use the onboard addressable RGB LED defined by the C3, S3 v1.0, and C6 board variants. ESP32-S3-DevKitC-1 v1.1 moves its LED to a different pin and is not included in the LED compatibility claim; see [`../../docs/board-support.md`](../../docs/board-support.md).
 
 ## Build
 

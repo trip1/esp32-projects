@@ -1,22 +1,44 @@
 const browserState = document.querySelector("#browser-state");
 const projectList = document.querySelector("#project-list");
+const boardSelect = document.querySelector("#board-select");
 const installer = document.querySelector("#installer-button");
 const filters = [...document.querySelectorAll(".filter")];
+const defaultBoardId = "esp32-c6-devkitc-1";
 let projects = [];
 let selectedProject = null;
+let selectedTarget = null;
+let selectedBoardId = defaultBoardId;
 let activeFilter = "All";
 
 const serialSupported = "serial" in navigator;
 browserState.classList.add(serialSupported ? "supported" : "unsupported");
 browserState.querySelector("span:last-child").textContent = serialSupported ? "Web Serial ready" : "Use Chrome or Edge";
 
+function targetFor(project) {
+  return project.targets.find((target) => target.id === selectedBoardId) || null;
+}
+
+function projectsForBoard() {
+  return projects.filter((project) => targetFor(project));
+}
+
+function updateLocation(project) {
+  const url = new URL(location.href);
+  url.searchParams.set("board", selectedBoardId);
+  url.hash = project.slug;
+  history.replaceState(null, "", url);
+}
+
 function selectProject(project) {
+  const target = targetFor(project);
+  if (!target) return;
   selectedProject = project;
+  selectedTarget = target;
   document.querySelector("#selected-index").textContent = `PROJECT ${String(projects.indexOf(project) + 1).padStart(2, "0")}`;
   document.querySelector("#selected-category").textContent = project.category;
   document.querySelector("#selected-name").textContent = project.name;
   document.querySelector("#selected-description").textContent = project.description;
-  document.querySelector("#selected-chip").textContent = project.chip;
+  document.querySelector("#selected-chip").textContent = selectedTarget.name;
   document.querySelector("#selected-version").textContent = project.version;
   const features = document.querySelector("#selected-features");
   features.replaceChildren(...project.features.map((feature) => {
@@ -24,9 +46,9 @@ function selectProject(project) {
     item.textContent = feature;
     return item;
   }));
-  installer.setAttribute("manifest", selectedProject.manifest);
-  installer.manifest = selectedProject.manifest;
-  location.hash = project.slug;
+  installer.setAttribute("manifest", selectedTarget.manifest);
+  installer.manifest = selectedTarget.manifest;
+  updateLocation(project);
   document.querySelectorAll(".project-row").forEach((row) => {
     const selected = row.dataset.slug === project.slug;
     row.classList.toggle("selected", selected);
@@ -60,15 +82,43 @@ function makeProjectRow(project) {
 }
 
 function renderProjects() {
-  const visible = activeFilter === "All" ? projects : projects.filter((project) => project.category === activeFilter);
+  const compatible = projectsForBoard();
+  const visible = activeFilter === "All" ? compatible : compatible.filter((project) => project.category === activeFilter);
+  document.querySelector("#project-count").textContent = String(compatible.length);
   if (visible.length > 0 && !visible.includes(selectedProject)) selectedProject = visible[0];
   projectList.replaceChildren(...visible.map(makeProjectRow));
-  if (selectedProject) selectProject(selectedProject);
+  if (selectedProject && visible.includes(selectedProject)) selectProject(selectedProject);
 }
+
+function configureBoards() {
+  const boards = new Map();
+  projects.forEach((project) => project.targets.forEach((target) => {
+    if (!boards.has(target.id)) boards.set(target.id, target);
+  }));
+  boardSelect.replaceChildren(...[...boards.values()].map((board) => {
+    const option = document.createElement("option");
+    option.value = board.id;
+    option.textContent = board.name;
+    return option;
+  }));
+  const requestedBoard = new URL(location.href).searchParams.get("board");
+  selectedBoardId = boards.has(requestedBoard) ? requestedBoard : (boards.has(defaultBoardId) ? defaultBoardId : boards.keys().next().value);
+  boardSelect.value = selectedBoardId;
+}
+
+boardSelect.addEventListener("change", () => {
+  selectedBoardId = boardSelect.value;
+  if (selectedProject && !targetFor(selectedProject)) selectedProject = null;
+  renderProjects();
+});
 
 filters.forEach((button) => button.addEventListener("click", () => {
   activeFilter = button.dataset.filter;
-  filters.forEach((filter) => filter.classList.toggle("active", filter === button));
+  filters.forEach((filter) => {
+    const active = filter === button;
+    filter.classList.toggle("active", active);
+    filter.setAttribute("aria-pressed", String(active));
+  });
   renderProjects();
 }));
 
@@ -79,9 +129,9 @@ fetch("./projects.json")
   })
   .then((catalog) => {
     projects = catalog;
-    document.querySelector("#project-count").textContent = String(projects.length);
+    configureBoards();
     const requested = location.hash.slice(1);
-    selectedProject = projects.find((project) => project.slug === requested) || projects[0];
+    selectedProject = projects.find((project) => project.slug === requested && targetFor(project)) || projectsForBoard()[0];
     renderProjects();
   })
   .catch((error) => {

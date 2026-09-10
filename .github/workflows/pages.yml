@@ -36,7 +36,7 @@ jobs:
           -o /tmp/no-hardware-lab-tests
           && /tmp/no-hardware-lab-tests
       - name: Build BLE scanner firmware
-        run: pio run -d firmware/ble-mqtt-scanner -e esp32-c6-devkitc-1
+        run: pio run -d firmware/ble-mqtt-scanner
       - name: Build no-hardware firmware collection
         run: pio run -d firmware/no-hardware-lab
       - name: Assemble static portal

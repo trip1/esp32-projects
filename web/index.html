@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0b1014">
-  <meta name="description" content="Browse and install DS9 Labs ESP32-C6 firmware from Chrome or Edge.">
+  <meta name="description" content="Browse and install DS9 Labs firmware for ESP32, ESP32-C3, ESP32-S3, and ESP32-C6 boards from Chrome or Edge.">
   <title>DS9 Device Foundry</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./styles.css">
@@ -26,18 +26,21 @@
       <p class="eyebrow">Browser-flashable experiments</p>
       <h1 id="page-title">Pick a purpose.<br>Reflash the board.</h1>
       <div class="intro-copy">
-        <p>Practical tools, smart-home experiments, and deliberately unnecessary tiny computers. Every project runs on an ESP32-C6 DevKitC-1 without extra hardware.</p>
-        <p class="project-total"><strong id="project-count">15</strong> firmware projects</p>
+        <p>Practical tools, smart-home experiments, and deliberately unnecessary tiny computers for four ESP32 development boards—without external hardware.</p>
+        <p class="project-total"><strong id="project-count">15</strong> compatible projects</p>
       </div>
     </section>
 
     <section class="catalog" id="projects" aria-labelledby="catalog-title">
       <div class="catalog-bar">
         <div><p class="eyebrow">Firmware catalog</p><h2 id="catalog-title">Choose a project</h2></div>
-        <div class="filters" aria-label="Filter projects">
-          <button class="filter active" data-filter="All" type="button">All</button>
-          <button class="filter" data-filter="Practical" type="button">Practical</button>
-          <button class="filter" data-filter="Fun" type="button">Fun</button>
+        <div class="catalog-controls">
+          <label class="board-picker"><span>Board</span><select id="board-select" aria-label="Target ESP32 board"></select></label>
+          <div class="filters" role="group" aria-label="Filter projects">
+            <button class="filter active" data-filter="All" type="button" aria-pressed="true">All</button>
+            <button class="filter" data-filter="Practical" type="button" aria-pressed="false">Practical</button>
+            <button class="filter" data-filter="Fun" type="button" aria-pressed="false">Fun</button>
+          </div>
         </div>
       </div>
 
@@ -50,12 +53,12 @@
           <p class="selected-description" id="selected-description">Select a project to inspect and install it.</p>
           <ul class="feature-list" id="selected-features"></ul>
           <dl class="release-meta">
-            <div><dt>Target</dt><dd id="selected-chip">ESP32-C6</dd></div>
+            <div><dt>Target</dt><dd id="selected-chip">ESP32-C6-DevKitC-1</dd></div>
             <div><dt>Release</dt><dd id="selected-version">1.0.0</dd></div>
             <div><dt>Hardware</dt><dd>Board only</dd></div>
           </dl>
           <div class="install-action">
-            <esp-web-install-button id="installer-button" manifest="./firmware/ble-mqtt-scanner/manifest.json">
+            <esp-web-install-button id="installer-button">
               <button class="install-button" slot="activate" type="button"><span>Install selected firmware</span><span aria-hidden="true">→</span></button>
               <p class="compatibility-error" slot="unsupported">Web Serial is unavailable. Open this page in desktop Chrome or Edge.</p>
               <p class="compatibility-error" slot="not-allowed">Firmware installation requires HTTPS.</p>
@@ -69,7 +72,7 @@
     <section class="how-it-works" aria-labelledby="how-title">
       <div><p class="eyebrow">Three steps</p><h2 id="how-title">Flash, explore, repeat.</h2></div>
       <ol>
-        <li><span>01</span><p><strong>Connect</strong>Use desktop Chrome or Edge and an ESP32-C6 USB data cable.</p></li>
+        <li><span>01</span><p><strong>Connect</strong>Use desktop Chrome or Edge and connect your selected ESP32 board with a USB data cable.</p></li>
         <li><span>02</span><p><strong>Install</strong>Select a project and choose the ESP serial port when prompted.</p></li>
         <li><span>03</span><p><strong>Experiment</strong>Use its local Wi-Fi page, BLE advertisement, RGB LED, or serial output.</p></li>
       </ol>
