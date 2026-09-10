@@ -1,0 +1,5 @@
+# Build output
+.pio/
+.vscode/
+.idea/
+.DS_Store

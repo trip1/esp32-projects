@@ -25,16 +25,22 @@ jobs:
         run: python -m pip install platformio==6.2.0
       - name: Test portal tooling
         run: python -m unittest discover -s tests -v
-      - name: Test firmware policy
+      - name: Test BLE scanner policy
         run: pio test -d firmware/ble-mqtt-scanner -e native
-      - name: Build ESP32-C6 firmware
-        run: pio run -d firmware/ble-mqtt-scanner -e esp32-c6-devkitc-1
-      - name: Assemble static portal
+      - name: Test no-hardware lab policy
         run: >-
-          python scripts/build_site.py
-          --firmware-build firmware/ble-mqtt-scanner/.pio/build/esp32-c6-devkitc-1
-          --output _site
-          --version "$(tr -d '\n\r ' < VERSION)"
+          g++ -std=c++17
+          -I firmware/no-hardware-lab/include
+          firmware/no-hardware-lab/src/lab_logic.cpp
+          firmware/no-hardware-lab/test/native/test_main.cpp
+          -o /tmp/no-hardware-lab-tests
+          && /tmp/no-hardware-lab-tests
+      - name: Build BLE scanner firmware
+        run: pio run -d firmware/ble-mqtt-scanner -e esp32-c6-devkitc-1
+      - name: Build no-hardware firmware collection
+        run: pio run -d firmware/no-hardware-lab
+      - name: Assemble static portal
+        run: python scripts/build_site.py --output _site
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v5

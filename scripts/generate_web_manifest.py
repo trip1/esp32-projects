@@ -6,18 +6,20 @@ from pathlib import Path
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate an ESP Web Tools manifest")
+    parser.add_argument("--name", required=True)
+    parser.add_argument("--chip", required=True)
     parser.add_argument("--version", required=True)
     parser.add_argument("--output", required=True, type=Path)
     args = parser.parse_args()
 
     manifest = {
-        "name": "DS9 BLE MQTT Scanner",
+        "name": args.name,
         "version": args.version,
         "new_install_prompt_erase": True,
         "new_install_improv_wait_time": 0,
         "builds": [
             {
-                "chipFamily": "ESP32-C6",
+                "chipFamily": args.chip,
                 "improv": False,
                 "parts": [{"path": "firmware.factory.bin", "offset": 0}],
             }
