@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1014">
+  <meta name="description" content="Install and recover DS9 Labs ESP32 firmware from Chrome or Edge.">
+  <title>DS9 Device Foundry</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="https://unpkg.com/esp-web-tools@10.4.0/dist/web/install-button.js?module"></script>
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#installer">Skip to installer</a>
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="DS9 Device Foundry home">
+      <span class="brand-mark" aria-hidden="true">D9</span>
+      <span><strong>Device Foundry</strong><small>ESP32 firmware lab</small></span>
+    </a>
+    <div class="browser-state" id="browser-state" role="status">
+      <span class="state-dot"></span>
+      <span>Checking browser</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="intro" aria-labelledby="page-title">
+      <p class="eyebrow">USB firmware installer</p>
+      <h1 id="page-title">Put useful firmware on an ESP32.</h1>
+      <p>Choose a project, connect the board over USB, and install it directly from your browser. No local toolchain required.</p>
+    </section>
+
+    <section class="workspace" id="installer" aria-label="Firmware installation workspace">
+      <article class="project-panel">
+        <div class="project-heading">
+          <div>
+            <p class="index">PROJECT 01</p>
+            <h2>BLE Proximity Scanner</h2>
+          </div>
+          <span class="chip-badge">ESP32-C6</span>
+        </div>
+        <p class="project-summary">Observe nearby Bluetooth Low Energy devices, keep a bounded local log, and publish sightings and retained presence state to MQTT.</p>
+        <ul class="feature-list" aria-label="Project features">
+          <li>Continuous BLE scan</li>
+          <li>RSSI proximity state</li>
+          <li>MQTT telemetry</li>
+          <li>LittleFS sighting log</li>
+        </ul>
+        <dl class="release-meta">
+          <div><dt>Release</dt><dd id="release-version">1.0.0</dd></div>
+          <div><dt>Target</dt><dd>ESP32-C6 DevKitC-1</dd></div>
+          <div><dt>Connection</dt><dd>USB data cable</dd></div>
+        </dl>
+      </article>
+
+      <aside class="install-panel" aria-labelledby="install-title">
+        <p class="step-label">READY TO INSTALL</p>
+        <h2 id="install-title">Connect your board</h2>
+        <ol class="steps">
+          <li><span>1</span><p><strong>Use desktop Chrome or Edge</strong>A secure Web Serial connection stays between this browser and your board.</p></li>
+          <li><span>2</span><p><strong>Plug in with a data cable</strong>Hold BOOT while tapping RESET only if your board is not detected.</p></li>
+          <li><span>3</span><p><strong>Select Install firmware</strong>Choose the ESP32 serial port when the browser asks.</p></li>
+        </ol>
+
+        <esp-web-install-button manifest="./firmware/ble-mqtt-scanner/manifest.json">
+          <button class="install-button" slot="activate" type="button">
+            <span>Install firmware</span><span aria-hidden="true">→</span>
+          </button>
+          <p class="compatibility-error" slot="unsupported">Web Serial is unavailable. Open this page in desktop Chrome or Edge.</p>
+          <p class="compatibility-error" slot="not-allowed">Firmware installation requires this page to be served over HTTPS.</p>
+        </esp-web-install-button>
+        <p class="privacy-note">The browser asks before accessing a serial port. Nothing is installed until you confirm.</p>
+      </aside>
+    </section>
+
+    <section class="recovery" aria-labelledby="recovery-title">
+      <div><p class="eyebrow">Recovery path</p><h2 id="recovery-title">OTA failed? USB still works.</h2></div>
+      <p>This installer writes a complete factory image. Use it for first installation, recovery, or returning a board to a known release.</p>
+    </section>
+  </main>
+
+  <footer>
+    <span>DS9 Labs · Device Foundry</span>
+    <a href="https://github.com/trip1/esp32-projects">Source on GitHub</a>
+  </footer>
+</body>
+</html>

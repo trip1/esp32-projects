@@ -1,0 +1,10 @@
+# Build output
+.pio/
+.vscode/
+
+# Device/network credentials
+include/secrets.h
+
+# Local editor and OS files
+.idea/
+.DS_Store
