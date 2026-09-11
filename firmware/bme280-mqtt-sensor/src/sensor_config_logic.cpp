@@ -41,6 +41,22 @@ bool validRequestLine(const char* begin, const char* end) {
 }
 }  // namespace
 
+EnvironmentalSensorChip classifyEnvironmentalSensorChip(std::uint8_t chip_id) {
+    if (chip_id == 0x60U) return EnvironmentalSensorChip::Bme280;
+    if (chip_id >= 0x56U && chip_id <= 0x58U) return EnvironmentalSensorChip::Bmp280;
+    if (chip_id == 0x00U || chip_id == 0xffU) return EnvironmentalSensorChip::None;
+    return EnvironmentalSensorChip::Other;
+}
+
+const char* environmentalSensorChipName(std::uint8_t chip_id) {
+    switch (classifyEnvironmentalSensorChip(chip_id)) {
+        case EnvironmentalSensorChip::Bme280: return "BME280";
+        case EnvironmentalSensorChip::Bmp280: return "BMP280 (no humidity sensor)";
+        case EnvironmentalSensorChip::Other: return "other sensor";
+        default: return "unknown device";
+    }
+}
+
 bool isValidWifiSsid(const std::string& value) {
     return !value.empty() && value.size() <= 32U && isPrintableAscii(value);
 }

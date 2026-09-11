@@ -4,11 +4,15 @@
 #include <DNSServer.h>
 #include <Preferences.h>
 #include <PubSubClient.h>
+#include <SPI.h>
 #include <WiFi.h>
 #include <Wire.h>
 #include <esp_mac.h>
 #include <esp_sleep.h>
 #include <esp_system.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/queue.h>
+#include <freertos/task.h>
 
 #include <cmath>
 #include <cstddef>
@@ -24,6 +28,18 @@
 #ifndef SENSOR_SCL_PIN
 #error "SENSOR_SCL_PIN must be defined by the board environment"
 #endif
+#ifndef SENSOR_SPI_SCK_PIN
+#error "SENSOR_SPI_SCK_PIN must be defined by the board environment"
+#endif
+#ifndef SENSOR_SPI_MISO_PIN
+#error "SENSOR_SPI_MISO_PIN must be defined by the board environment"
+#endif
+#ifndef SENSOR_SPI_MOSI_PIN
+#error "SENSOR_SPI_MOSI_PIN must be defined by the board environment"
+#endif
+#ifndef SENSOR_SPI_CS_PIN
+#error "SENSOR_SPI_CS_PIN must be defined by the board environment"
+#endif
 #ifndef SETUP_BUTTON_PIN
 #error "SETUP_BUTTON_PIN must be defined by the board environment"
 #endif
@@ -36,6 +52,7 @@ constexpr uint32_t kProvisioningTimeoutMs = 10U * 60U * 1000U;
 constexpr uint32_t kRecoveryWindowMs = 5000U;
 constexpr uint32_t kRecoveryHoldMs = 2000U;
 constexpr uint32_t kFallbackSleepMinutes = 5U;
+constexpr uint32_t kSensorReadTimeoutMs = 6000U;
 constexpr size_t kMaximumRequestBytes = 2048U;
 constexpr size_t kMaximumHeaderBytes = 1024U;
 constexpr size_t kMaximumBodyBytes = 1024U;
@@ -60,9 +77,32 @@ static_assert(sizeof(StoredConfig) < 1024U, "configuration should remain a small
 struct Reading {
     bool valid = false;
     uint8_t address = 0;
+    bool spi = false;
+    uint8_t spi_mode = 0;
     float temperature_c = NAN;
     float humidity_percent = NAN;
     float pressure_hpa = NAN;
+};
+
+struct SensorScanReport {
+    bool i2c_100_started = false;
+    bool i2c_400_started = false;
+    uint8_t i2c_addresses[16]{};
+    bool i2c_seen[128]{};
+    uint8_t i2c_address_count = 0;
+    uint8_t i2c_device_count = 0;
+    bool i2c_truncated = false;
+    bool bme_i2c = false;
+    uint8_t bme_i2c_address = 0;
+    uint32_t bme_i2c_clock = 0;
+    bool bme_spi = false;
+    uint8_t bme_spi_mode = 0;
+    bool spi_mode3_only_bme = false;
+    uint8_t spi_mode0_chip_id = 0xffU;
+    uint8_t spi_mode3_chip_id = 0xffU;
+    uint8_t incompatible_chip_id = 0xffU;
+    bool incompatible_over_spi = false;
+    uint8_t incompatible_i2c_address = 0;
 };
 
 struct FormFields {
@@ -99,6 +139,8 @@ bool provisioning = false;
 uint32_t provisioning_started_ms = 0;
 char csrf_token[17]{};
 bool restart_requested = false;
+SensorScanReport latest_scan{};
+bool scan_ready = false;
 
 bool isTerminated(const char* value, size_t capacity) {
     return std::memchr(value, '\0', capacity) != nullptr;
@@ -253,11 +295,160 @@ bool validCsrfBody(const char* body, size_t length) {
            std::strcmp(decoded, csrf_token) == 0;
 }
 
+void rememberI2cAddress(SensorScanReport& report, uint8_t address) {
+    if (report.i2c_seen[address]) return;
+    report.i2c_seen[address] = true;
+    if (report.i2c_address_count < sizeof(report.i2c_addresses)) {
+        report.i2c_addresses[report.i2c_address_count++] = address;
+    } else report.i2c_truncated = true;
+    if (report.i2c_device_count < 0xffU) ++report.i2c_device_count;
+}
+
+uint8_t readI2cChipId(uint8_t address) {
+    Wire.beginTransmission(address);
+    Wire.write(0xd0U);
+    if (Wire.endTransmission(false) != 0U || Wire.requestFrom(address, static_cast<uint8_t>(1U)) != 1U) return 0xffU;
+    return static_cast<uint8_t>(Wire.read());
+}
+
+void scanI2cClock(SensorScanReport& report, uint32_t clock_hz) {
+    if (!Wire.begin(SENSOR_SDA_PIN, SENSOR_SCL_PIN, clock_hz)) return;
+    if (clock_hz == 100000U) report.i2c_100_started = true;
+    if (clock_hz == 400000U) report.i2c_400_started = true;
+    Wire.setTimeOut(10U);
+    for (uint8_t address = 1U; address < 127U; ++address) {
+        Wire.beginTransmission(address);
+        if (Wire.endTransmission() != 0U) continue;
+        rememberI2cAddress(report, address);
+        if (address != 0x76U && address != 0x77U) continue;
+        const uint8_t chip_id = readI2cChipId(address);
+        const EnvironmentalSensorChip chip = classifyEnvironmentalSensorChip(chip_id);
+        if (chip == EnvironmentalSensorChip::Bme280 && !report.bme_i2c) {
+            report.bme_i2c = true;
+            report.bme_i2c_address = address;
+            report.bme_i2c_clock = clock_hz;
+        } else if (chip == EnvironmentalSensorChip::Bmp280 && report.incompatible_chip_id == 0xffU) {
+            report.incompatible_chip_id = chip_id;
+            report.incompatible_i2c_address = address;
+        }
+    }
+    Wire.end();
+}
+
+uint8_t readSpiChipId(uint8_t mode) {
+    SPI.beginTransaction(SPISettings(1000000U, MSBFIRST, mode));
+    digitalWrite(SENSOR_SPI_CS_PIN, LOW);
+    delayMicroseconds(2U);
+    SPI.transfer(0xd0U);
+    const uint8_t chip_id = SPI.transfer(0x00U);
+    digitalWrite(SENSOR_SPI_CS_PIN, HIGH);
+    SPI.endTransaction();
+    return chip_id;
+}
+
+uint8_t readStableSpiChipId(uint8_t mode) {
+    const uint8_t first = readSpiChipId(mode);
+    const uint8_t second = readSpiChipId(mode);
+    const uint8_t third = readSpiChipId(mode);
+    return first == second && second == third ? first : 0xffU;
+}
+
+SensorScanReport scanSensorBuses() {
+    SensorScanReport report;
+    pinMode(SENSOR_SPI_CS_PIN, OUTPUT);
+    digitalWrite(SENSOR_SPI_CS_PIN, HIGH);
+    scanI2cClock(report, 100000U);
+    scanI2cClock(report, 400000U);
+
+    SPI.begin(SENSOR_SPI_SCK_PIN, SENSOR_SPI_MISO_PIN, SENSOR_SPI_MOSI_PIN, SENSOR_SPI_CS_PIN);
+    report.spi_mode0_chip_id = readStableSpiChipId(SPI_MODE0);
+    report.spi_mode3_chip_id = readStableSpiChipId(SPI_MODE3);
+    if (classifyEnvironmentalSensorChip(report.spi_mode0_chip_id) == EnvironmentalSensorChip::Bme280) {
+        report.bme_spi = true;
+        report.bme_spi_mode = 0U;
+    } else if (classifyEnvironmentalSensorChip(report.spi_mode3_chip_id) == EnvironmentalSensorChip::Bme280) {
+        report.spi_mode3_only_bme = true;
+    } else if (report.incompatible_chip_id == 0xffU) {
+        if (classifyEnvironmentalSensorChip(report.spi_mode0_chip_id) == EnvironmentalSensorChip::Bmp280) {
+            report.incompatible_chip_id = report.spi_mode0_chip_id;
+            report.incompatible_over_spi = true;
+        } else if (classifyEnvironmentalSensorChip(report.spi_mode3_chip_id) == EnvironmentalSensorChip::Bmp280) {
+            report.incompatible_chip_id = report.spi_mode3_chip_id;
+            report.incompatible_over_spi = true;
+        }
+    }
+    SPI.end();
+    Serial.printf("Sensor scan: I2C devices=%u, BME280 I2C=%s, BME280 SPI=%s\n",
+                  report.i2c_device_count, report.bme_i2c ? "yes" : "no", report.bme_spi ? "yes" : "no");
+    return report;
+}
+
+void appendScanReport(String& page) {
+    page += F("<section class=scan><h2>Sensor preflight</h2>");
+    if (!scan_ready) {
+        page += F("<p class=bad>Scan has not completed.</p>");
+    } else if (latest_scan.bme_i2c) {
+        char found[128];
+        std::snprintf(found, sizeof(found), "<p class=good>BME280 detected over I&sup2;C at <code>0x%02X</code> (%lu kHz).</p>",
+                      latest_scan.bme_i2c_address, static_cast<unsigned long>(latest_scan.bme_i2c_clock / 1000U));
+        page += found;
+    } else if (latest_scan.bme_spi) {
+        char found[112];
+        std::snprintf(found, sizeof(found), "<p class=good>BME280 detected over four-wire SPI (mode %u).</p>", latest_scan.bme_spi_mode);
+        page += found;
+    } else if (latest_scan.spi_mode3_only_bme) {
+        page += F("<p class=bad>A BME280 chip ID responded only in SPI mode 3. Runtime sampling requires a confirmed mode-0 response; check CS, SCK, MOSI, MISO, power, and ground.</p>");
+    } else if (latest_scan.incompatible_chip_id != 0xffU) {
+        char found[192];
+        if (latest_scan.incompatible_over_spi) {
+            std::snprintf(found, sizeof(found), "<p class=bad>%s detected over SPI (chip ID <code>0x%02X</code>), not a BME280.</p>",
+                          environmentalSensorChipName(latest_scan.incompatible_chip_id), latest_scan.incompatible_chip_id);
+        } else {
+            std::snprintf(found, sizeof(found), "<p class=bad>%s detected at I&sup2;C <code>0x%02X</code> (chip ID <code>0x%02X</code>), not a BME280.</p>",
+                          environmentalSensorChipName(latest_scan.incompatible_chip_id), latest_scan.incompatible_i2c_address,
+                          latest_scan.incompatible_chip_id);
+        }
+        page += found;
+    } else {
+        page += F("<p class=bad>No BME280 detected. Fix power and wiring, then scan again before entering network settings.</p>");
+    }
+    page += F("<p><strong>I&sup2;C:</strong> attempted every address <code>0x01-0x7E</code> at 100 and 400 kHz on SDA GPIO");
+    page += String(SENSOR_SDA_PIN);
+    page += F(" / SCL GPIO");
+    page += String(SENSOR_SCL_PIN);
+    page += F(". Controller status: 100 kHz ");
+    page += latest_scan.i2c_100_started ? F("ready") : F("failed");
+    page += F(", 400 kHz ");
+    page += latest_scan.i2c_400_started ? F("ready") : F("failed");
+    page += F(". Responding addresses: ");
+    page += String(latest_scan.i2c_device_count);
+    page += F(". First addresses: ");
+    if (latest_scan.i2c_address_count == 0U) page += F("none");
+    for (uint8_t index = 0; index < latest_scan.i2c_address_count; ++index) {
+        char address[8];
+        std::snprintf(address, sizeof(address), "%s0x%02X", index == 0U ? "" : ", ", latest_scan.i2c_addresses[index]);
+        page += address;
+    }
+    if (latest_scan.i2c_truncated) page += F(", more not shown");
+    page += F(".</p><p><strong>SPI:</strong> probed four-wire modes 0 and 3 at 1 MHz on SCK GPIO");
+    page += String(SENSOR_SPI_SCK_PIN);
+    page += F(", MISO GPIO");
+    page += String(SENSOR_SPI_MISO_PIN);
+    page += F(", MOSI GPIO");
+    page += String(SENSOR_SPI_MOSI_PIN);
+    page += F(", CS GPIO");
+    page += String(SENSOR_SPI_CS_PIN);
+    page += F(". SPI has no address discovery; the probe reads the Bosch chip-ID register on this exact CS pin.</p><form method=post action=/scan><input type=hidden name=csrf value='");
+    page += csrf_token;
+    page += F("'><button type=submit>Scan sensor buses again</button></form></section>");
+}
+
 String setupPage(const String& message = String()) {
     String page;
-    page.reserve(4200);
-    page += F("<!doctype html><html><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>BME280 Setup</title><style>body{margin:0;background:#0b1014;color:#eef5f0;font:16px/1.5 system-ui,sans-serif}main{max-width:680px;margin:auto;padding:28px 18px}h1{font-size:42px;line-height:1}label{display:grid;gap:5px;margin:14px 0;color:#b7c3be}input{min-height:46px;padding:0 12px;border:1px solid #3b4a51;border-radius:5px;background:#172127;color:#fff;font:inherit}button{min-height:46px;padding:0 16px;border:0;border-radius:5px;background:#a7f46a;color:#10200a;font-weight:700}.warn,.message{padding:14px;border:1px solid #765f38;background:#211c13}.message{border-color:#a7f46a}.muted{color:#9caaa5}code{color:#a7f46a}</style></head><body><main><p class=muted>ESP32 · PROTECTED PROVISIONING</p><h1>BME280 MQTT Sensor</h1>");
+    page.reserve(6500);
+    page += F("<!doctype html><html><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>BME280 Setup</title><style>body{margin:0;background:#0b1014;color:#eef5f0;font:16px/1.5 system-ui,sans-serif}main{max-width:680px;margin:auto;padding:28px 18px}h1{font-size:42px;line-height:1}h2{margin-top:0}label{display:grid;gap:5px;margin:14px 0;color:#b7c3be}input{min-height:46px;padding:0 12px;border:1px solid #3b4a51;border-radius:5px;background:#172127;color:#fff;font:inherit}button{min-height:46px;padding:0 16px;border:0;border-radius:5px;background:#a7f46a;color:#10200a;font-weight:700}.warn,.message,.scan{padding:14px;border:1px solid #765f38;background:#211c13}.message{border-color:#a7f46a}.scan{margin:20px 0;border-color:#3b4a51;background:#111a20}.good,.bad{padding:12px;font-weight:700}.good{border:1px solid #4f8b68;background:#11251a;color:#bff4d0}.bad{border:1px solid #a95c4c;background:#2a1714;color:#ffd5cc}.muted{color:#9caaa5}code{color:#a7f46a}</style></head><body><main><p class=muted>ESP32 · PROTECTED PROVISIONING</p><h1>BME280 MQTT Sensor</h1>");
     if (!message.isEmpty()) page += "<p class=message>" + message + "</p>";
+    appendScanReport(page);
     page += F("<p class=warn>This temporary setup network uses the random password printed on USB serial. Wi-Fi and MQTT passwords are stored in ESP32 NVS and are not encrypted at rest.</p><form method=post action=/save><input type=hidden name=csrf value='");
     page += csrf_token;
     page += F("'><label>Wi-Fi SSID<input name=ssid maxlength=32 required autocomplete=off></label><label>Wi-Fi password<input name=wifi_password type=password maxlength=63 autocomplete=new-password></label><label>MQTT host or IP<input name=mqtt_host maxlength=128 required placeholder=192.168.1.10></label><label>MQTT port<input name=mqtt_port type=number min=1 max=65535 value=1883 required></label><label>MQTT username<input name=mqtt_username maxlength=64 autocomplete=off></label><label>MQTT password<input name=mqtt_password type=password maxlength=128 autocomplete=new-password></label><label>Topic prefix<input name=topic_prefix maxlength=96 value=home/environment required></label><label>Wake interval (minutes)<input name=sleep_minutes type=number min=1 max=1440 value=5 required></label><button type=submit>Save pending configuration</button></form><p class=muted>The sensor tests pending Wi-Fi and MQTT settings after restart. It promotes them only after a successful publish; the previous active configuration is preserved on failure.</p><form method=post action=/clear><input type=hidden name=csrf value='");
@@ -292,6 +483,16 @@ bool createCandidate(const FormFields& fields, StoredConfig& candidate) {
 }
 
 void handlePost(WiFiClient& client, const char* path, const char* body, size_t body_length) {
+    if (std::strcmp(path, "/scan") == 0) {
+        if (!validCsrfBody(body, body_length)) {
+            sendHttp(client, 400, "Bad Request", setupPage("Scan request rejected."));
+        } else {
+            latest_scan = scanSensorBuses();
+            scan_ready = true;
+            sendHttp(client, 200, "OK", setupPage("Sensor buses scanned again."));
+        }
+        return;
+    }
     if (std::strcmp(path, "/clear") == 0) {
         if (!validCsrfBody(body, body_length)) {
             sendHttp(client, 400, "Bad Request", setupPage("Request rejected."));
@@ -397,6 +598,8 @@ void startProvisioning() {
     std::snprintf(ssid, sizeof(ssid), "BME280-Setup-%02X%02X%02X", mac[3], mac[4], mac[5]);
     makeRandomHex(password, 8U);
     makeRandomHex(csrf_token, 8U);
+    latest_scan = scanSensorBuses();
+    scan_ready = true;
     WiFi.mode(WIFI_AP);
     if (!WiFi.softAP(ssid, password, 1, false, 1)) {
         Serial.println("Provisioning AP failed; entering fail-safe sleep");
@@ -414,30 +617,88 @@ void startProvisioning() {
                   ssid, password, WiFi.softAPIP().toString().c_str());
 }
 
-Reading readSensor() {
-    Reading reading;
-    if (!Wire.begin(SENSOR_SDA_PIN, SENSOR_SCL_PIN, 100000U)) {
-        Serial.println("I2C initialization failed");
-        return reading;
-    }
-    Adafruit_BME280 sensor;
-    if (sensor.begin(0x76, &Wire)) reading.address = 0x76;
-    else if (sensor.begin(0x77, &Wire)) reading.address = 0x77;
-    else {
-        Serial.println("BME280 not found at 0x76 or 0x77");
-        Wire.end();
-        return reading;
-    }
+bool takeReading(Adafruit_BME280& sensor, Reading& reading) {
     sensor.setSampling(Adafruit_BME280::MODE_FORCED, Adafruit_BME280::SAMPLING_X1,
                        Adafruit_BME280::SAMPLING_X1, Adafruit_BME280::SAMPLING_X1,
                        Adafruit_BME280::FILTER_OFF, Adafruit_BME280::STANDBY_MS_0_5);
-    if (sensor.takeForcedMeasurement()) {
-        reading.temperature_c = sensor.readTemperature();
-        reading.humidity_percent = sensor.readHumidity();
-        reading.pressure_hpa = sensor.readPressure() / 100.0F;
-        reading.valid = isValidBme280Reading(reading.temperature_c, reading.humidity_percent, reading.pressure_hpa);
+    if (!sensor.takeForcedMeasurement()) return false;
+    reading.temperature_c = sensor.readTemperature();
+    reading.humidity_percent = sensor.readHumidity();
+    reading.pressure_hpa = sensor.readPressure() / 100.0F;
+    reading.valid = isValidBme280Reading(reading.temperature_c, reading.humidity_percent, reading.pressure_hpa);
+    return reading.valid;
+}
+
+Reading readSensorHardware() {
+    Reading reading;
+    const SensorScanReport scan = scanSensorBuses();
+    if (scan.bme_i2c) {
+        if (!Wire.begin(SENSOR_SDA_PIN, SENSOR_SCL_PIN, scan.bme_i2c_clock)) {
+            Serial.println("I2C initialization failed after detection");
+            return reading;
+        }
+        Wire.setTimeOut(20U);
+        Adafruit_BME280 sensor;
+        if (!sensor.begin(scan.bme_i2c_address, &Wire)) {
+            Serial.println("BME280 disappeared from I2C after detection");
+            Wire.end();
+            return reading;
+        }
+        reading.address = scan.bme_i2c_address;
+        takeReading(sensor, reading);
+        Wire.end();
+        return reading;
     }
-    Wire.end();
+    if (scan.bme_spi) {
+        pinMode(SENSOR_SPI_CS_PIN, OUTPUT);
+        digitalWrite(SENSOR_SPI_CS_PIN, HIGH);
+        SPI.begin(SENSOR_SPI_SCK_PIN, SENSOR_SPI_MISO_PIN, SENSOR_SPI_MOSI_PIN, SENSOR_SPI_CS_PIN);
+        Adafruit_BME280 sensor(SENSOR_SPI_CS_PIN, &SPI);
+        if (!sensor.begin()) {
+            Serial.println("BME280 disappeared from SPI after detection");
+            SPI.end();
+            return reading;
+        }
+        reading.spi = true;
+        reading.spi_mode = 0U;
+        takeReading(sensor, reading);
+        SPI.end();
+        return reading;
+    }
+    if (scan.incompatible_chip_id != 0xffU) {
+        Serial.printf("Found %s (chip ID 0x%02X), not a BME280\n",
+                      environmentalSensorChipName(scan.incompatible_chip_id), scan.incompatible_chip_id);
+    } else Serial.println("BME280 not found on scanned I2C or four-wire SPI buses");
+    return reading;
+}
+
+void sensorReadTask(void* parameter) {
+    QueueHandle_t queue = static_cast<QueueHandle_t>(parameter);
+    const Reading reading = readSensorHardware();
+    xQueueSend(queue, &reading, 0U);
+    vTaskSuspend(nullptr);
+}
+
+Reading readSensorBounded() {
+    Reading reading;
+    QueueHandle_t queue = xQueueCreate(1U, sizeof(Reading));
+    if (queue == nullptr) {
+        Serial.println("Sensor read queue allocation failed");
+        return reading;
+    }
+    TaskHandle_t task = nullptr;
+    const BaseType_t created = xTaskCreate(sensorReadTask, "bme280-read", 8192U, queue, 1U, &task);
+    if (created != pdPASS || task == nullptr) {
+        Serial.println("Sensor read task allocation failed");
+        vQueueDelete(queue);
+        return reading;
+    }
+    if (xQueueReceive(queue, &reading, pdMS_TO_TICKS(kSensorReadTimeoutMs)) != pdTRUE) {
+        Serial.println("Sensor initialization timed out; continuing to bounded network attempt and sleep");
+        reading = {};
+    }
+    vTaskDelete(task);
+    vQueueDelete(queue);
     return reading;
 }
 
@@ -485,9 +746,16 @@ bool publishReading(const Reading& reading, const StoredConfig& value, bool reta
         document["temperature_c"] = std::round(reading.temperature_c * 100.0F) / 100.0F;
         document["humidity_percent"] = std::round(reading.humidity_percent * 100.0F) / 100.0F;
         document["pressure_hpa"] = std::round(reading.pressure_hpa * 100.0F) / 100.0F;
-        char address[5];
-        std::snprintf(address, sizeof(address), "0x%02X", reading.address);
-        document["i2c_address"] = address;
+        if (reading.spi) {
+            document["interface"] = "spi";
+            document["spi_mode"] = reading.spi_mode;
+            document["spi_cs_gpio"] = SENSOR_SPI_CS_PIN;
+        } else {
+            document["interface"] = "i2c";
+            char address[5];
+            std::snprintf(address, sizeof(address), "0x%02X", reading.address);
+            document["i2c_address"] = address;
+        }
     } else document["error"] = "bme280_read_failed";
     document["wifi_rssi_dbm"] = WiFi.RSSI();
     document["sleep_minutes"] = value.sleep_minutes;
@@ -531,7 +799,7 @@ bool recoveryRequested() {
 }
 
 void processConfiguredWake(const StoredConfig& value, bool pending) {
-    const Reading reading = readSensor();
+    const Reading reading = readSensorBounded();
     const bool wifi_ready = connectWifi(value);
     const bool published = wifi_ready && publishReading(reading, value, !pending);
     bool promoted = !pending;

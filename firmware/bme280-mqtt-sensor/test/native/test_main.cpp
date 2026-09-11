@@ -48,6 +48,15 @@ int main() {
     assert(!isValidBme280Reading(20.0F, 100.1F, 1000.0F));
     assert(!isValidBme280Reading(20.0F, 50.0F, 299.9F));
 
+    assert(classifyEnvironmentalSensorChip(0x60) == EnvironmentalSensorChip::Bme280);
+    assert(classifyEnvironmentalSensorChip(0x56) == EnvironmentalSensorChip::Bmp280);
+    assert(classifyEnvironmentalSensorChip(0x57) == EnvironmentalSensorChip::Bmp280);
+    assert(classifyEnvironmentalSensorChip(0x58) == EnvironmentalSensorChip::Bmp280);
+    assert(classifyEnvironmentalSensorChip(0x61) == EnvironmentalSensorChip::Other);
+    assert(std::string(environmentalSensorChipName(0x60)) == "BME280");
+    assert(std::string(environmentalSensorChipName(0x58)) == "BMP280 (no humidity sensor)");
+    assert(std::string(environmentalSensorChipName(0xff)) == "unknown device");
+
     std::size_t content_length = 0;
     bool has_content_length = false;
     const std::string valid_headers = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nContent-Length: 42\r\n\r\n";

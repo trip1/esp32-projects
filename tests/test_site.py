@@ -257,6 +257,40 @@ class FirmwarePortalTests(unittest.TestCase):
         setup = source.split("void setup()", 1)[1].split("void loop()", 1)[0]
         self.assertLess(setup.index("recoveryRequested()"), setup.index("processConfiguredWake(pending"))
 
+    def test_bme280_setup_preflights_i2c_and_spi_before_credentials(self):
+        project = next(project for project in self.load_catalog() if project["slug"] == "bme280-mqtt-sensor")
+        self.assertEqual("1.1.0", project["version"])
+        self.assertIn("I²C/SPI sensor preflight", project["features"])
+        source = (ROOT / project["project_dir"] / "src" / "main.cpp").read_text()
+        page = source.split("String setupPage", 1)[1].split("void sendHttp", 1)[0]
+        self.assertIn("Sensor preflight", source)
+        self.assertLess(page.index("appendScanReport(page)"), page.index("Wi-Fi SSID"))
+        self.assertIn('std::strcmp(path, "/scan")', source)
+        self.assertIn("scanSensorBuses()", source)
+        self.assertIn("for (uint8_t address = 1U; address < 127U", source)
+        self.assertIn("SPI_MODE0", source)
+        self.assertIn("SPI_MODE3", source)
+
+    def test_bme280_targets_define_exact_spi_fallback_pins(self):
+        project = next(project for project in self.load_catalog() if project["slug"] == "bme280-mqtt-sensor")
+        config = configparser.ConfigParser(interpolation=None)
+        config.read(ROOT / project["project_dir"] / "platformio.ini")
+        for target in project["targets"]:
+            flags = config[f"env:{target['environment']}"]["build_flags"]
+            for macro in ("SENSOR_SPI_SCK_PIN", "SENSOR_SPI_MISO_PIN", "SENSOR_SPI_MOSI_PIN", "SENSOR_SPI_CS_PIN"):
+                self.assertRegex(flags, rf"-D\s*{macro}\s*=\s*\d+", f"{target['id']} missing {macro}")
+
+    def test_bme280_detection_and_driver_initialization_are_bounded_and_consistent(self):
+        source = (ROOT / "firmware" / "bme280-mqtt-sensor" / "src" / "main.cpp").read_text()
+        scan = source.split("SensorScanReport scanSensorBuses()", 1)[1].split("void appendScanReport", 1)[0]
+        self.assertLess(scan.index("digitalWrite(SENSOR_SPI_CS_PIN, HIGH)"), scan.index("scanI2cClock(report"))
+        self.assertIn("spi_mode3_only_bme", scan)
+        self.assertNotIn("report.bme_spi_mode = 3U", scan)
+        bounded = source.split("Reading readSensorBounded()", 1)[1].split("bool connectWifi", 1)[0]
+        self.assertIn("xQueueReceive", bounded)
+        self.assertIn("kSensorReadTimeoutMs", bounded)
+        self.assertIn("vTaskDelete", bounded)
+
     def test_reboot_museum_clears_nvs_with_checked_clear(self):
         source = (ROOT / "firmware" / "no-hardware-lab" / "src" / "apps" / "boot-counter.cpp").read_text()
         clear_handler = source.split("void clearHistory()", 1)[1].split("}\n", 1)[0]

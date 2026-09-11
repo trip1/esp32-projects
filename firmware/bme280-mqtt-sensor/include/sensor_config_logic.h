@@ -4,6 +4,16 @@
 #include <cstdint>
 #include <string>
 
+enum class EnvironmentalSensorChip : std::uint8_t {
+    None,
+    Bme280,
+    Bmp280,
+    Other,
+};
+
+EnvironmentalSensorChip classifyEnvironmentalSensorChip(std::uint8_t chip_id);
+const char* environmentalSensorChipName(std::uint8_t chip_id);
+
 bool isValidWifiSsid(const std::string& value);
 bool isValidWifiPassword(const std::string& value);
 bool isValidMqttHost(const std::string& value);

@@ -709,18 +709,19 @@
   {
     "slug": "bme280-mqtt-sensor",
     "name": "BME280 MQTT Sleep Sensor",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "Practical",
-    "description": "Reads temperature, humidity, and barometric pressure, publishes one retained MQTT state, then enters configurable timer deep sleep.",
+    "description": "Scans I²C and four-wire SPI for a BME280 before setup, then reads temperature, humidity, and pressure, publishes retained MQTT state, and enters configurable deep sleep.",
     "features": [
       "BME280 forced-mode sampling",
+      "I²C/SPI sensor preflight",
       "First-boot setup portal",
       "Retained MQTT state",
       "Configurable deep sleep"
     ],
     "installable": true,
     "extra_hardware": true,
-    "hardware": "BME280 + four jumper wires",
+    "hardware": "BME280 I²C/SPI breakout + four I²C or six SPI jumper wires",
     "project_dir": "firmware/bme280-mqtt-sensor",
     "targets": [
       {
@@ -754,6 +755,7 @@
           ],
           "warnings": [
             "Use 3.3 V power; confirm the breakout includes I²C pull-ups.",
+            "SPI alternative: SCK GPIO18 · MISO GPIO19 · MOSI GPIO23 · CS GPIO27; use a six-pin breakout and see the project guide.",
             "Wiring and sensor behavior are not yet physically verified.",
             "Board and module positions are simplified; follow the printed pin labels and connection table."
           ]
@@ -790,6 +792,7 @@
           ],
           "warnings": [
             "Use 3.3 V power; confirm the breakout includes I²C pull-ups.",
+            "SPI alternative: SCK GPIO4 · MISO GPIO5 · MOSI GPIO6 · CS GPIO7; use a six-pin breakout and see the project guide.",
             "Wiring and sensor behavior are not yet physically verified.",
             "Board and module positions are simplified; follow the printed pin labels and connection table."
           ]
@@ -826,6 +829,7 @@
           ],
           "warnings": [
             "Use 3.3 V power; confirm the breakout includes I²C pull-ups.",
+            "SPI alternative: SCK GPIO12 · MISO GPIO13 · MOSI GPIO11 · CS GPIO10; use a six-pin breakout and see the project guide.",
             "Wiring and sensor behavior are not yet physically verified.",
             "Board and module positions are simplified; follow the printed pin labels and connection table."
           ]
@@ -862,6 +866,7 @@
           ],
           "warnings": [
             "Use 3.3 V power; confirm the breakout includes I²C pull-ups.",
+            "SPI alternative: SCK GPIO21 · MISO GPIO20 · MOSI GPIO19 · CS GPIO18; use a six-pin breakout and see the project guide.",
             "Wiring and sensor behavior are not yet physically verified.",
             "Board and module positions are simplified; follow the printed pin labels and connection table."
           ]
@@ -877,20 +882,20 @@
         "Topic prefix",
         "Wake interval"
       ],
-      "summary": "On first boot, join the password-protected setup network using the password shown in the serial console, then enter Wi-Fi, MQTT, and wake settings."
+      "summary": "On first boot, join the password-protected setup network and review the I²C/SPI sensor preflight before entering Wi-Fi, MQTT, and wake settings."
     },
     "parts": [
       {
         "quantity": 1,
-        "name": "BME280 I²C breakout",
-        "specification": "3.3 V-compatible breakout with installed 2.54 mm male header and onboard I²C pull-ups; address 0x76 or 0x77",
+        "name": "BME280 I²C/SPI breakout",
+        "specification": "3.3 V-compatible six-pin breakout with installed 2.54 mm male header and onboard I²C pull-ups; exposes CS/CSB and SDO for four-wire SPI or I²C address selection",
         "required": true,
-        "url": "https://www.amazon.com/s?k=BME280+3.3V+I2C+sensor+module"
+        "url": "https://www.amazon.com/s?k=BME280+6+pin+I2C+SPI+sensor+module"
       },
       {
         "quantity": 1,
         "name": "Female-to-female jumper-wire set",
-        "specification": "2.54 mm Dupont socket jumpers; at least four conductors",
+        "specification": "2.54 mm Dupont socket jumpers; at least four conductors for I²C or six for four-wire SPI",
         "required": true,
         "url": "https://www.amazon.com/s?k=female+to+female+dupont+jumper+wires"
       },
