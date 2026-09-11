@@ -4,6 +4,7 @@ import hashlib
 import json
 import re
 import shutil
+import struct
 import subprocess
 import sys
 from pathlib import Path
@@ -19,11 +20,20 @@ REQUIRED_FIELDS = {
 }
 REQUIRED_TARGET_FIELDS = {"id", "name", "chip", "environment"}
 SUPPORTED_TARGETS = {
-    "esp32-devkit-v1": {"chip": "ESP32", "board": "esp32dev"},
-    "esp32-c3-devkitm-1": {"chip": "ESP32-C3", "board": "esp32-c3-devkitm-1"},
-    "esp32-s3-devkitc-1": {"chip": "ESP32-S3", "board": "esp32-s3-devkitc-1"},
-    "esp32-c6-devkitc-1": {"chip": "ESP32-C6", "board": "esp32-c6-devkitc-1"},
+    "esp32-devkit-v1": {"chip": "ESP32", "board": "esp32dev", "format": "esp-web-tools"},
+    "esp32-c3-devkitm-1": {"chip": "ESP32-C3", "board": "esp32-c3-devkitm-1", "format": "esp-web-tools"},
+    "esp32-s3-devkitc-1": {"chip": "ESP32-S3", "board": "esp32-s3-devkitc-1", "format": "esp-web-tools"},
+    "esp32-c6-devkitc-1": {"chip": "ESP32-C6", "board": "esp32-c6-devkitc-1", "format": "esp-web-tools"},
+    "raspberry-pi-pico": {"chip": "RP2040", "board": "rpipico", "format": "uf2"},
+    "raspberry-pi-pico-w": {"chip": "RP2040", "board": "rpipicow", "format": "uf2"},
+    "raspberry-pi-pico-2": {"chip": "RP2350", "board": "rpipico2", "format": "uf2"},
+    "raspberry-pi-pico-2-w": {"chip": "RP2350", "board": "rpipico2w", "format": "uf2"},
 }
+UF2_FAMILY_IDS = {"RP2040": 0xE48BFF56, "RP2350": 0xE48BFF59}
+UF2_MAGIC_START_0 = 0x0A324655
+UF2_MAGIC_START_1 = 0x9E5D5157
+UF2_MAGIC_END = 0x0AB16F30
+UF2_FLAG_FAMILY_ID = 0x00002000
 
 
 def fail(message: str) -> NoReturn:
@@ -85,6 +95,37 @@ def validate_firmware_artifact(image: Path, build: Path, project_dir: Path | Non
         or image.stat().st_size == 0
     ):
         fail(f"required firmware artifact missing, empty, or outside build directory: {image}")
+
+
+def validate_uf2_image(image: Path, chip: str) -> None:
+    expected_family = UF2_FAMILY_IDS.get(chip)
+    data = image.read_bytes()
+    if expected_family is None or not data or len(data) > 32 * 1024 * 1024 or len(data) % 512 != 0:
+        fail(f"UF2 structure is invalid for {image}")
+    expected_blocks = len(data) // 512
+    seen_blocks = set()
+    for offset in range(0, len(data), 512):
+        block = data[offset:offset + 512]
+        magic0, magic1, flags, _, payload_size, block_number, block_count, family = struct.unpack_from(
+            "<IIIIIIII", block
+        )
+        end_magic = struct.unpack_from("<I", block, 508)[0]
+        if (
+            magic0 != UF2_MAGIC_START_0
+            or magic1 != UF2_MAGIC_START_1
+            or end_magic != UF2_MAGIC_END
+            or not flags & UF2_FLAG_FAMILY_ID
+            or family != expected_family
+            or payload_size == 0
+            or payload_size > 476
+            or block_count != expected_blocks
+            or block_number >= block_count
+            or block_number in seen_blocks
+        ):
+            fail(f"UF2 block or chip family is invalid for {image}")
+        seen_blocks.add(block_number)
+    if seen_blocks != set(range(expected_blocks)):
+        fail(f"UF2 block sequence is incomplete for {image}")
 
 
 def validate_static_web_tree(web: Path, catalog_root: Path) -> None:
@@ -330,13 +371,38 @@ def main() -> None:
         public_targets = []
         for target in project["targets"]:
             build = project["_resolved_project_dir"] / ".pio" / "build" / target["environment"]
+            release = output / "firmware" / slug / target["id"]
+            release.mkdir(parents=True)
+            target_public = {key: value for key, value in target.items() if key != "environment"}
+            if SUPPORTED_TARGETS[target["id"]]["format"] == "uf2":
+                uf2_image = build / "firmware.uf2"
+                validate_firmware_artifact(uf2_image, build, project["_resolved_project_dir"])
+                validate_uf2_image(uf2_image, target["chip"])
+                shutil.copy2(uf2_image, release / uf2_image.name)
+                uf2_bytes = uf2_image.read_bytes()
+                uf2_manifest = {
+                    "product": slug,
+                    "target": target["id"],
+                    "chip": target["chip"],
+                    "version": project["version"],
+                    "firmware": "firmware.uf2",
+                    "size": len(uf2_bytes),
+                    "sha256": hashlib.sha256(uf2_bytes).hexdigest(),
+                }
+                (release / "uf2-manifest.json").write_text(json.dumps(uf2_manifest, indent=2) + "\n")
+                public_targets.append(target_public | {
+                    "method": "uf2",
+                    "download": f"./firmware/{slug}/{target['id']}/firmware.uf2",
+                    "size": uf2_manifest["size"],
+                    "sha256": uf2_manifest["sha256"],
+                })
+                continue
+
             factory_image = build / "firmware.factory.bin"
             ota_image = build / "firmware.bin"
             for image in (factory_image, ota_image):
                 validate_firmware_artifact(image, build, project["_resolved_project_dir"])
 
-            release = output / "firmware" / slug / target["id"]
-            release.mkdir(parents=True)
             shutil.copy2(factory_image, release / factory_image.name)
             shutil.copy2(ota_image, release / ota_image.name)
             subprocess.run(
@@ -362,9 +428,10 @@ def main() -> None:
                 "sha256": hashlib.sha256(ota_bytes).hexdigest(),
             }
             (release / "ota-manifest.json").write_text(json.dumps(ota_manifest, indent=2) + "\n")
-            public_targets.append({
-                key: value for key, value in target.items() if key != "environment"
-            } | {"manifest": f"./firmware/{slug}/{target['id']}/manifest.json"})
+            public_targets.append(target_public | {
+                "method": "esp-web-tools",
+                "manifest": f"./firmware/{slug}/{target['id']}/manifest.json",
+            })
         public["targets"] = public_targets
         public_catalog.append(public)
 

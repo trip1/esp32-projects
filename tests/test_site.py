@@ -2,6 +2,7 @@ import configparser
 import hashlib
 import json
 import re
+import struct
 import subprocess
 import tempfile
 import unittest
@@ -29,13 +30,38 @@ EXPECTED_NEW_PROJECTS = {
     "hc-sr04-parking",
     "pir-occupancy-timer",
     "ntp-desk-clock",
+    "pico-board-check",
+    "pico-morse-beacon",
+    "pico-wifi-surveyor",
 }
-EXPECTED_TARGETS = {
+ESP_TARGETS = {
     "esp32-devkit-v1": "ESP32",
     "esp32-c3-devkitm-1": "ESP32-C3",
     "esp32-s3-devkitc-1": "ESP32-S3",
     "esp32-c6-devkitc-1": "ESP32-C6",
 }
+PICO_TARGETS = {
+    "raspberry-pi-pico": "RP2040",
+    "raspberry-pi-pico-w": "RP2040",
+    "raspberry-pi-pico-2": "RP2350",
+    "raspberry-pi-pico-2-w": "RP2350",
+}
+
+
+def make_uf2(family_id, payload=b"test"):
+    data = payload.ljust(256, b"\0")
+    header = struct.pack(
+        "<IIIIIIII",
+        0x0A324655,
+        0x9E5D5157,
+        0x00002000,
+        0x10000000,
+        256,
+        0,
+        1,
+        family_id,
+    )
+    return header + data + bytes(508 - len(header) - len(data)) + struct.pack("<I", 0x0AB16F30)
 LED_PROJECTS = {"rgb-lamp", "pomodoro-light", "morse-beacon"}
 EXTRA_HARDWARE_PROJECTS = {"bme280-mqtt-sensor", "hc-sr04-parking", "pir-occupancy-timer", "ntp-desk-clock"}
 
@@ -44,28 +70,64 @@ class FirmwarePortalTests(unittest.TestCase):
     def load_catalog(self):
         return json.loads((ROOT / "projects.json").read_text())
 
-    def test_catalog_contains_nineteen_projects(self):
+    def test_catalog_contains_twenty_two_projects(self):
         catalog = self.load_catalog()
         slugs = {project["slug"] for project in catalog}
         self.assertEqual(EXPECTED_NEW_PROJECTS, slugs - {"ble-mqtt-scanner"})
-        self.assertEqual(19, len(catalog))
+        self.assertEqual(22, len(catalog))
         for project in catalog:
             self.assertTrue(project["installable"])
             self.assertEqual(project["slug"] in EXTRA_HARDWARE_PROJECTS, project["extra_hardware"])
             self.assertTrue(project["hardware"])
 
-    def test_catalog_targets_four_supported_boards(self):
+    def test_catalog_preserves_existing_esp32_board_support(self):
         catalog = self.load_catalog()
         for project in catalog:
-            targets = {target["id"]: target["chip"] for target in project["targets"]}
-            expected = dict(EXPECTED_TARGETS)
+            targets = {target["id"]: target["chip"] for target in project["targets"] if target["id"] in ESP_TARGETS}
+            expected = dict(ESP_TARGETS)
             if project["slug"] in LED_PROJECTS:
                 expected.pop("esp32-devkit-v1")
+            if project["slug"].startswith("pico-"):
+                expected = {}
             self.assertEqual(expected, targets, project["slug"])
             for target in project["targets"]:
                 self.assertTrue(target["name"])
                 self.assertTrue(target["environment"])
-        self.assertEqual(73, sum(len(project["targets"]) for project in catalog))
+        self.assertEqual(83, sum(len(project["targets"]) for project in catalog))
+
+    def test_catalog_supports_four_exact_raspberry_pi_pico_boards(self):
+        projects = {project["slug"]: project for project in self.load_catalog()}
+        for slug in ("pico-board-check", "pico-morse-beacon"):
+            targets = {target["id"]: target["chip"] for target in projects[slug]["targets"] if target["id"] in PICO_TARGETS}
+            self.assertEqual(PICO_TARGETS, targets, slug)
+        surveyor = {target["id"]: target["chip"] for target in projects["pico-wifi-surveyor"]["targets"] if target["id"] in PICO_TARGETS}
+        self.assertEqual({
+            "raspberry-pi-pico-w": "RP2040",
+            "raspberry-pi-pico-2-w": "RP2350",
+        }, surveyor)
+
+    def test_pico_surveyor_protects_private_scan_results(self):
+        source = (ROOT / "firmware" / "pico-lab" / "src" / "apps" / "wifi-surveyor.cpp").read_text()
+        readme = (ROOT / "firmware" / "pico-lab" / "README.md").read_text()
+        self.assertIn("rp2040.hwrand32()", source)
+        self.assertIn("WiFi.softAP(AP_NAME, ap_password)", source)
+        self.assertIn("parseSurveyRequest", source)
+        self.assertIn("Content-Security-Policy", source)
+        self.assertIn("X-Content-Type-Options", source)
+        self.assertIn("visible to every client", readme)
+
+    def test_builder_registry_maps_exact_pico_board_ids(self):
+        expected = {
+            "raspberry-pi-pico": ("RP2040", "rpipico"),
+            "raspberry-pi-pico-w": ("RP2040", "rpipicow"),
+            "raspberry-pi-pico-2": ("RP2350", "rpipico2"),
+            "raspberry-pi-pico-2-w": ("RP2350", "rpipico2w"),
+        }
+        for target_id, (chip, board) in expected.items():
+            target = build_site.SUPPORTED_TARGETS[target_id]
+            self.assertEqual(chip, target["chip"])
+            self.assertEqual(board, target["board"])
+            self.assertEqual("uf2", target["format"])
 
     def test_catalog_has_practical_and_fun_projects(self):
         categories = {project["category"] for project in self.load_catalog()}
@@ -221,12 +283,20 @@ class FirmwarePortalTests(unittest.TestCase):
         self.assertIn('id="selected-connections"', html)
         self.assertIn('id="selected-warnings"', html)
         self.assertIn('id="selected-parts"', html)
+        self.assertIn('id="pico-install"', html)
+        self.assertIn('id="pico-download"', html)
+        self.assertIn('id="pico-size"', html)
+        self.assertIn('id="pico-sha"', html)
         self.assertIn('class="filters" role="group"', html)
         self.assertIn("esp-web-install-button", html)
         self.assertIn('slot="activate"', html)
         self.assertIn('slot="unsupported"', html)
         self.assertIn('fetch("./projects.json")', javascript)
         self.assertIn("selectedTarget.manifest", javascript)
+        self.assertIn('selectedTarget.method === "uf2"', javascript)
+        self.assertIn("selectedTarget.download", javascript)
+        self.assertIn("selectedTarget.size", javascript)
+        self.assertIn("selectedTarget.sha256", javascript)
         self.assertIn("project.hardware", javascript)
         self.assertIn("project.setup.summary", javascript)
         self.assertIn("selectedTarget.wiring.diagram", javascript)
@@ -236,6 +306,68 @@ class FirmwarePortalTests(unittest.TestCase):
         self.assertIn('setAttribute("manifest", selectedTarget.manifest)', javascript)
         self.assertIn('setAttribute("aria-pressed"', javascript)
         self.assertNotIn('id="installer-button" manifest=', html)
+
+    def test_site_builder_packages_pico_uf2_download(self):
+        with tempfile.TemporaryDirectory() as directory:
+            temp = Path(directory)
+            project_dir = temp / "firmware"
+            build = project_dir / ".pio" / "build" / "board-check--pico"
+            build.mkdir(parents=True)
+            (project_dir / "platformio.ini").write_text("[env:board-check--pico]\nboard = rpipico\n")
+            uf2 = make_uf2(0xE48BFF56)
+            (build / "firmware.uf2").write_bytes(uf2)
+            web = temp / "web"
+            web.mkdir()
+            (web / "index.html").write_text("<!doctype html><title>Pico</title>")
+            project = {
+                "slug": "pico-check",
+                "name": "Pico Check",
+                "version": "1.0.0",
+                "category": "Practical",
+                "description": "Test",
+                "hardware": "Board only",
+                "features": ["Test"],
+                "installable": True,
+                "extra_hardware": False,
+                "setup": {"required": False, "fields": [], "summary": "No setup."},
+                "project_dir": "firmware",
+                "targets": [{
+                    "id": "raspberry-pi-pico",
+                    "name": "Raspberry Pi Pico",
+                    "chip": "RP2040",
+                    "environment": "board-check--pico",
+                }],
+            }
+            catalog = temp / "projects.json"
+            catalog.write_text(json.dumps([project]))
+            output = temp / "site"
+            subprocess.run([
+                "python3", str(ROOT / "scripts" / "build_site.py"),
+                "--catalog", str(catalog), "--output", str(output),
+            ], check=True)
+            public = json.loads((output / "projects.json").read_text())[0]["targets"][0]
+            self.assertEqual("uf2", public["method"])
+            self.assertEqual("./firmware/pico-check/raspberry-pi-pico/firmware.uf2", public["download"])
+            self.assertEqual(len(uf2), public["size"])
+            release = output / "firmware" / "pico-check" / "raspberry-pi-pico"
+            self.assertEqual(uf2, (release / "firmware.uf2").read_bytes())
+            manifest = json.loads((release / "uf2-manifest.json").read_text())
+            self.assertEqual(hashlib.sha256(uf2).hexdigest(), manifest["sha256"])
+            self.assertEqual(len(uf2), manifest["size"])
+
+    def test_uf2_validator_rejects_wrong_chip_family(self):
+        with tempfile.TemporaryDirectory() as directory:
+            image = Path(directory) / "firmware.uf2"
+            image.write_bytes(make_uf2(0xE48BFF56))
+            with self.assertRaises(SystemExit):
+                build_site.validate_uf2_image(image, "RP2350")
+
+    def test_uf2_validator_rejects_malformed_block(self):
+        with tempfile.TemporaryDirectory() as directory:
+            image = Path(directory) / "firmware.uf2"
+            image.write_bytes(bytes(512))
+            with self.assertRaises(SystemExit):
+                build_site.validate_uf2_image(image, "RP2040")
 
     def test_safety_warning_color_meets_wcag_aa(self):
         css = (ROOT / "web" / "styles.css").read_text()

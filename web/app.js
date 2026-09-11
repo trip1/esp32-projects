@@ -2,6 +2,11 @@ const browserState = document.querySelector("#browser-state");
 const projectList = document.querySelector("#project-list");
 const boardSelect = document.querySelector("#board-select");
 const installer = document.querySelector("#installer-button");
+const espInstall = document.querySelector("#esp-install");
+const picoInstall = document.querySelector("#pico-install");
+const picoDownload = document.querySelector("#pico-download");
+const picoSize = document.querySelector("#pico-size");
+const picoSha = document.querySelector("#pico-sha");
 const filters = [...document.querySelectorAll(".filter")];
 const defaultBoardId = "esp32-c6-devkitc-1";
 let projects = [];
@@ -11,8 +16,17 @@ let selectedBoardId = defaultBoardId;
 let activeFilter = "All";
 
 const serialSupported = "serial" in navigator;
-browserState.classList.add(serialSupported ? "supported" : "unsupported");
-browserState.querySelector("span:last-child").textContent = serialSupported ? "Web Serial ready" : "Use Chrome or Edge";
+
+function updateInstallStatus() {
+  const isUf2 = selectedTarget?.method === "uf2";
+  browserState.classList.toggle("supported", isUf2 || serialSupported);
+  browserState.classList.toggle("unsupported", !isUf2 && !serialSupported);
+  browserState.querySelector("span:last-child").textContent = isUf2
+    ? "UF2 download ready"
+    : (serialSupported ? "Web Serial ready" : "Use Chrome or Edge");
+}
+
+updateInstallStatus();
 
 function targetFor(project) {
   return project.targets.find((target) => target.id === selectedBoardId) || null;
@@ -95,8 +109,24 @@ function selectProject(project) {
     item.textContent = feature;
     return item;
   }));
-  installer.setAttribute("manifest", selectedTarget.manifest);
-  installer.manifest = selectedTarget.manifest;
+  const isUf2 = selectedTarget.method === "uf2";
+  espInstall.hidden = isUf2;
+  picoInstall.hidden = !isUf2;
+  if (isUf2) {
+    picoDownload.href = selectedTarget.download;
+    picoDownload.download = `${project.slug}-${project.version}-${selectedTarget.id}.uf2`;
+    picoSize.textContent = `${new Intl.NumberFormat().format(selectedTarget.size)} bytes`;
+    picoSha.textContent = selectedTarget.sha256;
+    installer.removeAttribute("manifest");
+  } else {
+    picoDownload.removeAttribute("href");
+    picoDownload.removeAttribute("download");
+    picoSize.textContent = "";
+    picoSha.textContent = "";
+    installer.setAttribute("manifest", selectedTarget.manifest);
+    installer.manifest = selectedTarget.manifest;
+  }
+  updateInstallStatus();
   updateLocation(project);
   document.querySelectorAll(".project-row").forEach((row) => {
     const selected = row.dataset.slug === project.slug;

@@ -1465,5 +1465,137 @@
         "url": "https://www.amazon.com/s?k=solderless+breadboard+electronics"
       }
     ]
+  },
+  {
+    "slug": "pico-board-check",
+    "name": "Pico Board Check",
+    "version": "1.0.0",
+    "category": "Practical",
+    "description": "Confirms the selected Pico family, reports compile-time CPU and flash details over USB serial, and blinks the onboard status LED.",
+    "features": [
+      "RP2040 and RP2350",
+      "USB serial diagnostics",
+      "Onboard LED heartbeat",
+      "No configuration"
+    ],
+    "installable": true,
+    "extra_hardware": false,
+    "project_dir": "firmware/pico-lab",
+    "targets": [
+      {
+        "id": "raspberry-pi-pico",
+        "name": "Raspberry Pi Pico",
+        "chip": "RP2040",
+        "environment": "board-check--pico"
+      },
+      {
+        "id": "raspberry-pi-pico-w",
+        "name": "Raspberry Pi Pico W",
+        "chip": "RP2040",
+        "environment": "board-check--pico-w"
+      },
+      {
+        "id": "raspberry-pi-pico-2",
+        "name": "Raspberry Pi Pico 2",
+        "chip": "RP2350",
+        "environment": "board-check--pico-2"
+      },
+      {
+        "id": "raspberry-pi-pico-2-w",
+        "name": "Raspberry Pi Pico 2 W",
+        "chip": "RP2350",
+        "environment": "board-check--pico-2-w"
+      }
+    ],
+    "hardware": "Board only",
+    "setup": {
+      "required": false,
+      "fields": [],
+      "summary": "No first-boot configuration is required; connect a USB serial monitor at 115200 baud after copying the UF2 file."
+    }
+  },
+  {
+    "slug": "pico-morse-beacon",
+    "name": "Pico Morse Beacon",
+    "version": "1.0.0",
+    "category": "Fun",
+    "description": "Blinks HELLO WORLD forever in Morse code on the Pico's onboard status LED and prints decoded characters over USB serial.",
+    "features": [
+      "Morse code",
+      "Onboard status LED",
+      "USB serial decoder",
+      "No configuration"
+    ],
+    "installable": true,
+    "extra_hardware": false,
+    "project_dir": "firmware/pico-lab",
+    "targets": [
+      {
+        "id": "raspberry-pi-pico",
+        "name": "Raspberry Pi Pico",
+        "chip": "RP2040",
+        "environment": "morse-beacon--pico"
+      },
+      {
+        "id": "raspberry-pi-pico-w",
+        "name": "Raspberry Pi Pico W",
+        "chip": "RP2040",
+        "environment": "morse-beacon--pico-w"
+      },
+      {
+        "id": "raspberry-pi-pico-2",
+        "name": "Raspberry Pi Pico 2",
+        "chip": "RP2350",
+        "environment": "morse-beacon--pico-2"
+      },
+      {
+        "id": "raspberry-pi-pico-2-w",
+        "name": "Raspberry Pi Pico 2 W",
+        "chip": "RP2350",
+        "environment": "morse-beacon--pico-2-w"
+      }
+    ],
+    "hardware": "Board only",
+    "setup": {
+      "required": false,
+      "fields": [],
+      "summary": "No first-boot configuration is required; the beacon starts after the UF2 file is copied to the board."
+    }
+  },
+  {
+    "slug": "pico-wifi-surveyor",
+    "name": "Pico W Wi-Fi Surveyor",
+    "version": "1.0.0",
+    "category": "Practical",
+    "description": "Creates a local access point on Pico W or Pico 2 W and serves a read-only survey of nearby Wi-Fi networks, channels, and signal strength.",
+    "features": [
+      "Pico W wireless",
+      "Bounded boot-time scan",
+      "Protected local dashboard",
+      "No router credentials"
+    ],
+    "installable": true,
+    "extra_hardware": false,
+    "project_dir": "firmware/pico-lab",
+    "targets": [
+      {
+        "id": "raspberry-pi-pico-w",
+        "name": "Raspberry Pi Pico W",
+        "chip": "RP2040",
+        "environment": "wifi-surveyor--pico-w"
+      },
+      {
+        "id": "raspberry-pi-pico-2-w",
+        "name": "Raspberry Pi Pico 2 W",
+        "chip": "RP2350",
+        "environment": "wifi-surveyor--pico-2-w"
+      }
+    ],
+    "hardware": "Board only",
+    "setup": {
+      "required": false,
+      "fields": [],
+      "summary": "No user settings are required; read the randomized per-boot Wi-Fi password from USB serial, join Pico-W-Surveyor, and open http://192.168.4.1/."
+    }
   }
 ]

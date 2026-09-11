@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0b1014">
-  <meta name="description" content="Browse and install DS9 Labs firmware for ESP32, ESP32-C3, ESP32-S3, and ESP32-C6 boards from Chrome or Edge.">
+  <meta name="description" content="Browse DS9 Labs firmware for ESP32 and Raspberry Pi Pico microcontroller boards.">
   <title>DS9 Device Foundry</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./styles.css">
@@ -16,17 +16,17 @@
   <header class="site-header">
     <a class="brand" href="./" aria-label="DS9 Device Foundry home">
       <span class="brand-mark" aria-hidden="true">D9</span>
-      <span><strong>Device Foundry</strong><small>ESP32 firmware lab</small></span>
+      <span><strong>Device Foundry</strong><small>Microcontroller firmware lab</small></span>
     </a>
     <div class="browser-state" id="browser-state" role="status"><span class="state-dot"></span><span>Checking browser</span></div>
   </header>
 
   <main>
     <section class="intro" aria-labelledby="page-title">
-      <p class="eyebrow">Browser-flashable experiments</p>
+      <p class="eyebrow">Installable firmware experiments</p>
       <h1 id="page-title">Pick a purpose.<br>Reflash the board.</h1>
       <div class="intro-copy">
-        <p>Practical tools, smart-home experiments, and deliberately unnecessary tiny computers for four ESP32 development boards, including optional sensor projects.</p>
+        <p>Practical tools, smart-home experiments, and deliberately unnecessary tiny computers for ESP32 and Raspberry Pi Pico boards.</p>
         <p class="project-total"><strong id="project-count">19</strong> compatible projects</p>
       </div>
     </section>
@@ -35,7 +35,7 @@
       <div class="catalog-bar">
         <div><p class="eyebrow">Firmware catalog</p><h2 id="catalog-title">Choose a project</h2></div>
         <div class="catalog-controls">
-          <label class="board-picker"><span>Board</span><select id="board-select" aria-label="Target ESP32 board"></select></label>
+          <label class="board-picker"><span>Board</span><select id="board-select" aria-label="Target microcontroller board"></select></label>
           <div class="filters" role="group" aria-label="Filter projects">
             <button class="filter active" data-filter="All" type="button" aria-pressed="true">All</button>
             <button class="filter" data-filter="Practical" type="button" aria-pressed="false">Practical</button>
@@ -74,13 +74,26 @@
             <ul id="selected-parts"></ul>
             <p class="privacy-note">Amazon links open product searches and are not affiliate links. Confirm voltage and pin labels before powering hardware.</p>
           </section>
-          <div class="install-action">
+          <div class="install-action" id="esp-install">
             <esp-web-install-button id="installer-button">
               <button class="install-button" slot="activate" type="button"><span>Install selected firmware</span><span aria-hidden="true">→</span></button>
               <p class="compatibility-error" slot="unsupported">Web Serial is unavailable. Open this page in desktop Chrome or Edge.</p>
               <p class="compatibility-error" slot="not-allowed">Firmware installation requires HTTPS.</p>
             </esp-web-install-button>
             <p class="privacy-note">Connect the board with a USB data cable. The browser asks before accessing its serial port.</p>
+          </div>
+          <div class="install-action" id="pico-install" hidden>
+            <a class="install-button" id="pico-download" href="#" download><span>Download selected UF2</span><span aria-hidden="true">↓</span></a>
+            <dl class="artifact-meta">
+              <div><dt>UF2 size</dt><dd id="pico-size"></dd></div>
+              <div><dt>SHA-256</dt><dd><code id="pico-sha"></code></dd></div>
+            </dl>
+            <ol class="uf2-steps">
+              <li>Hold <strong>BOOTSEL</strong> while connecting the Pico by USB.</li>
+              <li>Open the <strong>RPI-RP2</strong> or <strong>RP2350</strong> drive.</li>
+              <li>Copy the downloaded <strong>.uf2</strong> file to that drive.</li>
+            </ol>
+            <p class="privacy-note">The Pico reboots automatically after the copy. UF2 files are exact-board builds; do not use a Pico 2 file on an original Pico.</p>
           </div>
         </aside>
       </div>
@@ -89,8 +102,8 @@
     <section class="how-it-works" aria-labelledby="how-title">
       <div><p class="eyebrow">Three steps</p><h2 id="how-title">Flash, explore, repeat.</h2></div>
       <ol>
-        <li><span>01</span><p><strong>Connect</strong>Use desktop Chrome or Edge and connect your selected ESP32 board with a USB data cable.</p></li>
-        <li><span>02</span><p><strong>Install</strong>Select a project and choose the ESP serial port when prompted.</p></li>
+        <li><span>01</span><p><strong>Connect</strong>Connect the selected ESP32 or Pico board with a USB data cable.</p></li>
+        <li><span>02</span><p><strong>Install</strong>Use browser flashing for ESP32, or download UF2 and copy it to a Pico in BOOTSEL mode.</p></li>
         <li><span>03</span><p><strong>Experiment</strong>Use its local Wi-Fi page, BLE advertisement, RGB LED, or serial output.</p></li>
       </ol>
     </section>

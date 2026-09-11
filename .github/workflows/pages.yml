@@ -56,6 +56,14 @@ jobs:
           firmware/hardware-lab/test/native/test_main.cpp
           -o /tmp/hardware-lab-tests
           && /tmp/hardware-lab-tests
+      - name: Test Pico lab policy
+        run: >-
+          g++ -std=c++17 -Wall -Wextra -Werror
+          -I firmware/pico-lab/include
+          firmware/pico-lab/src/pico_logic.cpp
+          firmware/pico-lab/test/native/test_main.cpp
+          -o /tmp/pico-lab-tests
+          && /tmp/pico-lab-tests
       - name: Build BLE scanner firmware
         run: pio run -d firmware/ble-mqtt-scanner
       - name: Build no-hardware firmware collection
@@ -64,6 +72,8 @@ jobs:
         run: pio run -d firmware/bme280-mqtt-sensor
       - name: Build hardware lab firmware
         run: pio run -d firmware/hardware-lab
+      - name: Build Raspberry Pi Pico firmware
+        run: pio run -d firmware/pico-lab
       - name: Assemble static portal
         run: python scripts/build_site.py --output _site
       - name: Upload Pages artifact
