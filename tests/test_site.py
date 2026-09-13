@@ -95,6 +95,7 @@ class FirmwarePortalTests(unittest.TestCase):
                 self.assertTrue(target["name"])
                 self.assertTrue(target["environment"])
         self.assertEqual(87, sum(len(project["targets"]) for project in catalog))
+        self.assertEqual(91, sum(len(project["targets"]) + sum(len(target.get("variants", [])) for target in project["targets"]) for project in catalog))
 
     def test_catalog_supports_four_exact_raspberry_pi_pico_boards(self):
         projects = {project["slug"]: project for project in self.load_catalog()}
@@ -301,6 +302,85 @@ class FirmwarePortalTests(unittest.TestCase):
         self.assertIn("sntp_set_time_sync_notification_cb", source)
         self.assertIn("std::atomic<bool> fresh_ntp_sync", source)
 
+    def test_ntp_clock_has_optional_lcd1602_i2c_builds_for_every_esp_board(self):
+        project = next(project for project in self.load_catalog() if project["slug"] == "ntp-desk-clock")
+        self.assertEqual("1.2.0", project["version"])
+        config = configparser.ConfigParser(interpolation=None)
+        config.read(ROOT / project["project_dir"] / "platformio.ini")
+        expected_pins = {
+            "esp32-devkit-v1": (21, 22),
+            "esp32-c3-devkitm-1": (4, 5),
+            "esp32-s3-devkitc-1": (8, 9),
+            "esp32-c6-devkitc-1": (6, 7),
+        }
+        for target in project["targets"]:
+            variants = target.get("variants", [])
+            self.assertEqual(["lcd1602-i2c"], [variant["id"] for variant in variants])
+            variant = variants[0]
+            flags = config[f"env:{variant['environment']}"]["build_flags"]
+            sda, scl = expected_pins[target["id"]]
+            self.assertIn("-DCLOCK_DISPLAY_LCD1602=1", flags)
+            self.assertIn(f"-DCLOCK_SDA_PIN={sda}", flags)
+            self.assertIn(f"-DCLOCK_SCL_PIN={scl}", flags)
+            self.assertIn("-DCLOCK_LCD_ADDRESS=0x27", flags)
+            wiring = json.dumps(variant["wiring"], ensure_ascii=False)
+            self.assertIn(f"GPIO{sda}", wiring)
+            self.assertIn(f"GPIO{scl}", wiring)
+            self.assertIn("3.3 V", wiring)
+
+        source = (ROOT / project["project_dir"] / "src" / "apps" / "ntp-desk-clock.cpp").read_text()
+        self.assertIn("CLOCK_DISPLAY_LCD1602", source)
+        self.assertIn("class CheckedLcd1602", source)
+        self.assertIn("Wire.begin(CLOCK_SDA_PIN, CLOCK_SCL_PIN)", source)
+        self.assertIn("Wire.setTimeOut", source)
+        self.assertIn("Wire.beginTransmission(CLOCK_LCD_ADDRESS)", source)
+        self.assertIn("Wire.endTransmission(true) == 0U", source)
+        self.assertIn("const uint32_t remaining = timeout_ms - elapsed", source)
+        self.assertIn("Wire.setTimeOut(remaining < 25U ? remaining : 25U)", source)
+
+    def test_catalog_rejects_unknown_project_and_target_fields(self):
+        catalog = self.load_catalog()
+        catalog[0]["private_token"] = "must-not-publish"
+        with self.assertRaisesRegex(SystemExit, "unknown=.*private_token"):
+            build_site.validate_catalog(catalog, ROOT)
+
+        catalog = self.load_catalog()
+        catalog[0]["targets"][0]["private_token"] = "must-not-publish"
+        with self.assertRaisesRegex(SystemExit, "target fields are invalid"):
+            build_site.validate_catalog(catalog, ROOT)
+
+        catalog = self.load_catalog()
+        catalog[0]["setup"]["private_token"] = "must-not-publish"
+        with self.assertRaisesRegex(SystemExit, "setup metadata is invalid"):
+            build_site.validate_catalog(catalog, ROOT)
+
+    def test_catalog_rejects_invalid_optional_target_metadata(self):
+        catalog = self.load_catalog()
+        catalog[0]["targets"][0]["configuration_name"] = {"private": "must-not-publish"}
+        with self.assertRaisesRegex(SystemExit, "target configuration name must be non-empty"):
+            build_site.validate_catalog(catalog, ROOT)
+
+        catalog = self.load_catalog()
+        board_only = next(project for project in catalog if project["hardware"] == "Board only")
+        board_only["targets"][0]["wiring"] = {"private": "must-not-publish"}
+        with self.assertRaisesRegex(SystemExit, "board-only target cannot declare wiring"):
+            build_site.validate_catalog(catalog, ROOT)
+
+    def test_catalog_rejects_board_only_hardware_variants(self):
+        catalog = self.load_catalog()
+        board_only = next(project for project in catalog if project["hardware"] == "Board only" and project["targets"][0]["id"].startswith("esp32"))
+        ntp = next(project for project in catalog if project["slug"] == "ntp-desk-clock")
+        board_only["targets"][0]["variants"] = [ntp["targets"][0]["variants"][0]]
+        with self.assertRaisesRegex(SystemExit, "board-only project cannot declare hardware variants"):
+            build_site.validate_catalog(catalog, ROOT)
+
+    def test_catalog_rejects_reused_wiring_diagram_paths(self):
+        catalog = self.load_catalog()
+        ntp = next(project for project in catalog if project["slug"] == "ntp-desk-clock")
+        ntp["targets"][0]["variants"][0]["wiring"]["diagram"] = ntp["targets"][0]["wiring"]["diagram"]
+        with self.assertRaisesRegex(SystemExit, "target wiring diagram is reused"):
+            build_site.validate_catalog(catalog, ROOT)
+
     def test_local_portal_labels_the_actual_chip(self):
         source = (ROOT / "firmware" / "no-hardware-lab" / "src" / "app_support.cpp").read_text()
         self.assertNotIn("ESP32-C6 · LOCAL ONLY", source)
@@ -380,7 +460,7 @@ class FirmwarePortalTests(unittest.TestCase):
         projects = {project["slug"]: project for project in self.load_catalog()}
         self.assertEqual("3.1.0", projects["ble-mqtt-scanner"]["version"])
         self.assertEqual("1.3.0", projects["bme280-mqtt-sensor"]["version"])
-        self.assertEqual("1.1.0", projects["ntp-desk-clock"]["version"])
+        self.assertEqual("1.2.0", projects["ntp-desk-clock"]["version"])
         self.assertEqual("1.1.0", projects["pico-wifi-surveyor"]["version"])
 
     def test_reboot_museum_clears_nvs_with_checked_clear(self):
@@ -403,9 +483,11 @@ class FirmwarePortalTests(unittest.TestCase):
         javascript = (ROOT / "web" / "app.js").read_text()
         self.assertIn('id="project-list"', html)
         self.assertIn('id="board-select"', html)
+        self.assertIn('id="variant-select"', html)
         self.assertIn('id="selected-hardware"', html)
         self.assertIn('id="selected-setup"', html)
         self.assertIn('id="selected-wiring"', html)
+        self.assertIn('selectedTarget.variants', javascript)
         self.assertIn('id="selected-connections"', html)
         self.assertIn('id="selected-warnings"', html)
         self.assertIn('id="selected-parts"', html)
@@ -418,18 +500,18 @@ class FirmwarePortalTests(unittest.TestCase):
         self.assertIn('slot="activate"', html)
         self.assertIn('slot="unsupported"', html)
         self.assertIn('fetch("./projects.json")', javascript)
-        self.assertIn("selectedTarget.manifest", javascript)
-        self.assertIn('selectedTarget.method === "uf2"', javascript)
-        self.assertIn("selectedTarget.download", javascript)
-        self.assertIn("selectedTarget.size", javascript)
-        self.assertIn("selectedTarget.sha256", javascript)
+        self.assertIn("selectedBuild.manifest", javascript)
+        self.assertIn('selectedBuild.method === "uf2"', javascript)
+        self.assertIn("selectedBuild.download", javascript)
+        self.assertIn("selectedBuild.size", javascript)
+        self.assertIn("selectedBuild.sha256", javascript)
         self.assertIn("project.hardware", javascript)
         self.assertIn("project.setup.summary", javascript)
-        self.assertIn("selectedTarget.wiring.diagram", javascript)
-        self.assertIn("selectedTarget.wiring.connections", javascript)
-        self.assertIn("selectedTarget.wiring.warnings", javascript)
+        self.assertIn("selectedBuild.wiring.diagram", javascript)
+        self.assertIn("selectedBuild.wiring.connections", javascript)
+        self.assertIn("selectedBuild.wiring.warnings", javascript)
         self.assertIn("project.parts", javascript)
-        self.assertIn('setAttribute("manifest", selectedTarget.manifest)', javascript)
+        self.assertIn('setAttribute("manifest", selectedBuild.manifest)', javascript)
         self.assertIn('setAttribute("aria-pressed"', javascript)
         self.assertNotIn('id="installer-button" manifest=', html)
 

@@ -22,6 +22,8 @@ The generic ESP32 DevKit profile receives seventeen projects: every original pro
 
 ESP32 targets use ESP Web Tools through each development board's USB-to-UART connector. The S3 and C6 native-USB connectors are not claimed as verified flashing paths.
 
+NTP Desk Clock provides two build configurations for every ESP32 profile: TM1637 (default) and LCD1602 I²C at address `0x27`. The portal's build selector changes the firmware artifact, wiring diagram, pins, and voltage warnings without treating the display choice as a different microcontroller board.
+
 ## Raspberry Pi Pico profiles
 
 - **Raspberry Pi Pico** — RP2040, PlatformIO board `rpipico`, 2 MB flash, no wireless.

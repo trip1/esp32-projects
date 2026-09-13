@@ -12,13 +12,20 @@ from typing import NoReturn
 from urllib.parse import parse_qs, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
-PRIVATE_CATALOG_FIELDS = {"project_dir"}
 IDENTIFIER = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")
 REQUIRED_FIELDS = {
     "slug", "name", "version", "category", "description", "hardware", "features",
-    "installable", "extra_hardware", "project_dir", "targets",
+    "installable", "extra_hardware", "project_dir", "targets", "setup",
 }
+ALLOWED_PROJECT_FIELDS = REQUIRED_FIELDS | {"parts"}
 REQUIRED_TARGET_FIELDS = {"id", "name", "chip", "environment"}
+ALLOWED_TARGET_FIELDS = REQUIRED_TARGET_FIELDS | {"configuration_name", "variants", "wiring"}
+REQUIRED_VARIANT_FIELDS = {"id", "name", "environment", "hardware", "wiring"}
+PUBLIC_PROJECT_FIELDS = (
+    "slug", "name", "version", "category", "description", "hardware", "features",
+    "installable", "extra_hardware", "setup", "parts",
+)
+PUBLIC_TARGET_FIELDS = ("id", "name", "chip", "configuration_name", "wiring")
 SUPPORTED_TARGETS = {
     "esp32-devkit-v1": {"chip": "ESP32", "board": "esp32dev", "format": "esp-web-tools"},
     "esp32-c3-devkitm-1": {"chip": "ESP32-C3", "board": "esp32-c3-devkitm-1", "format": "esp-web-tools"},
@@ -148,12 +155,14 @@ def validate_catalog(projects: object, catalog_root: Path) -> list[dict]:
     validated = []
     slugs = set()
     artifact_sources = set()
+    wiring_diagrams = set()
     for index, project in enumerate(projects):
         if not isinstance(project, dict):
             fail(f"catalog entry {index} must be an object")
         missing = REQUIRED_FIELDS - project.keys()
-        if missing:
-            fail(f"catalog entry {index} is missing: {', '.join(sorted(missing))}")
+        unknown = project.keys() - ALLOWED_PROJECT_FIELDS
+        if missing or unknown:
+            fail(f"catalog entry {index} fields are invalid; missing={sorted(missing)}, unknown={sorted(unknown)}")
 
         slug = project["slug"]
         if not isinstance(slug, str) or not IDENTIFIER.fullmatch(slug):
@@ -168,7 +177,11 @@ def validate_catalog(projects: object, catalog_root: Path) -> list[dict]:
         target_environments = set()
         validated_targets = []
         for target in targets:
-            if not isinstance(target, dict) or REQUIRED_TARGET_FIELDS - target.keys():
+            if (
+                not isinstance(target, dict)
+                or REQUIRED_TARGET_FIELDS - target.keys()
+                or target.keys() - ALLOWED_TARGET_FIELDS
+            ):
                 fail(f"target fields are invalid for {slug}")
             target_id = target["id"]
             environment = target["environment"]
@@ -188,7 +201,36 @@ def validate_catalog(projects: object, catalog_root: Path) -> list[dict]:
                 fail(f"chip does not match target for {slug}: {target['chip']!r}")
             if not isinstance(target["name"], str) or not target["name"].strip():
                 fail(f"target name must be non-empty for {slug}")
-            validated_targets.append(dict(target))
+            if "configuration_name" in target and (
+                not isinstance(target["configuration_name"], str) or not target["configuration_name"].strip()
+            ):
+                fail(f"target configuration name must be non-empty for {slug}: {target_id}")
+            if not project["extra_hardware"] and "wiring" in target:
+                fail(f"board-only target cannot declare wiring for {slug}: {target_id}")
+            variants = target.get("variants", [])
+            if variants and SUPPORTED_TARGETS[target_id]["format"] != "esp-web-tools":
+                fail(f"target variants require ESP Web Tools for {slug}: {target_id}")
+            if variants and not project["extra_hardware"]:
+                fail(f"board-only project cannot declare hardware variants for {slug}: {target_id}")
+            if not isinstance(variants, list) or len(variants) > 8:
+                fail(f"target variants are invalid for {slug}: {target_id}")
+            variant_ids = set()
+            validated_variants = []
+            for variant in variants:
+                if not isinstance(variant, dict) or set(variant) != REQUIRED_VARIANT_FIELDS:
+                    fail(f"variant fields are invalid for {slug}: {target_id}")
+                variant_id = variant["id"]
+                variant_environment = variant["environment"]
+                if not isinstance(variant_id, str) or not IDENTIFIER.fullmatch(variant_id) or variant_id in variant_ids:
+                    fail(f"variant id is invalid or duplicated for {slug}: {target_id}")
+                if not isinstance(variant_environment, str) or not IDENTIFIER.fullmatch(variant_environment) or variant_environment in target_environments:
+                    fail(f"variant environment is invalid or duplicated for {slug}: {target_id}")
+                if not all(isinstance(variant[field], str) and variant[field].strip() for field in ("name", "hardware")):
+                    fail(f"variant text is invalid for {slug}: {target_id}")
+                variant_ids.add(variant_id)
+                target_environments.add(variant_environment)
+                validated_variants.append(dict(variant))
+            validated_targets.append({**target, "variants": validated_variants} if variants else dict(target))
 
         project_value = project["project_dir"]
         if not isinstance(project_value, str) or Path(project_value).is_absolute():
@@ -197,10 +239,11 @@ def validate_catalog(projects: object, catalog_root: Path) -> list[dict]:
         if not is_within(project_dir, catalog_root):
             fail(f"project_dir escapes catalog root for {slug}")
         for target in validated_targets:
-            artifact_source = (project_dir, target["environment"])
-            if artifact_source in artifact_sources:
-                fail(f"artifact source reused for {slug}: {target['environment']}")
-            artifact_sources.add(artifact_source)
+            for configuration in [target, *target.get("variants", [])]:
+                artifact_source = (project_dir, configuration["environment"])
+                if artifact_source in artifact_sources:
+                    fail(f"artifact source reused for {slug}: {configuration['environment']}")
+                artifact_sources.add(artifact_source)
         if not isinstance(project["features"], list) or not project["features"] or not all(
             isinstance(feature, str) and feature.strip() for feature in project["features"]
         ):
@@ -233,35 +276,44 @@ def validate_catalog(projects: object, catalog_root: Path) -> list[dict]:
             wiring_root_path = catalog_root / "web" / "wiring"
             wiring_root = wiring_root_path.resolve()
             for target in validated_targets:
-                wiring = target.get("wiring")
-                if not isinstance(wiring, dict) or set(wiring) != {"diagram", "connections", "warnings"}:
-                    fail(f"target wiring metadata is invalid for {slug}: {target['id']}")
-                diagram_value = wiring["diagram"]
-                if not isinstance(diagram_value, str) or not diagram_value.startswith("./wiring/") or not diagram_value.endswith(".svg"):
-                    fail(f"target wiring diagram is invalid for {slug}: {target['id']}")
-                connections = wiring["connections"]
-                if not isinstance(connections, list) or not connections:
-                    fail(f"target wiring connections are invalid for {slug}: {target['id']}")
-                for connection in connections:
-                    if not isinstance(connection, dict) or set(connection) != {"from", "to", "wire"}:
-                        fail(f"target wiring connection is invalid for {slug}: {target['id']}")
-                    if not all(isinstance(value, str) and value.strip() for value in connection.values()):
-                        fail(f"target wiring connection values are invalid for {slug}: {target['id']}")
-                warnings = wiring["warnings"]
-                if not isinstance(warnings, list) or not warnings or not all(
-                    isinstance(warning, str) and warning.strip() for warning in warnings
-                ):
-                    fail(f"target wiring warnings are invalid for {slug}: {target['id']}")
-                diagram_path = catalog_root / "web" / diagram_value.removeprefix("./")
-                if has_symlink_component(diagram_path, catalog_root):
-                    fail(f"target wiring asset cannot contain a symlink for {slug}: {target['id']}")
-                diagram = diagram_path.resolve()
-                if not is_within(diagram, wiring_root) or not diagram.is_file():
-                    fail(f"target wiring asset is invalid for {slug}: {target['id']}")
+                for configuration in [target, *target.get("variants", [])]:
+                    context = f"{target['id']}:{configuration.get('id', 'default')}"
+                    wiring = configuration.get("wiring")
+                    if not isinstance(wiring, dict) or set(wiring) != {"diagram", "connections", "warnings"}:
+                        fail(f"target wiring metadata is invalid for {slug}: {context}")
+                    diagram_value = wiring["diagram"]
+                    if not isinstance(diagram_value, str) or not diagram_value.startswith("./wiring/") or not diagram_value.endswith(".svg"):
+                        fail(f"target wiring diagram is invalid for {slug}: {context}")
+                    connections = wiring["connections"]
+                    if not isinstance(connections, list) or not connections:
+                        fail(f"target wiring connections are invalid for {slug}: {context}")
+                    for connection in connections:
+                        if not isinstance(connection, dict) or set(connection) != {"from", "to", "wire"}:
+                            fail(f"target wiring connection is invalid for {slug}: {context}")
+                        if not all(isinstance(value, str) and value.strip() for value in connection.values()):
+                            fail(f"target wiring connection values are invalid for {slug}: {context}")
+                    warnings = wiring["warnings"]
+                    if not isinstance(warnings, list) or not warnings or not all(
+                        isinstance(warning, str) and warning.strip() for warning in warnings
+                    ):
+                        fail(f"target wiring warnings are invalid for {slug}: {context}")
+                    diagram_path = catalog_root / "web" / diagram_value.removeprefix("./")
+                    if has_symlink_component(diagram_path, catalog_root):
+                        fail(f"target wiring asset cannot contain a symlink for {slug}: {context}")
+                    diagram = diagram_path.resolve()
+                    if not is_within(diagram, wiring_root) or not diagram.is_file():
+                        fail(f"target wiring asset is invalid for {slug}: {context}")
+                    if diagram in wiring_diagrams:
+                        fail(f"target wiring diagram is reused for {slug}: {context}")
+                    wiring_diagrams.add(diagram)
         elif parts not in (None, []):
             fail(f"board-only project cannot declare external parts for {slug}")
         setup = project.get("setup")
-        if not isinstance(setup, dict) or not isinstance(setup.get("required"), bool):
+        if (
+            not isinstance(setup, dict)
+            or set(setup) != {"required", "summary", "fields"}
+            or not isinstance(setup.get("required"), bool)
+        ):
             fail(f"setup metadata is invalid for {slug}")
         if not isinstance(setup.get("summary"), str) or not setup["summary"].strip():
             fail(f"setup summary must be non-empty for {slug}")
@@ -329,13 +381,64 @@ def verify_environment_boards(projects: list[dict]) -> None:
             cache[project_dir] = resolved_environment_boards(project_dir)
         boards = cache[project_dir]
         for target in project["targets"]:
-            actual = boards.get(target["environment"])
             expected = SUPPORTED_TARGETS[target["id"]]["board"]
-            if actual != expected:
-                fail(
-                    f"environment board does not match target for {project['slug']}: "
-                    f"{target['environment']} resolves to {actual!r}, expected {expected!r}"
-                )
+            for configuration in [target, *target.get("variants", [])]:
+                actual = boards.get(configuration["environment"])
+                if actual != expected:
+                    fail(
+                        f"environment board does not match target for {project['slug']}: "
+                        f"{configuration['environment']} resolves to {actual!r}, expected {expected!r}"
+                    )
+
+
+def package_esp_configuration(project: dict, target: dict, configuration: dict, release: Path, manifest_path: str, variant_id: str | None = None) -> dict:
+    build = project["_resolved_project_dir"] / ".pio" / "build" / configuration["environment"]
+    factory_image = build / "firmware.factory.bin"
+    ota_image = build / "firmware.bin"
+    for image in (factory_image, ota_image):
+        validate_firmware_artifact(image, build, project["_resolved_project_dir"])
+    release.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(factory_image, release / factory_image.name)
+    shutil.copy2(ota_image, release / ota_image.name)
+    display_name = f"{project['name']} — {target['name']}"
+    if variant_id is not None:
+        display_name += f" — {configuration['name']}"
+    subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "generate_web_manifest.py"),
+            "--name", display_name,
+            "--chip", target["chip"],
+            "--version", project["version"],
+            "--output", str(release / "manifest.json"),
+        ],
+        check=True,
+    )
+    ota_bytes = ota_image.read_bytes()
+    ota_manifest = {
+        "product": project["slug"],
+        "target": target["id"],
+        "chip": target["chip"],
+        "version": project["version"],
+        "firmware": "firmware.bin",
+        "size": len(ota_bytes),
+        "sha256": hashlib.sha256(ota_bytes).hexdigest(),
+    }
+    if variant_id is not None:
+        ota_manifest["variant"] = variant_id
+    (release / "ota-manifest.json").write_text(json.dumps(ota_manifest, indent=2) + "\n")
+    return {"method": "esp-web-tools", "manifest": manifest_path}
+
+
+def public_wiring(wiring: dict) -> dict:
+    return {
+        "diagram": wiring["diagram"],
+        "connections": [
+            {"from": item["from"], "to": item["to"], "wire": item["wire"]}
+            for item in wiring["connections"]
+        ],
+        "warnings": list(wiring["warnings"]),
+    }
 
 
 def main() -> None:
@@ -364,16 +467,20 @@ def main() -> None:
     public_catalog = []
     for project in projects:
         slug = project["slug"]
-        public = {
-            key: value for key, value in project.items()
-            if key not in PRIVATE_CATALOG_FIELDS and not key.startswith("_")
+        public = {key: project[key] for key in PUBLIC_PROJECT_FIELDS if key in project and key != "setup"}
+        public["setup"] = {
+            "required": project["setup"]["required"],
+            "summary": project["setup"]["summary"],
+            "fields": list(project["setup"]["fields"]),
         }
         public_targets = []
         for target in project["targets"]:
             build = project["_resolved_project_dir"] / ".pio" / "build" / target["environment"]
             release = output / "firmware" / slug / target["id"]
             release.mkdir(parents=True)
-            target_public = {key: value for key, value in target.items() if key != "environment"}
+            target_public = {key: target[key] for key in PUBLIC_TARGET_FIELDS if key in target}
+            if "wiring" in target_public:
+                target_public["wiring"] = public_wiring(target["wiring"])
             if SUPPORTED_TARGETS[target["id"]]["format"] == "uf2":
                 uf2_image = build / "firmware.uf2"
                 validate_firmware_artifact(uf2_image, build, project["_resolved_project_dir"])
@@ -398,40 +505,22 @@ def main() -> None:
                 })
                 continue
 
-            factory_image = build / "firmware.factory.bin"
-            ota_image = build / "firmware.bin"
-            for image in (factory_image, ota_image):
-                validate_firmware_artifact(image, build, project["_resolved_project_dir"])
-
-            shutil.copy2(factory_image, release / factory_image.name)
-            shutil.copy2(ota_image, release / ota_image.name)
-            subprocess.run(
-                [
-                    sys.executable,
-                    str(ROOT / "scripts" / "generate_web_manifest.py"),
-                    "--name", f"{project['name']} — {target['name']}",
-                    "--chip", target["chip"],
-                    "--version", project["version"],
-                    "--output", str(release / "manifest.json"),
-                ],
-                check=True,
-            )
-
-            ota_bytes = ota_image.read_bytes()
-            ota_manifest = {
-                "product": slug,
-                "target": target["id"],
-                "chip": target["chip"],
-                "version": project["version"],
-                "firmware": "firmware.bin",
-                "size": len(ota_bytes),
-                "sha256": hashlib.sha256(ota_bytes).hexdigest(),
-            }
-            (release / "ota-manifest.json").write_text(json.dumps(ota_manifest, indent=2) + "\n")
-            public_targets.append(target_public | {
-                "method": "esp-web-tools",
-                "manifest": f"./firmware/{slug}/{target['id']}/manifest.json",
-            })
+            default_manifest = f"./firmware/{slug}/{target['id']}/manifest.json"
+            target_public.update(package_esp_configuration(project, target, target, release, default_manifest))
+            variant_public = []
+            for variant in target.get("variants", []):
+                variant_release = release / variant["id"]
+                variant_manifest = f"./firmware/{slug}/{target['id']}/{variant['id']}/manifest.json"
+                packaged = package_esp_configuration(project, target, variant, variant_release, variant_manifest, variant["id"])
+                variant_public.append({
+                    "id": variant["id"],
+                    "name": variant["name"],
+                    "hardware": variant["hardware"],
+                    "wiring": public_wiring(variant["wiring"]),
+                } | packaged)
+            if variant_public:
+                target_public["variants"] = variant_public
+            public_targets.append(target_public)
         public["targets"] = public_targets
         public_catalog.append(public)
 

@@ -56,6 +56,14 @@ jobs:
           firmware/hardware-lab/test/native/test_main.cpp
           -o /tmp/hardware-lab-tests
           && /tmp/hardware-lab-tests
+      - name: Test NTP clock display formatting
+        run: >-
+          g++ -std=c++17 -Wall -Wextra -Werror
+          -I firmware/hardware-lab/include
+          firmware/hardware-lab/src/ntp_clock_display.cpp
+          firmware/hardware-lab/test/clock_native/test_main.cpp
+          -o /tmp/ntp-clock-display-tests
+          && /tmp/ntp-clock-display-tests
       - name: Test Pico lab policy
         run: >-
           g++ -std=c++17 -Wall -Wextra -Werror

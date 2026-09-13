@@ -1,6 +1,8 @@
 const browserState = document.querySelector("#browser-state");
 const projectList = document.querySelector("#project-list");
 const boardSelect = document.querySelector("#board-select");
+const variantPicker = document.querySelector("#variant-picker");
+const variantSelect = document.querySelector("#variant-select");
 const installer = document.querySelector("#installer-button");
 const espInstall = document.querySelector("#esp-install");
 const picoInstall = document.querySelector("#pico-install");
@@ -12,13 +14,15 @@ const defaultBoardId = "esp32-c6-devkitc-1";
 let projects = [];
 let selectedProject = null;
 let selectedTarget = null;
+let selectedBuild = null;
 let selectedBoardId = defaultBoardId;
+let selectedVariantId = new URL(location.href).searchParams.get("variant") || "";
 let activeFilter = "All";
 
 const serialSupported = "serial" in navigator;
 
 function updateInstallStatus() {
-  const isUf2 = selectedTarget?.method === "uf2";
+  const isUf2 = selectedBuild?.method === "uf2";
   browserState.classList.toggle("supported", isUf2 || serialSupported);
   browserState.classList.toggle("unsupported", !isUf2 && !serialSupported);
   browserState.querySelector("span:last-child").textContent = isUf2
@@ -39,6 +43,8 @@ function projectsForBoard() {
 function updateLocation(project) {
   const url = new URL(location.href);
   url.searchParams.set("board", selectedBoardId);
+  if (selectedVariantId) url.searchParams.set("variant", selectedVariantId);
+  else url.searchParams.delete("variant");
   url.hash = project.slug;
   history.replaceState(null, "", url);
 }
@@ -48,24 +54,38 @@ function selectProject(project) {
   if (!target) return;
   selectedProject = project;
   selectedTarget = target;
+  const variants = selectedTarget.variants || [];
+  if (!variants.some((variant) => variant.id === selectedVariantId)) selectedVariantId = "";
+  selectedBuild = variants.find((variant) => variant.id === selectedVariantId) || selectedTarget;
+  variantPicker.hidden = variants.length === 0;
+  variantSelect.replaceChildren(...[
+    { id: "", name: selectedTarget.configuration_name || "Default build" },
+    ...variants,
+  ].map((variant) => {
+    const option = document.createElement("option");
+    option.value = variant.id;
+    option.textContent = variant.name;
+    return option;
+  }));
+  variantSelect.value = selectedVariantId;
   document.querySelector("#selected-index").textContent = `PROJECT ${String(projects.indexOf(project) + 1).padStart(2, "0")}`;
   document.querySelector("#selected-category").textContent = project.category;
   document.querySelector("#selected-name").textContent = project.name;
   document.querySelector("#selected-description").textContent = project.description;
   document.querySelector("#selected-chip").textContent = selectedTarget.name;
   document.querySelector("#selected-version").textContent = project.version;
-  document.querySelector("#selected-hardware").textContent = project.hardware;
+  document.querySelector("#selected-hardware").textContent = selectedBuild.hardware || project.hardware;
   document.querySelector("#selected-setup").textContent = project.setup.summary;
   const hardwareGuide = document.querySelector("#hardware-guide");
   const wiring = document.querySelector("#selected-wiring");
   const connections = document.querySelector("#selected-connections");
   const warnings = document.querySelector("#selected-warnings");
   const parts = document.querySelector("#selected-parts");
-  if (project.extra_hardware && selectedTarget.wiring && project.parts.length > 0) {
+  if (project.extra_hardware && selectedBuild.wiring && project.parts.length > 0) {
     hardwareGuide.hidden = false;
-    wiring.src = selectedTarget.wiring.diagram;
-    wiring.alt = `${project.name} wiring diagram for ${selectedTarget.name}`;
-    connections.replaceChildren(...selectedTarget.wiring.connections.map((connection) => {
+    wiring.src = selectedBuild.wiring.diagram;
+    wiring.alt = `${project.name} ${selectedBuild.name || "default build"} wiring diagram for ${selectedTarget.name}`;
+    connections.replaceChildren(...selectedBuild.wiring.connections.map((connection) => {
       const row = document.createElement("tr");
       [connection.from, connection.to, connection.wire].forEach((value) => {
         const cell = document.createElement("td");
@@ -74,7 +94,7 @@ function selectProject(project) {
       });
       return row;
     }));
-    warnings.replaceChildren(...selectedTarget.wiring.warnings.map((warning) => {
+    warnings.replaceChildren(...selectedBuild.wiring.warnings.map((warning) => {
       const item = document.createElement("li");
       item.textContent = warning;
       return item;
@@ -109,22 +129,22 @@ function selectProject(project) {
     item.textContent = feature;
     return item;
   }));
-  const isUf2 = selectedTarget.method === "uf2";
+  const isUf2 = selectedBuild.method === "uf2";
   espInstall.hidden = isUf2;
   picoInstall.hidden = !isUf2;
   if (isUf2) {
-    picoDownload.href = selectedTarget.download;
+    picoDownload.href = selectedBuild.download;
     picoDownload.download = `${project.slug}-${project.version}-${selectedTarget.id}.uf2`;
-    picoSize.textContent = `${new Intl.NumberFormat().format(selectedTarget.size)} bytes`;
-    picoSha.textContent = selectedTarget.sha256;
+    picoSize.textContent = `${new Intl.NumberFormat().format(selectedBuild.size)} bytes`;
+    picoSha.textContent = selectedBuild.sha256;
     installer.removeAttribute("manifest");
   } else {
     picoDownload.removeAttribute("href");
     picoDownload.removeAttribute("download");
     picoSize.textContent = "";
     picoSha.textContent = "";
-    installer.setAttribute("manifest", selectedTarget.manifest);
-    installer.manifest = selectedTarget.manifest;
+    installer.setAttribute("manifest", selectedBuild.manifest);
+    installer.manifest = selectedBuild.manifest;
   }
   updateInstallStatus();
   updateLocation(project);
@@ -184,6 +204,11 @@ function configureBoards() {
   selectedBoardId = boards.has(requestedBoard) ? requestedBoard : (boards.has(defaultBoardId) ? defaultBoardId : boards.keys().next().value);
   boardSelect.value = selectedBoardId;
 }
+
+variantSelect.addEventListener("change", () => {
+  selectedVariantId = variantSelect.value;
+  if (selectedProject) selectProject(selectedProject);
+});
 
 boardSelect.addEventListener("change", () => {
   selectedBoardId = boardSelect.value;

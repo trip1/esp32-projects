@@ -1283,19 +1283,19 @@
   {
     "slug": "ntp-desk-clock",
     "name": "NTP Desk Clock",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "category": "Practical",
-    "description": "Synchronizes network time, applies a POSIX timezone, and drives a four-digit TM1637 display with a blinking colon.",
+    "description": "Synchronizes network time, applies a POSIX timezone, and drives either a four-digit TM1637 display or an optional 1602 I²C LCD build.",
     "features": [
       "NTP synchronization",
       "Timezone and DST",
-      "TM1637 display",
+      "TM1637 or LCD1602 I²C display builds",
       "First-boot setup portal",
       "Readable 8-character local password"
     ],
     "installable": true,
     "extra_hardware": true,
-    "hardware": "TM1637 four-digit display + four jumper wires",
+    "hardware": "TM1637 four-digit display or LCD1602 I²C module + four jumper wires",
     "project_dir": "firmware/hardware-lab",
     "setup": {
       "required": true,
@@ -1340,7 +1340,47 @@
             "Wiring and display behavior are not yet physically verified.",
             "Board and module positions are simplified; follow the printed pin labels and connection table."
           ]
-        }
+        },
+        "variants": [
+          {
+            "id": "lcd1602-i2c",
+            "name": "1602 I²C LCD (0x27)",
+            "environment": "ntp-desk-clock-lcd1602--esp32",
+            "hardware": "LCD1602 16×2 display with PCF8574 I²C backpack + four jumper wires",
+            "wiring": {
+              "diagram": "./wiring/ntp-desk-clock/esp32-devkit-v1-lcd1602-i2c.svg",
+              "connections": [
+                {
+                  "from": "LCD1602 VCC",
+                  "to": "3V3",
+                  "wire": "red"
+                },
+                {
+                  "from": "LCD1602 GND",
+                  "to": "GND",
+                  "wire": "black"
+                },
+                {
+                  "from": "LCD1602 SDA",
+                  "to": "GPIO21",
+                  "wire": "green"
+                },
+                {
+                  "from": "LCD1602 SCL",
+                  "to": "GPIO22",
+                  "wire": "yellow"
+                }
+              ],
+              "warnings": [
+                "Use only a 3.3 V-compatible LCD/backpack when connecting VCC directly to 3.3 V; display contrast and backlight must work at that voltage.",
+                "Many PCF8574 backpacks pull SDA and SCL up to VCC. If the module requires 5 V, add a bidirectional I²C level shifter and never expose ESP32 GPIO to 5 V pull-ups.",
+                "This prebuilt variant uses I²C address 0x27. For a 0x3F backpack, build locally with CLOCK_LCD_ADDRESS changed after confirming the address.",
+                "Wiring and LCD behavior are not yet physically verified."
+              ]
+            }
+          }
+        ],
+        "configuration_name": "TM1637 four-digit display"
       },
       {
         "id": "esp32-c3-devkitm-1",
@@ -1376,7 +1416,47 @@
             "Wiring and display behavior are not yet physically verified.",
             "Board and module positions are simplified; follow the printed pin labels and connection table."
           ]
-        }
+        },
+        "variants": [
+          {
+            "id": "lcd1602-i2c",
+            "name": "1602 I²C LCD (0x27)",
+            "environment": "ntp-desk-clock-lcd1602--esp32-c3",
+            "hardware": "LCD1602 16×2 display with PCF8574 I²C backpack + four jumper wires",
+            "wiring": {
+              "diagram": "./wiring/ntp-desk-clock/esp32-c3-devkitm-1-lcd1602-i2c.svg",
+              "connections": [
+                {
+                  "from": "LCD1602 VCC",
+                  "to": "3V3",
+                  "wire": "red"
+                },
+                {
+                  "from": "LCD1602 GND",
+                  "to": "GND",
+                  "wire": "black"
+                },
+                {
+                  "from": "LCD1602 SDA",
+                  "to": "GPIO4",
+                  "wire": "green"
+                },
+                {
+                  "from": "LCD1602 SCL",
+                  "to": "GPIO5",
+                  "wire": "yellow"
+                }
+              ],
+              "warnings": [
+                "Use only a 3.3 V-compatible LCD/backpack when connecting VCC directly to 3.3 V; display contrast and backlight must work at that voltage.",
+                "Many PCF8574 backpacks pull SDA and SCL up to VCC. If the module requires 5 V, add a bidirectional I²C level shifter and never expose ESP32 GPIO to 5 V pull-ups.",
+                "This prebuilt variant uses I²C address 0x27. For a 0x3F backpack, build locally with CLOCK_LCD_ADDRESS changed after confirming the address.",
+                "Wiring and LCD behavior are not yet physically verified."
+              ]
+            }
+          }
+        ],
+        "configuration_name": "TM1637 four-digit display"
       },
       {
         "id": "esp32-s3-devkitc-1",
@@ -1412,7 +1492,47 @@
             "Wiring and display behavior are not yet physically verified.",
             "Board and module positions are simplified; follow the printed pin labels and connection table."
           ]
-        }
+        },
+        "variants": [
+          {
+            "id": "lcd1602-i2c",
+            "name": "1602 I²C LCD (0x27)",
+            "environment": "ntp-desk-clock-lcd1602--esp32-s3",
+            "hardware": "LCD1602 16×2 display with PCF8574 I²C backpack + four jumper wires",
+            "wiring": {
+              "diagram": "./wiring/ntp-desk-clock/esp32-s3-devkitc-1-lcd1602-i2c.svg",
+              "connections": [
+                {
+                  "from": "LCD1602 VCC",
+                  "to": "3V3",
+                  "wire": "red"
+                },
+                {
+                  "from": "LCD1602 GND",
+                  "to": "GND",
+                  "wire": "black"
+                },
+                {
+                  "from": "LCD1602 SDA",
+                  "to": "GPIO8",
+                  "wire": "green"
+                },
+                {
+                  "from": "LCD1602 SCL",
+                  "to": "GPIO9",
+                  "wire": "yellow"
+                }
+              ],
+              "warnings": [
+                "Use only a 3.3 V-compatible LCD/backpack when connecting VCC directly to 3.3 V; display contrast and backlight must work at that voltage.",
+                "Many PCF8574 backpacks pull SDA and SCL up to VCC. If the module requires 5 V, add a bidirectional I²C level shifter and never expose ESP32 GPIO to 5 V pull-ups.",
+                "This prebuilt variant uses I²C address 0x27. For a 0x3F backpack, build locally with CLOCK_LCD_ADDRESS changed after confirming the address.",
+                "Wiring and LCD behavior are not yet physically verified."
+              ]
+            }
+          }
+        ],
+        "configuration_name": "TM1637 four-digit display"
       },
       {
         "id": "esp32-c6-devkitc-1",
@@ -1448,16 +1568,56 @@
             "Wiring and display behavior are not yet physically verified.",
             "Board and module positions are simplified; follow the printed pin labels and connection table."
           ]
-        }
+        },
+        "variants": [
+          {
+            "id": "lcd1602-i2c",
+            "name": "1602 I²C LCD (0x27)",
+            "environment": "ntp-desk-clock-lcd1602--esp32-c6",
+            "hardware": "LCD1602 16×2 display with PCF8574 I²C backpack + four jumper wires",
+            "wiring": {
+              "diagram": "./wiring/ntp-desk-clock/esp32-c6-devkitc-1-lcd1602-i2c.svg",
+              "connections": [
+                {
+                  "from": "LCD1602 VCC",
+                  "to": "3V3",
+                  "wire": "red"
+                },
+                {
+                  "from": "LCD1602 GND",
+                  "to": "GND",
+                  "wire": "black"
+                },
+                {
+                  "from": "LCD1602 SDA",
+                  "to": "GPIO6",
+                  "wire": "green"
+                },
+                {
+                  "from": "LCD1602 SCL",
+                  "to": "GPIO7",
+                  "wire": "yellow"
+                }
+              ],
+              "warnings": [
+                "Use only a 3.3 V-compatible LCD/backpack when connecting VCC directly to 3.3 V; display contrast and backlight must work at that voltage.",
+                "Many PCF8574 backpacks pull SDA and SCL up to VCC. If the module requires 5 V, add a bidirectional I²C level shifter and never expose ESP32 GPIO to 5 V pull-ups.",
+                "This prebuilt variant uses I²C address 0x27. For a 0x3F backpack, build locally with CLOCK_LCD_ADDRESS changed after confirming the address.",
+                "Wiring and LCD behavior are not yet physically verified."
+              ]
+            }
+          }
+        ],
+        "configuration_name": "TM1637 four-digit display"
       }
     ],
     "parts": [
       {
         "quantity": 1,
-        "name": "TM1637 four-digit display",
-        "specification": "Four-pin module with installed 2.54 mm male header, confirmed to operate from 3.3 V",
+        "name": "TM1637 display or LCD1602 I²C module",
+        "specification": "Choose the display matching the selected firmware build; module must have an installed 2.54 mm male header. LCD variant expects a 16×2 HD44780 display with PCF8574 backpack at address 0x27 and 3.3 V-safe I²C levels",
         "required": true,
-        "url": "https://www.amazon.com/s?k=TM1637+4+digit+7+segment+display+module+3.3V"
+        "url": "https://www.amazon.com/s?k=TM1637+or+LCD1602+I2C+display+module+3.3V"
       },
       {
         "quantity": 1,
@@ -1654,7 +1814,9 @@
     ],
     "setup": {
       "required": true,
-      "fields": ["Wi-Fi"],
+      "fields": [
+        "Wi-Fi"
+      ],
       "summary": "On first boot, read the randomized 8-character setup password from USB serial, join the protected setup network, and open http://192.168.4.1/ if setup does not appear. Enter only the Wi-Fi name and password; the dashboard address is printed after connection."
     }
   }

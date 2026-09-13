@@ -18,7 +18,7 @@ A public firmware monorepo for four ESP32 boards and four official Raspberry Pi 
 - **BME280 MQTT Sleep Sensor** — temperature, humidity, and pressure telemetry with captive setup and configurable deep sleep
 - **Ultrasonic Parking Assistant** — filtered HC-SR04 distance with a local parking/tank gauge
 - **PIR Occupancy Timer** — interrupt-driven motion events with a rollover-safe hold timer
-- **NTP Desk Clock** — network-synchronized local time on a TM1637 four-digit display
+- **NTP Desk Clock** — network-synchronized local time with selectable TM1637 or LCD1602 I²C display builds
 - **Pico Board Check** — RP2040/RP2350 USB diagnostics and onboard LED heartbeat
 - **Pico W Wi-Fi Surveyor** — bounded boot-time wireless survey and local dashboard
 - **ESP32 Diagnostic Console** — protected Wi-Fi setup and real-time chip, memory, network, I²C, and interface dashboard
@@ -33,7 +33,7 @@ A public firmware monorepo for four ESP32 boards and four official Raspberry Pi 
 - **Reboot Museum** — persistent NVS boot counter with unnecessary drama
 - **Pico Morse Beacon** — repeats `HELLO WORLD` on the Pico status LED and USB serial
 
-The catalog contains 87 exact-board firmware targets across 23 projects. Existing ESP32 support is unchanged. Pico Board Check and Pico Morse Beacon support Pico, Pico W, Pico 2, and Pico 2 W; Pico W Wi-Fi Surveyor supports the two wireless boards. Four projects require external hardware. See [`docs/board-support.md`](docs/board-support.md) for the exact matrix, [`firmware/pico-lab/README.md`](firmware/pico-lab/README.md) for Pico behavior and UF2 installation, and [`firmware/hardware-lab/README.md`](firmware/hardware-lab/README.md) for external wiring.
+The catalog contains 87 exact-board targets and 91 exact firmware build configurations across 23 projects. Existing ESP32 support is unchanged. Pico Board Check and Pico Morse Beacon support Pico, Pico W, Pico 2, and Pico 2 W; Pico W Wi-Fi Surveyor supports the two wireless boards. Four projects require external hardware. See [`docs/board-support.md`](docs/board-support.md) for the exact matrix, [`firmware/pico-lab/README.md`](firmware/pico-lab/README.md) for Pico behavior and UF2 installation, and [`firmware/hardware-lab/README.md`](firmware/hardware-lab/README.md) for external wiring.
 
 Every external-hardware project includes a board-specific, color-coded wiring diagram and a non-affiliate Amazon search list for the required sensor, display, breadboard, jumpers, and safety components. The diagram changes with the exact board selected in the portal.
 
@@ -54,7 +54,7 @@ projects.json                     Build and public catalog source of truth
 firmware/ble-mqtt-scanner/        BLE/MQTT scanner project
 firmware/no-hardware-lab/         Fourteen hardware-free build environments
 firmware/bme280-mqtt-sensor/      Four-board BME280 MQTT/deep-sleep sensor
-firmware/hardware-lab/            HC-SR04, PIR, and TM1637/NTP projects
+firmware/hardware-lab/            HC-SR04, PIR, and TM1637/LCD1602 NTP projects
 firmware/pico-lab/                RP2040/RP2350 and Pico W firmware
 firmware/esp32-diagnostics/       Four-board real-time diagnostic console
 web/                              Static installer source

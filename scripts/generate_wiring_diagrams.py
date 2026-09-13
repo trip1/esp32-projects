@@ -32,13 +32,15 @@ def component_pin(source: str) -> str:
     return source.rsplit(" ", 1)[-1]
 
 
-def component_art(slug: str) -> str:
+def component_art(slug: str, variant_id: str | None = None) -> str:
     """Return a simple, recognizable module silhouette without implying exact scale."""
     if slug == "hc-sr04-parking":
         return '<g><circle cx="950" cy="265" r="42" fill="#c8d0d4" stroke="#65727a" stroke-width="5"/><circle cx="1040" cy="265" r="42" fill="#c8d0d4" stroke="#65727a" stroke-width="5"/><circle cx="950" cy="265" r="25" fill="#66757d"/><circle cx="1040" cy="265" r="25" fill="#66757d"/></g>'
     if slug == "pir-occupancy-timer":
         return '<g><circle cx="990" cy="305" r="70" fill="#eef1e9" stroke="#a7aea5" stroke-width="5"/><path d="M940 305h100M949 275h82M949 335h82M990 245v120" stroke="#c4cac1" stroke-width="3" opacity=".8"/></g>'
     if slug == "ntp-desk-clock":
+        if variant_id == "lcd1602-i2c":
+            return '<g><rect x="860" y="230" width="260" height="110" rx="8" fill="#1c6d67" stroke="#0c3734" stroke-width="4"/><rect x="880" y="250" width="220" height="70" fill="#9acb63" stroke="#233b19" stroke-width="3"/><text x="990" y="280" text-anchor="middle" style="font:700 18px ui-monospace,monospace;fill:#193111">Date 2026-09-13</text><text x="990" y="306" text-anchor="middle" style="font:700 18px ui-monospace,monospace;fill:#193111">Time 12:34:56</text></g>'
         return '<g><rect x="910" y="245" width="160" height="82" rx="8" fill="#120b0b" stroke="#724343" stroke-width="4"/><text x="990" y="302" text-anchor="middle" style="font:700 45px ui-monospace,monospace;fill:#e83b3b">12:34</text></g>'
     return '<g><rect x="945" y="260" width="90" height="90" rx="8" fill="#2d805c" stroke="#174732" stroke-width="4"/><rect x="970" y="285" width="40" height="40" rx="3" fill="#c8d0d4" stroke="#65727a" stroke-width="3"/><circle cx="955" cy="272" r="4" fill="#d5b642"/><circle cx="1025" cy="338" r="4" fill="#d5b642"/></g>'
 
@@ -71,8 +73,13 @@ def wire_path(index: int, board_y: int, component_y: int, color: str, is_echo: b
 '''
 
 
-def diagram(project: dict, target: dict) -> str:
-    wiring = target["wiring"]
+def diagram(project: dict, target: dict, configuration: dict | None = None) -> str:
+    configuration = configuration or target
+    is_variant = configuration is not target
+    configuration_label = configuration["name"] if is_variant else COMPONENTS[project["slug"]]
+    subtitle = configuration["name"] if is_variant else "exact target wiring"
+    variant_id = configuration["id"] if is_variant else None
+    wiring = configuration["wiring"]
     connections = wiring["connections"]
     board_labels = []
     component_labels = []
@@ -124,10 +131,10 @@ def diagram(project: dict, target: dict) -> str:
 <style>.heading{{font:700 30px system-ui;fill:#17232c}}.sub{{font:500 17px system-ui;fill:#51616d}}.board{{font:700 18px system-ui;fill:white}}.pin{{font:700 15px ui-monospace,monospace;fill:#17232c}}.section{{font:700 14px system-ui;fill:#17232c;letter-spacing:.08em}}.connection{{font:600 14px ui-monospace,monospace;fill:#34444f}}.warning{{font:650 14px system-ui;fill:#7a2f16}}.resistor{{font:700 12px ui-monospace,monospace;fill:#5d4a18}}.tiny{{font:11px system-ui;fill:#5d4a18}}</style>
 <defs><pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#dfe4e7" stroke-width="1"/></pattern><filter id="shadow"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-opacity=".18"/></filter></defs>
 <rect width="1200" height="860" fill="#f2f4f5"/><rect width="1200" height="860" fill="url(#grid)"/>
-<text x="60" y="55" class="heading">{escape(project['name'])}</text><text x="60" y="84" class="sub">{escape(target['name'])} · exact target wiring</text>
+<text x="60" y="55" class="heading">{escape(project['name'])}</text><text x="60" y="84" class="sub">{escape(target['name'])} · {escape(subtitle)}</text>
 <g filter="url(#shadow)"><rect x="70" y="130" width="360" height="450" rx="24" fill="#146c94" stroke="#0b3f59" stroke-width="4"/><rect x="182" y="100" width="135" height="58" rx="8" fill="#c9d0d4" stroke="#65727a" stroke-width="4"/><rect x="205" y="112" width="88" height="26" rx="5" fill="#343c42"/><rect x="137" y="195" width="225" height="170" rx="12" fill="#20282e"/><path d="M155 215h188v130H155z" fill="#303a41" stroke="#64727b"/><text x="250" y="272" text-anchor="middle" class="board">ESP32</text><text x="250" y="300" text-anchor="middle" class="board">{escape(target['id'].replace('-', ' ').upper())}</text><text x="250" y="545" text-anchor="middle" class="board">USB</text>{''.join(board_labels)}</g>
 <g filter="url(#shadow)"><rect x="475" y="130" width="660" height="450" rx="18" fill="#fafafa" stroke="#c3c9cd" stroke-width="4"/><rect x="493" y="153" width="624" height="404" rx="12" fill="#fff" stroke="#e0e3e5"/>{holes}<path d="M495 190h620M495 520h620" stroke="#e64a4a" stroke-width="3"/><path d="M495 205h620M495 535h620" stroke="#3b70c4" stroke-width="3"/></g>
-<g filter="url(#shadow)"><rect x="810" y="155" width="280" height="{max(390, 84*len(connections)+30)}" rx="16" fill="#263238" stroke="#11181c" stroke-width="4"/><text x="950" y="188" text-anchor="middle" class="board">{escape(COMPONENTS[project['slug']])}</text>{component_art(project['slug'])}{''.join(component_labels)}</g>
+<g filter="url(#shadow)"><rect x="810" y="155" width="280" height="{max(390, 84*len(connections)+30)}" rx="16" fill="#263238" stroke="#11181c" stroke-width="4"/><text x="950" y="188" text-anchor="middle" class="board">{escape(configuration_label)}</text>{component_art(project['slug'], variant_id)}{''.join(component_labels)}</g>
 {''.join(wires)}
 <text x="70" y="615" class="section">CONNECTIONS</text>{connection_text}
 <text x="70" y="758" class="section">ELECTRICAL NOTES</text>{warning_text}
@@ -137,25 +144,31 @@ def diagram(project: dict, target: dict) -> str:
 def main() -> None:
     catalog = json.loads((ROOT / "projects.json").read_text())
     expected = {
-        ROOT / "web" / target["wiring"]["diagram"].removeprefix("./")
+        ROOT / "web" / configuration["wiring"]["diagram"].removeprefix("./")
         for project in catalog if project["slug"] in COMPONENTS
         for target in project["targets"]
+        for configuration in [target, *target.get("variants", [])]
     }
     for unexpected in OUTPUT.glob("*/*.svg"):
         if unexpected not in expected:
             unexpected.unlink()
     count = 0
+    generated = set()
     for project in catalog:
         if project["slug"] not in COMPONENTS:
             continue
         directory = OUTPUT / project["slug"]
         directory.mkdir(parents=True, exist_ok=True)
         for target in project["targets"]:
-            path = ROOT / "web" / target["wiring"]["diagram"].removeprefix("./")
-            if path.parent != directory:
-                raise ValueError(f"unexpected wiring output path: {path}")
-            path.write_text(diagram(project, target))
-            count += 1
+            for configuration in [target, *target.get("variants", [])]:
+                path = ROOT / "web" / configuration["wiring"]["diagram"].removeprefix("./")
+                if path.parent != directory:
+                    raise ValueError(f"unexpected wiring output path: {path}")
+                if path in generated:
+                    raise ValueError(f"duplicate wiring output path: {path}")
+                generated.add(path)
+                path.write_text(diagram(project, target, configuration))
+                count += 1
     print(f"generated {count} wiring diagrams in {OUTPUT}")
 
 

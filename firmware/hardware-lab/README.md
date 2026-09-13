@@ -30,7 +30,9 @@ Use a PIR module with a 3.3 V-safe signal output. Check the module's supply requ
 
 ## NTP Desk Clock
 
-The clock synchronizes through NTP and drives a four-digit TM1637 display. NTP provides network time without a separate RTC, while the configured POSIX timezone applies local offset and daylight-saving rules.[1][4] The display driver is pinned to a reviewed TM1637 source commit.[5]
+The clock synchronizes through NTP and provides two selectable firmware builds per board: the original four-digit TM1637 display and an optional 16×2 HD44780 LCD with a PCF8574 I²C backpack. NTP provides network time without a separate RTC, while the configured POSIX timezone applies local offset and daylight-saving rules.[1][4] The TM1637 dependency is pinned, while the checked LCD1602 driver is maintained in this firmware. The LCD build writes a fixed-width date on row one and time with seconds on row two.[5]
+
+**TM1637 build**
 
 | Board | CLK | DIO | Setup button |
 |---|---:|---:|---:|
@@ -39,7 +41,18 @@ The clock synchronizes through NTP and drives a four-digit TM1637 display. NTP p
 | ESP32-S3-DevKitC-1 v1.0 | GPIO4 | GPIO5 | BOOT / GPIO0 |
 | ESP32-C6-DevKitC-1 | GPIO6 | GPIO7 | BOOT / GPIO9 |
 
-Connect TM1637 `VCC` to 3.3 V, `GND` to ground, and the two signal pins above. On first boot:
+**LCD1602 I²C build**
+
+| Board | SDA | SCL | Address | Setup button |
+|---|---:|---:|---:|---:|
+| ESP32 DevKit V1 | GPIO21 | GPIO22 | `0x27` | BOOT / GPIO0 |
+| ESP32-C3-DevKitM-1 | GPIO4 | GPIO5 | `0x27` | BOOT / GPIO9 |
+| ESP32-S3-DevKitC-1 v1.0 | GPIO8 | GPIO9 | `0x27` | BOOT / GPIO0 |
+| ESP32-C6-DevKitC-1 | GPIO6 | GPIO7 | `0x27` | BOOT / GPIO9 |
+
+Choose the display build in the portal before installing. Connect the selected module according to the board-specific diagram. After the I²C controller starts, the LCD build uses checked PCF8574 writes with a 25 ms transaction timeout, a 250 ms aggregate initialization deadline, a 150 ms display-refresh deadline, and fail-fast handling on the first bus error. It retries initialization every five seconds if the backpack is absent. A response at `0x27` confirms only that a device acknowledged; it does not prove the backpack model or pin mapping. A backpack at `0x3F` requires a local build with `CLOCK_LCD_ADDRESS=0x3F` after confirming both its address and compatible PCF8574-to-HD44780 mapping.
+
+Power TM1637 from 3.3 V. For LCD1602, use a display/backpack whose contrast and backlight work at 3.3 V. Many PCF8574 backpacks pull SDA/SCL up to their VCC; if yours requires 5 V, use a bidirectional I²C level shifter and never connect 5 V pull-ups directly to ESP32 GPIO. On first boot:
 
 1. Open USB serial at 115200 baud and copy the randomized 8-character uppercase setup password; `I`, `O`, `0`, and `1` are omitted.
 2. Join `NTP-Clock-Setup-XXXXXX` with that password.
@@ -53,10 +66,12 @@ To reopen setup, reset normally and then hold BOOT for two seconds during the fi
 ```bash
 g++ -std=c++17 -I include src/hardware_logic.cpp test/native/test_main.cpp -o /tmp/hardware-lab-tests
 /tmp/hardware-lab-tests
+g++ -std=c++17 -Wall -Wextra -Werror -I include src/ntp_clock_display.cpp test/clock_native/test_main.cpp -o /tmp/ntp-clock-display-tests
+/tmp/ntp-clock-display-tests
 ~/.venvs/platformio/bin/pio run
 ```
 
-The firmware builds do not prove electrical safety or physical behavior. Sensor accuracy, PIR module levels, TM1637 operation, setup-button timing, NTP synchronization, and all selected GPIOs remain hardware-unverified until tested on the named boards.
+The firmware builds do not prove electrical safety or physical behavior. Sensor accuracy, PIR module levels, TM1637/LCD1602 operation, LCD backpack address and voltage levels, setup-button timing, NTP synchronization, and all selected GPIOs remain hardware-unverified until tested on the named boards.
 
 ## Sources
 
