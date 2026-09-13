@@ -21,6 +21,7 @@ A public firmware monorepo for four ESP32 boards and four official Raspberry Pi 
 - **NTP Desk Clock** — network-synchronized local time on a TM1637 four-digit display
 - **Pico Board Check** — RP2040/RP2350 USB diagnostics and onboard LED heartbeat
 - **Pico W Wi-Fi Surveyor** — bounded boot-time wireless survey and local dashboard
+- **ESP32 Diagnostic Console** — protected Wi-Fi setup and real-time chip, memory, network, I²C, and interface dashboard
 
 ### Fun
 
@@ -32,11 +33,11 @@ A public firmware monorepo for four ESP32 boards and four official Raspberry Pi 
 - **Reboot Museum** — persistent NVS boot counter with unnecessary drama
 - **Pico Morse Beacon** — repeats `HELLO WORLD` on the Pico status LED and USB serial
 
-The catalog contains 83 exact-board firmware targets across 22 projects. Existing ESP32 support is unchanged. Pico Board Check and Pico Morse Beacon support Pico, Pico W, Pico 2, and Pico 2 W; Pico W Wi-Fi Surveyor supports the two wireless boards. Four projects require external hardware. See [`docs/board-support.md`](docs/board-support.md) for the exact matrix, [`firmware/pico-lab/README.md`](firmware/pico-lab/README.md) for Pico behavior and UF2 installation, and [`firmware/hardware-lab/README.md`](firmware/hardware-lab/README.md) for external wiring.
+The catalog contains 87 exact-board firmware targets across 23 projects. Existing ESP32 support is unchanged. Pico Board Check and Pico Morse Beacon support Pico, Pico W, Pico 2, and Pico 2 W; Pico W Wi-Fi Surveyor supports the two wireless boards. Four projects require external hardware. See [`docs/board-support.md`](docs/board-support.md) for the exact matrix, [`firmware/pico-lab/README.md`](firmware/pico-lab/README.md) for Pico behavior and UF2 installation, and [`firmware/hardware-lab/README.md`](firmware/hardware-lab/README.md) for external wiring.
 
 Every external-hardware project includes a board-specific, color-coded wiring diagram and a non-affiliate Amazon search list for the required sensor, display, breadboard, jumpers, and safety components. The diagram changes with the exact board selected in the portal.
 
-BLE Proximity Scanner, BME280 MQTT Sleep Sensor, and NTP Desk Clock require first-boot network setup. Each creates a temporary protected setup network with an 8-character, uppercase password printed only over USB serial. The alphabet omits `I`, `O`, `0`, and `1` to prevent transcription mistakes. The portal identifies required fields before flashing. All other projects work from their local/offline defaults without first-boot settings.
+BLE Proximity Scanner, BME280 MQTT Sleep Sensor, NTP Desk Clock, and ESP32 Diagnostic Console require first-boot network setup. Each creates a temporary protected setup network with an 8-character, uppercase password printed only over USB serial. The alphabet omits `I`, `O`, `0`, and `1` to prevent transcription mistakes. The portal identifies required fields before flashing. All other projects work from their local/offline defaults without first-boot settings.
 
 The ESP local-dashboard AP projects create an open local network and serve a UI at `http://192.168.4.1`; those experimental networks never request router or broker credentials. Pico W Wi-Fi Surveyor instead prints the same readable 8-character per-boot WPA2 password format over USB serial. Surveyed SSIDs are visible to every client that joins that protected AP.
 
@@ -55,6 +56,7 @@ firmware/no-hardware-lab/         Fourteen hardware-free build environments
 firmware/bme280-mqtt-sensor/      Four-board BME280 MQTT/deep-sleep sensor
 firmware/hardware-lab/            HC-SR04, PIR, and TM1637/NTP projects
 firmware/pico-lab/                RP2040/RP2350 and Pico W firmware
+firmware/esp32-diagnostics/       Four-board real-time diagnostic console
 web/                              Static installer source
 scripts/                          Manifest and site assembly tools
 web/wiring/                       Generated board-specific SVG wiring diagrams
@@ -79,6 +81,7 @@ g++ -std=c++17 \
 ~/.venvs/platformio/bin/pio run -d firmware/no-hardware-lab
 ~/.venvs/platformio/bin/pio run -d firmware/bme280-mqtt-sensor
 ~/.venvs/platformio/bin/pio run -d firmware/pico-lab
+~/.venvs/platformio/bin/pio run -d firmware/esp32-diagnostics
 python3 scripts/build_site.py --output _site
 ```
 

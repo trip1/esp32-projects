@@ -17,8 +17,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version: "3.11"
       - name: Install PlatformIO
@@ -64,6 +64,14 @@ jobs:
           firmware/pico-lab/test/native/test_main.cpp
           -o /tmp/pico-lab-tests
           && /tmp/pico-lab-tests
+      - name: Test ESP32 diagnostics policy
+        run: >-
+          g++ -std=c++17 -Wall -Wextra -Werror
+          -I firmware/esp32-diagnostics/include
+          firmware/esp32-diagnostics/src/diagnostics_logic.cpp
+          firmware/esp32-diagnostics/test/native/test_main.cpp
+          -o /tmp/esp32-diagnostics-tests
+          && /tmp/esp32-diagnostics-tests
       - name: Build BLE scanner firmware
         run: pio run -d firmware/ble-mqtt-scanner
       - name: Build no-hardware firmware collection
@@ -74,11 +82,13 @@ jobs:
         run: pio run -d firmware/hardware-lab
       - name: Build Raspberry Pi Pico firmware
         run: pio run -d firmware/pico-lab
+      - name: Build ESP32 diagnostics firmware
+        run: pio run -d firmware/esp32-diagnostics
       - name: Assemble static portal
         run: python scripts/build_site.py --output _site
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'
-        uses: actions/upload-pages-artifact@v5
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
         with:
           path: _site
 
@@ -94,7 +104,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Configure GitHub Pages
-        uses: actions/configure-pages@v6
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5

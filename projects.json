@@ -1607,5 +1607,55 @@
       "fields": [],
       "summary": "No user settings are required; read the 8-character per-boot password from USB serial, join Pico-W-Surveyor, and open http://192.168.4.1/."
     }
+  },
+  {
+    "slug": "esp32-diagnostics",
+    "name": "ESP32 Diagnostic Console",
+    "version": "1.0.0",
+    "category": "Practical",
+    "description": "Connects to your Wi-Fi and serves a clean real-time dashboard for chip, memory, flash, reset, network, I²C, SPI, and interface diagnostics.",
+    "features": [
+      "Minimal protected Wi-Fi setup",
+      "Live memory, RSSI, and temperature charts",
+      "Chip, flash, reset, and network inspection",
+      "Bounded I²C address scanning",
+      "Board-specific SPI and interface map",
+      "Responsive self-contained dashboard"
+    ],
+    "installable": true,
+    "extra_hardware": false,
+    "hardware": "Board only",
+    "project_dir": "firmware/esp32-diagnostics",
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "environment": "diagnostics--esp32"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "environment": "diagnostics--esp32-c3"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "environment": "diagnostics--esp32-s3"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "environment": "diagnostics--esp32-c6"
+      }
+    ],
+    "setup": {
+      "required": true,
+      "fields": ["Wi-Fi"],
+      "summary": "On first boot, read the randomized 8-character setup password from USB serial, join the protected setup network, and open http://192.168.4.1/ if setup does not appear. Enter only the Wi-Fi name and password; the dashboard address is printed after connection."
+    }
   }
 ]

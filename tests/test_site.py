@@ -33,6 +33,7 @@ EXPECTED_NEW_PROJECTS = {
     "pico-board-check",
     "pico-morse-beacon",
     "pico-wifi-surveyor",
+    "esp32-diagnostics",
 }
 ESP_TARGETS = {
     "esp32-devkit-v1": "ESP32",
@@ -70,11 +71,11 @@ class FirmwarePortalTests(unittest.TestCase):
     def load_catalog(self):
         return json.loads((ROOT / "projects.json").read_text())
 
-    def test_catalog_contains_twenty_two_projects(self):
+    def test_catalog_contains_twenty_three_projects(self):
         catalog = self.load_catalog()
         slugs = {project["slug"] for project in catalog}
         self.assertEqual(EXPECTED_NEW_PROJECTS, slugs - {"ble-mqtt-scanner"})
-        self.assertEqual(22, len(catalog))
+        self.assertEqual(23, len(catalog))
         for project in catalog:
             self.assertTrue(project["installable"])
             self.assertEqual(project["slug"] in EXTRA_HARDWARE_PROJECTS, project["extra_hardware"])
@@ -93,7 +94,7 @@ class FirmwarePortalTests(unittest.TestCase):
             for target in project["targets"]:
                 self.assertTrue(target["name"])
                 self.assertTrue(target["environment"])
-        self.assertEqual(83, sum(len(project["targets"]) for project in catalog))
+        self.assertEqual(87, sum(len(project["targets"]) for project in catalog))
 
     def test_catalog_supports_four_exact_raspberry_pi_pico_boards(self):
         projects = {project["slug"]: project for project in self.load_catalog()}
@@ -135,7 +136,7 @@ class FirmwarePortalTests(unittest.TestCase):
 
     def test_catalog_declares_first_boot_setup_for_every_project(self):
         catalog = self.load_catalog()
-        setup_required = {"ble-mqtt-scanner", "bme280-mqtt-sensor", "ntp-desk-clock"}
+        setup_required = {"ble-mqtt-scanner", "bme280-mqtt-sensor", "ntp-desk-clock", "esp32-diagnostics"}
         for project in catalog:
             setup = project["setup"]
             self.assertIsInstance(setup["required"], bool)
@@ -145,7 +146,41 @@ class FirmwarePortalTests(unittest.TestCase):
             if setup["required"]:
                 self.assertIn("Wi-Fi", setup["fields"])
                 if project["slug"] != "ntp-desk-clock":
-                    self.assertIn("MQTT", setup["fields"])
+                    if project["slug"] != "esp32-diagnostics":
+                        self.assertIn("MQTT", setup["fields"])
+
+    def test_diagnostics_project_contract(self):
+        project = next(project for project in self.load_catalog() if project["slug"] == "esp32-diagnostics")
+        self.assertEqual("1.0.0", project["version"])
+        self.assertEqual("Board only", project["hardware"])
+        self.assertEqual(set(ESP_TARGETS), {target["id"] for target in project["targets"]})
+        self.assertEqual(["Wi-Fi"], project["setup"]["fields"])
+        source = (ROOT / project["project_dir"] / "src" / "main.cpp").read_text()
+        for required in (
+            "Preferences", "WiFi.softAP", "kMaximumRequestBytes", "parseBoundedHttpRequest",
+            "scanI2c", "Wire.setTimeOut", "application/json", "canvas", "requestAnimationFrame",
+            "prefers-reduced-motion", "/api/diagnostics", "/api/i2c/scan", "Cache-Control: no-store",
+            "Content-Security-Policy", "X-Content-Type-Options", "esp_reset_reason", "esp_sleep_get_wakeup_cause",
+            "ESP.getFreeHeap", "ESP.getMinFreeHeap", "ESP.getFlashChipSize", "WiFi.RSSI", "WiFi.channel",
+            "esp_ota_get_running_partition", "AbortController", "aria-live", "role=radiogroup",
+            "kI2cScanCooldownMs", "writeAllBounded", "extendDiagnosticMillis",
+            "nvs_get_blob", "ESP_ERR_NVS_NOT_FOUND", "if (!server)", "kRecoveryWindowMs", "Hold BOOT now",
+        ):
+            self.assertIn(required, source)
+        self.assertNotIn("setInterval(poll", source)
+        self.assertNotIn("https://", source)
+        self.assertNotIn("http://", source)
+
+    def test_diagnostics_project_is_built_in_ci(self):
+        workflow = (ROOT / ".github" / "workflows" / "pages.yml").read_text()
+        self.assertIn("pio run -d firmware/esp32-diagnostics", workflow)
+
+    def test_github_actions_are_pinned_to_commit_shas(self):
+        workflow = (ROOT / ".github" / "workflows" / "pages.yml").read_text()
+        references = re.findall(r"uses:\s+([^\s#]+)", workflow)
+        self.assertTrue(references)
+        for reference in references:
+            self.assertRegex(reference, r"^[^@]+@[0-9a-f]{40}$", reference)
 
     def test_extra_hardware_projects_have_parts_and_board_wiring(self):
         diagrams = set()
@@ -316,6 +351,7 @@ class FirmwarePortalTests(unittest.TestCase):
             ROOT / "firmware" / "bme280-mqtt-sensor" / "src" / "main.cpp",
             ROOT / "firmware" / "hardware-lab" / "src" / "ntp_clock_config.cpp",
             ROOT / "firmware" / "pico-lab" / "src" / "apps" / "wifi-surveyor.cpp",
+            ROOT / "firmware" / "esp32-diagnostics" / "src" / "main.cpp",
         )
         expected_alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
         for path in files:
@@ -330,6 +366,7 @@ class FirmwarePortalTests(unittest.TestCase):
             (files[0].read_text(), "bool scannerStartProvisioning()"),
             (files[1].read_text(), "void startProvisioning()"),
             (files[2].read_text(), "bool clockStartProvisioning()"),
+            (files[4].read_text(), "bool startProvisioning()"),
         )
         for source, signature in esp_functions:
             provisioning = source.split(signature, 1)[1].split("}\n", 1)[0]
