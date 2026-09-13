@@ -1,6 +1,10 @@
 # BME280 MQTT Deep-Sleep Sensor
 
-A battery-conscious temperature, humidity, and barometric-pressure node for the four boards supported by the Device Foundry portal. Before configuration it scans the documented I²C and four-wire SPI buses, identifies BME280/BMP280 chip IDs, and reports the result on the setup page. It then samples a BME280 in forced mode, makes one bounded Wi-Fi/MQTT attempt, publishes retained JSON, and enters timer deep sleep.[1]
+A battery-conscious temperature, humidity, and barometric-pressure node for the four boards supported by the Device Foundry portal. Before configuration it scans the documented I²C and four-wire SPI buses, identifies BME280/BMP280 chip IDs, and reports the result on the setup page. It then samples a BME280 in forced mode, waits for a stable Wi-Fi address, publishes retained JSON with bounded retries, confirms the broker routed the exact payload back, and enters timer deep sleep.[1]
+
+## Upgrading from 1.2.x
+
+Before installing 1.3.0, reopen setup on 1.2.x and **replace any MQTT hostname with its numeric IPv4 address before flashing**. Version 1.3.0 removes hostname/DNS connections to guarantee a bounded battery wake. If it is flashed first, an existing hostname-based configuration will be rejected and the device will open first-boot provisioning so the broker can be entered as an IPv4 address. Existing numeric IPv4 configurations continue to work.
 
 ## Wiring
 
@@ -29,16 +33,16 @@ The preflight probes BME280 four-wire SPI modes 0 and 3 at 1 MHz on exactly thes
 ## First-boot setup
 
 1. Flash the image for the exact board.
-2. Open USB serial at 115200 baud and copy the random setup password printed by the board.
+2. Open USB serial at 115200 baud and copy the randomized 8-character uppercase setup password. It omits `I`, `O`, `0`, and `1`.
 3. Join `BME280-Setup-XXXXXX` with that password.
 4. Open `http://192.168.4.1` if the captive page does not appear.
 5. Review **Sensor preflight** before entering credentials. It reports the total number of responding I²C addresses, lists the first 16, identifies BME280 or look-alike BMP280 chip IDs, and shows the exact SPI pins. Fix wiring and use **Scan sensor buses again** until the BME280 is detected. A worst-case dual I²C sweep is bounded to roughly 2.6 seconds by the 10 ms transaction timeout; sensor initialization during a configured wake has a separate six-second task deadline.
-6. Enter Wi-Fi, MQTT, topic-prefix, and wake-interval settings.
-7. Save. The board stores them as pending, reboots, samples, and attempts a retained publish. It promotes the pending record only after publication succeeds.
+6. Enter Wi-Fi, the MQTT broker's numeric IPv4 address, topic-prefix, and wake-interval settings. Hostnames are intentionally not accepted so DNS cannot extend a battery-powered wake beyond its deadline.
+7. Save. The board stores them as pending, reboots, samples, waits up to 60 seconds for Wi-Fi plus a stable IP address, and verifies MQTT delivery. It promotes the pending record only after the broker routes the exact nonce-bearing payload back to the device.
 
 To reopen setup, press **RESET normally**, then hold **BOOT for two seconds during the five-second recovery window printed on serial**. Do not hold BOOT while resetting, because that selects the ROM download mode instead of running the application.
 
-The temporary setup network uses a new random WPA2 password each time and accepts one station. State-changing requests also carry a per-boot token, and the firmware rejects HTTP headers over 1 KiB, bodies over 1 KiB, unknown fields, duplicate fields, and incomplete requests. Provisioning times out after ten minutes and returns to deep sleep. Credentials are stored as CRC-checked NVS records and survive reset and deep sleep; Preferences/NVS retains values across power loss.[3]
+The temporary setup network uses a new random 8-character WPA2 password each time and accepts one station. Its 32-character unambiguous alphabet provides a 40-bit password search space. State-changing requests also carry a separate 64-bit per-boot token, and the firmware rejects HTTP headers over 1 KiB, bodies over 1 KiB, unknown fields, duplicate fields, and incomplete requests. Provisioning times out after ten minutes and returns to deep sleep. Credentials are stored as CRC-checked NVS records and survive reset and deep sleep; Preferences/NVS retains values across power loss.[3]
 
 The last verified active configuration is kept separately from a pending replacement. Failed Wi-Fi/MQTT settings are discarded without overwriting the active record.
 
@@ -57,6 +61,7 @@ Example payload:
 ```json
 {
   "device_id": "esp32c6-bme280-aabbccddeeff",
+  "delivery_id": "7a03d649ea14bc82",
   "sensor": "BME280",
   "valid": true,
   "temperature_c": 22.41,
@@ -70,11 +75,13 @@ Example payload:
 }
 ```
 
-PubSubClient supports retained publication; this firmware publishes one retained state message and disconnects cleanly before sleeping.[4] Delivery is QoS 0 and there is no persistent outbox: a failed sample or network attempt is reported over serial and retried at the next scheduled wake.
+PubSubClient supports retained publication but only QoS 0 publishing.[4] To avoid sleeping immediately after a socket write, the firmware first subscribes to its own exact state topic, publishes a payload containing a randomized `delivery_id`, and runs the MQTT loop for up to five seconds until that exact topic and payload return from the broker. Its deadline-aware socket caps TCP connection and every read/write operation to the remaining wake budget. It makes up to three bounded MQTT attempts before sleeping. The configured broker identity therefore needs both publish and subscribe permission on the device state topic.
+
+The broker round trip proves that the broker accepted and routed the exact payload before the ESP32 disconnects; it is stronger than checking `publish()` alone, but it is not durable end-subscriber acknowledgement. There is no persistent outbox. If Wi-Fi never becomes ready or all MQTT attempts fail, the failure is reported over serial and retried at the next configured wake.
 
 ## Power behavior
 
-The BME280 is placed into forced measurement mode, which returns it to sleep after sampling. The ESP32 configures a timer wakeup and enters deep sleep after every attempt; timer wakeup is the documented Arduino-ESP32 pattern.[5] Missing configuration opens provisioning for at most ten minutes, and AP, timer-setup, or network failures use bounded battery-safe sleep behavior rather than reboot loops.
+The BME280 is placed into forced measurement mode, which returns it to sleep after sampling. The ESP32 configures a timer wakeup and enters deep sleep after every bounded success or failure path; timer wakeup is the documented Arduino-ESP32 pattern.[5] Wi-Fi may remain awake for up to 60 seconds, and three MQTT connection/confirmation attempts can add roughly 40 seconds in the worst case. Missing configuration opens provisioning for at most ten minutes, and AP, timer-setup, or network failures use bounded battery-safe sleep behavior rather than reboot loops.
 
 Development boards include regulators, USB bridges, and power LEDs that can dominate sleep current. Deep sleep reduces MCU/radio consumption, but a purpose-built low-power board and regulator are better for long battery life. Measure the complete assembled device before estimating runtime.
 

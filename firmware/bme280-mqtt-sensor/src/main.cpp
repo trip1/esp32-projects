@@ -13,7 +13,9 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/queue.h>
 #include <freertos/task.h>
+#include <lwip/sockets.h>
 
+#include <cerrno>
 #include <cmath>
 #include <cstddef>
 #include <cstdlib>
@@ -47,7 +49,12 @@
 namespace {
 constexpr uint32_t kConfigMagic = 0x424d4532U;
 constexpr uint16_t kConfigVersion = 1U;
-constexpr uint32_t kWifiTimeoutMs = 15000U;
+constexpr uint32_t kWifiTimeoutMs = 60000U;
+constexpr uint32_t kWifiStableMs = 750U;
+constexpr uint32_t kMqttConfirmationTimeoutMs = 5000U;
+constexpr uint32_t kMqttConnectDeadlineMs = 6000U;
+constexpr uint8_t kMqttPublishAttempts = 3U;
+constexpr uint32_t kMqttRetryDelayMs = 750U;
 constexpr uint32_t kProvisioningTimeoutMs = 10U * 60U * 1000U;
 constexpr uint32_t kRecoveryWindowMs = 5000U;
 constexpr uint32_t kRecoveryHoldMs = 2000U;
@@ -57,7 +64,100 @@ constexpr size_t kMaximumRequestBytes = 2048U;
 constexpr size_t kMaximumHeaderBytes = 1024U;
 constexpr size_t kMaximumBodyBytes = 1024U;
 constexpr uint32_t kRejectedPendingMarker = 0x52504e44U;
+constexpr size_t kSetupPasswordCharacters = 8U;
+constexpr char kSetupPasswordAlphabet[] = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+static_assert(sizeof(kSetupPasswordAlphabet) - 1U == 32U, "password alphabet must preserve unbiased five-bit selection");
 RTC_DATA_ATTR uint32_t rejected_pending_marker = 0U;
+
+class DeadlineWiFiClient : public WiFiClient {
+public:
+    void startDeadline(uint32_t duration_ms) {
+        deadline_started_ms_ = millis();
+        deadline_duration_ms_ = duration_ms;
+        deadline_active_ = true;
+    }
+
+    bool deadlineExpired() const {
+        return deadline_active_ && static_cast<uint32_t>(millis() - deadline_started_ms_) >= deadline_duration_ms_;
+    }
+
+    uint32_t remainingMs() const {
+        if (!deadline_active_) return 0U;
+        const uint32_t elapsed = static_cast<uint32_t>(millis() - deadline_started_ms_);
+        return elapsed >= deadline_duration_ms_ ? 0U : deadline_duration_ms_ - elapsed;
+    }
+
+    int connect(IPAddress ip, uint16_t port) override {
+        const uint32_t remaining = remainingMs();
+        return remaining == 0U ? 0 : WiFiClient::connect(ip, port, static_cast<int32_t>(remaining));
+    }
+
+    int connect(const char*, uint16_t) override { return 0; }
+
+    int available() override {
+        if (deadlineExpired()) { WiFiClient::stop(); return 0; }
+        return WiFiClient::available();
+    }
+
+    int read() override {
+        if (deadlineExpired()) { WiFiClient::stop(); return -1; }
+        return WiFiClient::read();
+    }
+
+    int read(uint8_t* buffer, size_t size) override {
+        if (deadlineExpired()) { WiFiClient::stop(); return -1; }
+        return WiFiClient::read(buffer, size);
+    }
+
+    size_t write(uint8_t value) override {
+        return write(&value, 1U);
+    }
+
+    size_t write(const uint8_t* buffer, size_t size) override {
+        size_t sent = 0U;
+        while (sent < size) {
+            const uint32_t remaining = remainingMs();
+            const int socket_fd = fd();
+            if (remaining == 0U || socket_fd < 0) { WiFiClient::stop(); break; }
+            fd_set writable;
+            FD_ZERO(&writable);
+            FD_SET(socket_fd, &writable);
+            timeval timeout{static_cast<time_t>(remaining / 1000U), static_cast<suseconds_t>((remaining % 1000U) * 1000U)};
+            const int ready = select(socket_fd + 1, nullptr, &writable, nullptr, &timeout);
+            if (ready == 0) { WiFiClient::stop(); break; }
+            if (ready < 0) {
+                if (errno == EINTR) continue;
+                WiFiClient::stop();
+                break;
+            }
+            const int result = send(socket_fd, buffer + sent, size - sent, MSG_DONTWAIT);
+            if (result > 0) sent += static_cast<size_t>(result);
+            else if (result < 0 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)) continue;
+            else { WiFiClient::stop(); break; }
+        }
+        return sent;
+    }
+
+    void flush() override {
+        if (deadlineExpired()) WiFiClient::stop();
+        else WiFiClient::flush();
+    }
+
+    void stop() override {
+        deadline_active_ = false;
+        WiFiClient::stop();
+    }
+
+    uint8_t connected() override {
+        if (deadlineExpired()) { WiFiClient::stop(); return 0U; }
+        return WiFiClient::connected();
+    }
+
+private:
+    bool deadline_active_ = false;
+    uint32_t deadline_started_ms_ = 0U;
+    uint32_t deadline_duration_ms_ = 0U;
+};
 
 struct StoredConfig {
     uint32_t magic;
@@ -73,6 +173,8 @@ struct StoredConfig {
     uint32_t crc32;
 };
 static_assert(sizeof(StoredConfig) < 1024U, "configuration should remain a small NVS value");
+
+enum class PromotionResult : uint8_t { Failed, Promoted, PromotedCleanupPending };
 
 struct Reading {
     bool valid = false;
@@ -133,7 +235,7 @@ StoredConfig active_config{};
 bool active_config_ready = false;
 DNSServer dns;
 WiFiServer provisioning_server(80);
-WiFiClient network;
+DeadlineWiFiClient network;
 PubSubClient mqtt(network);
 bool provisioning = false;
 uint32_t provisioning_started_ms = 0;
@@ -141,6 +243,16 @@ char csrf_token[17]{};
 bool restart_requested = false;
 SensorScanReport latest_scan{};
 bool scan_ready = false;
+
+struct PublishConfirmation {
+    char topic[160]{};
+    char payload[512]{};
+    size_t payload_length = 0U;
+    bool armed = false;
+    bool received = false;
+};
+
+PublishConfirmation publish_confirmation{};
 
 bool isTerminated(const char* value, size_t capacity) {
     return std::memchr(value, '\0', capacity) != nullptr;
@@ -204,9 +316,9 @@ bool clearConfiguration() {
     return cleared;
 }
 
-bool promotePending(const StoredConfig& pending) {
-    if (!storeRecord("active", pending)) return false;
-    return removeRecord("pending");
+PromotionResult promotePending(const StoredConfig& pending) {
+    if (!storeRecord("active", pending)) return PromotionResult::Failed;
+    return removeRecord("pending") ? PromotionResult::Promoted : PromotionResult::PromotedCleanupPending;
 }
 
 template <size_t N>
@@ -451,7 +563,7 @@ String setupPage(const String& message = String()) {
     appendScanReport(page);
     page += F("<p class=warn>This temporary setup network uses the random password printed on USB serial. Wi-Fi and MQTT passwords are stored in ESP32 NVS and are not encrypted at rest.</p><form method=post action=/save><input type=hidden name=csrf value='");
     page += csrf_token;
-    page += F("'><label>Wi-Fi SSID<input name=ssid maxlength=32 required autocomplete=off></label><label>Wi-Fi password<input name=wifi_password type=password maxlength=63 autocomplete=new-password></label><label>MQTT host or IP<input name=mqtt_host maxlength=128 required placeholder=192.168.1.10></label><label>MQTT port<input name=mqtt_port type=number min=1 max=65535 value=1883 required></label><label>MQTT username<input name=mqtt_username maxlength=64 autocomplete=off></label><label>MQTT password<input name=mqtt_password type=password maxlength=128 autocomplete=new-password></label><label>Topic prefix<input name=topic_prefix maxlength=96 value=home/environment required></label><label>Wake interval (minutes)<input name=sleep_minutes type=number min=1 max=1440 value=5 required></label><button type=submit>Save pending configuration</button></form><p class=muted>The sensor tests pending Wi-Fi and MQTT settings after restart. It promotes them only after a successful publish; the previous active configuration is preserved on failure.</p><form method=post action=/clear><input type=hidden name=csrf value='");
+    page += F("'><label>Wi-Fi SSID<input name=ssid maxlength=32 required autocomplete=off></label><label>Wi-Fi password<input name=wifi_password type=password maxlength=63 autocomplete=new-password></label><label>MQTT broker IPv4 address<input name=mqtt_host maxlength=15 required placeholder=192.168.1.10></label><label>MQTT port<input name=mqtt_port type=number min=1 max=65535 value=1883 required></label><label>MQTT username<input name=mqtt_username maxlength=64 autocomplete=off></label><label>MQTT password<input name=mqtt_password type=password maxlength=128 autocomplete=new-password></label><label>Topic prefix<input name=topic_prefix maxlength=96 value=home/environment required></label><label>Wake interval (minutes)<input name=sleep_minutes type=number min=1 max=1440 value=5 required></label><button type=submit>Save pending configuration</button></form><p class=muted>The sensor waits for a stable Wi-Fi address, then tests pending MQTT settings with a nonce-bearing round trip. The broker account must be allowed to publish and subscribe to the device state topic. Pending settings are promoted only after confirmed delivery; the previous active configuration is preserved on failure.</p><form method=post action=/clear><input type=hidden name=csrf value='");
     page += csrf_token;
     page += F("'><button type=submit>Erase saved configuration</button></form></main></body></html>");
     return page;
@@ -517,7 +629,7 @@ void handlePost(WiFiClient& client, const char* path, const char* body, size_t b
     }
     StoredConfig candidate{};
     if (!createCandidate(fields, candidate)) {
-        sendHttp(client, 400, "Bad Request", setupPage("Check the SSID, password lengths, MQTT host, topic prefix, and wake interval."));
+        sendHttp(client, 400, "Bad Request", setupPage("Check the SSID, password lengths, numeric MQTT IPv4 address, topic prefix, and wake interval."));
         return;
     }
     if (!storeRecord("pending", candidate)) {
@@ -590,17 +702,26 @@ void makeRandomHex(char* output, size_t bytes) {
     output[bytes * 2U] = '\0';
 }
 
+template <size_t N>
+void makeReadableSetupPassword(char (&output)[N]) {
+    static_assert(N >= kSetupPasswordCharacters + 1U, "setup password buffer is too small");
+    for (size_t index = 0; index < kSetupPasswordCharacters; ++index) {
+        output[index] = kSetupPasswordAlphabet[esp_random() & 31U];
+    }
+    output[kSetupPasswordCharacters] = '\0';
+}
+
 void startProvisioning() {
     uint8_t mac[6]{};
     esp_read_mac(mac, ESP_MAC_WIFI_STA);
     char ssid[32];
-    char password[17];
+    char password[kSetupPasswordCharacters + 1U];
     std::snprintf(ssid, sizeof(ssid), "BME280-Setup-%02X%02X%02X", mac[3], mac[4], mac[5]);
-    makeRandomHex(password, 8U);
+    WiFi.mode(WIFI_AP);
+    makeReadableSetupPassword(password);
     makeRandomHex(csrf_token, 8U);
     latest_scan = scanSensorBuses();
     scan_ready = true;
-    WiFi.mode(WIFI_AP);
     if (!WiFi.softAP(ssid, password, 1, false, 1)) {
         Serial.println("Provisioning AP failed; entering fail-safe sleep");
         return;
@@ -702,13 +823,42 @@ Reading readSensorBounded() {
     return reading;
 }
 
+void mqttMessageCallback(char* topic, uint8_t* payload, unsigned int length) {
+    if (!publish_confirmation.armed || publish_confirmation.received) return;
+    publish_confirmation.received = mqttDeliveryMatches(
+        publish_confirmation.topic, publish_confirmation.payload, publish_confirmation.payload_length,
+        topic, payload, static_cast<size_t>(length));
+}
+
 bool connectWifi(const StoredConfig& value) {
     WiFi.persistent(false);
     WiFi.mode(WIFI_STA);
     WiFi.begin(value.wifi_ssid, value.wifi_password);
     const uint32_t started = millis();
-    while (WiFi.status() != WL_CONNECTED && static_cast<uint32_t>(millis() - started) < kWifiTimeoutMs) delay(100);
-    return WiFi.status() == WL_CONNECTED;
+    uint32_t ready_since = 0U;
+    bool ready_started = false;
+    IPAddress ready_ip(0U, 0U, 0U, 0U);
+    while (static_cast<uint32_t>(millis() - started) < kWifiTimeoutMs) {
+        const IPAddress current_ip = WiFi.localIP();
+        const bool ready = WiFi.status() == WL_CONNECTED && current_ip != IPAddress(0U, 0U, 0U, 0U);
+        if (ready) {
+            if (!ready_started || current_ip != ready_ip) {
+                ready_started = true;
+                ready_since = millis();
+                ready_ip = current_ip;
+            } else if (static_cast<uint32_t>(millis() - ready_since) >= kWifiStableMs) {
+                Serial.printf("Wi-Fi ready: %s, RSSI %d dBm\n", WiFi.localIP().toString().c_str(), WiFi.RSSI());
+                return true;
+            }
+        } else {
+            ready_started = false;
+            ready_since = 0U;
+        }
+        delay(100);
+    }
+    Serial.printf("Wi-Fi connection timed out after %lu ms (status %d)\n",
+                  static_cast<unsigned long>(kWifiTimeoutMs), static_cast<int>(WiFi.status()));
+    return false;
 }
 
 const char* chipPrefix() {
@@ -723,7 +873,7 @@ const char* chipPrefix() {
 #endif
 }
 
-bool publishReading(const Reading& reading, const StoredConfig& value, bool retained) {
+bool publishReadingOnce(const Reading& reading, const StoredConfig& value, bool retained) {
     uint8_t mac[6]{};
     esp_read_mac(mac, ESP_MAC_WIFI_STA);
     char device_id[32];
@@ -731,15 +881,12 @@ bool publishReading(const Reading& reading, const StoredConfig& value, bool reta
     char topic[160];
     const int topic_length = std::snprintf(topic, sizeof(topic), "%s/%s/state", value.topic_prefix, device_id);
     if (topic_length <= 0 || static_cast<size_t>(topic_length) >= sizeof(topic)) return false;
-    mqtt.setServer(value.mqtt_host, value.mqtt_port);
-    if (!mqtt.setBufferSize(768)) return false;
-    mqtt.setSocketTimeout(5);
-    network.setConnectionTimeout(5000);
-    network.setTimeout(5000);
-    const bool connected = value.mqtt_username[0] == '\0' ? mqtt.connect(device_id) : mqtt.connect(device_id, value.mqtt_username, value.mqtt_password);
-    if (!connected) return false;
+
+    char delivery_id[17];
+    makeRandomHex(delivery_id, 8U);
     JsonDocument document;
     document["device_id"] = device_id;
+    document["delivery_id"] = delivery_id;
     document["sensor"] = "BME280";
     document["valid"] = reading.valid;
     if (reading.valid) {
@@ -762,9 +909,67 @@ bool publishReading(const Reading& reading, const StoredConfig& value, bool reta
     document["awake_ms"] = millis();
     char payload[512];
     const size_t length = serializeJson(document, payload, sizeof(payload));
-    const bool published = length > 0U && length < sizeof(payload) && mqtt.publish(topic, payload, retained);
+    if (length == 0U || length >= sizeof(payload)) return false;
+
+    IPAddress broker_ip;
+    if (!broker_ip.fromString(value.mqtt_host)) {
+        Serial.println("MQTT broker must be a numeric IPv4 address");
+        return false;
+    }
+    mqtt.setServer(broker_ip, value.mqtt_port);
+    mqtt.setCallback(mqttMessageCallback);
+    if (!mqtt.setBufferSize(768)) return false;
+    mqtt.setSocketTimeout(1);
+    network.setConnectionTimeout(5000);
+    network.setTimeout(1000);
+    network.startDeadline(kMqttConnectDeadlineMs);
+    const bool connected = value.mqtt_username[0] == '\0' ? mqtt.connect(device_id) : mqtt.connect(device_id, value.mqtt_username, value.mqtt_password);
+    if (!connected) {
+        Serial.printf("MQTT connection failed (state %d)\n", mqtt.state());
+        network.stop();
+        return false;
+    }
+
+    network.startDeadline(kMqttConfirmationTimeoutMs);
+
+    publish_confirmation = {};
+    std::memcpy(publish_confirmation.topic, topic, static_cast<size_t>(topic_length) + 1U);
+    std::memcpy(publish_confirmation.payload, payload, length);
+    publish_confirmation.payload[length] = '\0';
+    publish_confirmation.payload_length = length;
+    publish_confirmation.armed = true;
+
+    const bool subscribed = mqtt.subscribe(topic, 0U);
+    const bool queued = subscribed && mqtt.publish(topic, payload, retained);
+    if (!subscribed) Serial.println("MQTT confirmation subscription failed");
+    else if (!queued) Serial.println("MQTT publication could not be queued");
+    const uint32_t confirmation_started = millis();
+    while (queued && mqtt.connected() && !publish_confirmation.received &&
+           static_cast<uint32_t>(millis() - confirmation_started) < kMqttConfirmationTimeoutMs) {
+        mqtt.loop();
+        delay(10);
+    }
+    const bool confirmed = queued && publish_confirmation.received;
+    publish_confirmation.armed = false;
+    if (confirmed) Serial.printf("MQTT delivery confirmed on %s\n", topic);
+    else Serial.printf("MQTT delivery was not confirmed within %lu ms\n", static_cast<unsigned long>(kMqttConfirmationTimeoutMs));
     mqtt.disconnect();
-    return published;
+    network.stop();
+    return confirmed;
+}
+
+bool publishReading(const Reading& reading, const StoredConfig& value, bool retained) {
+    for (uint8_t attempt = 1U; attempt <= kMqttPublishAttempts; ++attempt) {
+        if (WiFi.status() != WL_CONNECTED || WiFi.localIP() == IPAddress(0U, 0U, 0U, 0U)) {
+            Serial.println("Wi-Fi was lost before MQTT publication");
+            return false;
+        }
+        Serial.printf("MQTT confirmed-delivery attempt %u of %u\n", attempt, kMqttPublishAttempts);
+        if (publishReadingOnce(reading, value, retained)) return true;
+        if (attempt < kMqttPublishAttempts) delay(kMqttRetryDelayMs);
+    }
+    Serial.println("MQTT delivery failed after all bounded attempts");
+    return false;
 }
 
 [[noreturn]] void sleepForMinutes(uint32_t minutes) {
@@ -804,8 +1009,12 @@ void processConfiguredWake(const StoredConfig& value, bool pending) {
     const bool published = wifi_ready && publishReading(reading, value, !pending);
     bool promoted = !pending;
     if (pending) {
-        if (published && promotePending(value)) {
+        const PromotionResult promotion = published ? promotePending(value) : PromotionResult::Failed;
+        if (promotion != PromotionResult::Failed) {
             Serial.println("Pending configuration verified and promoted");
+            if (promotion == PromotionResult::PromotedCleanupPending) {
+                Serial.println("Pending cleanup failed; active configuration is authoritative and cleanup will retry after reboot");
+            }
             active_config = value;
             active_config_ready = true;
             promoted = true;

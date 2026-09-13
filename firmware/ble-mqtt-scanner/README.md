@@ -20,7 +20,7 @@ The proximity feature works best with BLE tags and sensors that advertise stable
 ## First-boot setup
 
 1. Flash the image for the exact board and open USB serial at 115200 baud.
-2. Copy the random setup password printed by the scanner.
+2. Copy the randomized 8-character uppercase setup password printed by the scanner. It omits `I`, `O`, `0`, and `1`.
 3. Join `BLE-Scanner-Setup-XXXXXX` with that password.
 4. Open `http://192.168.4.1` if the captive page does not appear.
 5. Enter Wi-Fi, MQTT broker, optional MQTT credentials, and topic-prefix settings.
@@ -28,7 +28,7 @@ The proximity feature works best with BLE tags and sensors that advertise stable
 
 To reopen setup, press **RESET normally**, then hold **BOOT for two seconds during the five-second serial recovery window**. Do not hold BOOT while resetting because that can select ROM download mode instead of running the firmware.
 
-The setup network uses a new random WPA2 password each session and accepts one station. State changes require a per-boot token. HTTP headers and bodies are bounded to 1 KiB each, malformed framing and duplicate/unknown form fields are rejected, and the portal rotates after ten minutes. The last verified active configuration remains available when replacement settings fail.
+The setup network uses a new random 8-character WPA2 password each session and accepts one station. Its unambiguous 32-character alphabet provides a 40-bit password search space. State changes require a separate per-boot token. HTTP headers and bodies are bounded to 1 KiB each, malformed framing and duplicate/unknown form fields are rejected, and the portal rotates after ten minutes. The last verified active configuration remains available when replacement settings fail.
 
 Credentials and local LittleFS sighting logs are not encrypted at rest. Protect physical access to the board. MQTT is plain TCP for a trusted LAN; use a VPN or a future certificate-validated TLS profile before sending sightings over an untrusted network.
 

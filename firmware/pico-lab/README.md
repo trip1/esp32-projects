@@ -23,7 +23,7 @@ Available on all four boards. It repeats `HELLO WORLD` in Morse code on the onbo
 
 ### Pico W Wi-Fi Surveyor
 
-Available only on Pico W and Pico 2 W. As a deliberate privacy and resource policy, firmware performs one bounded station-mode scan at boot, stores at most 20 results, then changes to access-point mode instead of scanning while clients are connected. Join `Pico-W-Surveyor` with the randomized per-boot WPA2 password printed over USB serial, then open `http://192.168.4.1/`. Reboot to refresh the scan and rotate the password.
+Available only on Pico W and Pico 2 W. As a deliberate privacy and resource policy, firmware performs one bounded station-mode scan at boot, stores at most 20 results, then changes to access-point mode instead of scanning while clients are connected. Join `Pico-W-Surveyor` with the randomized 8-character uppercase WPA2 password printed over USB serial; `I`, `O`, `0`, and `1` are omitted. Then open `http://192.168.4.1/`. Reboot to refresh the scan and rotate the password.
 
 The dashboard is read-only, escapes SSIDs before HTML rendering, and accepts only a root-page GET with exactly one approved `Host` header through a fixed 1 KiB request buffer with a 1.5-second timeout. It accepts no router credentials and exposes no state-changing endpoint. Nearby SSIDs can be identifying information and are visible to every client that knows the temporary AP password.
 

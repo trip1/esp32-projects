@@ -4,12 +4,15 @@
 #include <array>
 #include <string_view>
 
+#include "pico/rand.h"
 #include "pico_logic.h"
 
 namespace {
 
 constexpr char AP_NAME[] = "Pico-W-Surveyor";
-constexpr char PASSWORD_ALPHABET[] = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+constexpr std::size_t kSetupPasswordCharacters = 8U;
+constexpr char kSetupPasswordAlphabet[] = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+static_assert(sizeof(kSetupPasswordAlphabet) - 1U == 32U, "password alphabet must preserve unbiased five-bit selection");
 constexpr std::size_t MAX_NETWORKS = 20;
 constexpr std::size_t MAX_REQUEST_BYTES = 1024;
 constexpr uint32_t REQUEST_TIMEOUT_MS = 1500;
@@ -23,16 +26,17 @@ struct Network {
 std::array<Network, MAX_NETWORKS> networks{};
 std::size_t network_count = 0;
 WiFiServer server(80);
-char ap_password[13]{};
+char ap_password[kSetupPasswordCharacters + 1U]{};
 uint32_t last_serial_reminder = 0;
 bool access_ready = false;
 
-void generatePassword() {
-    constexpr std::size_t alphabet_size = sizeof(PASSWORD_ALPHABET) - 1;
-    for (std::size_t index = 0; index < sizeof(ap_password) - 1; ++index) {
-        ap_password[index] = PASSWORD_ALPHABET[rp2040.hwrand32() % alphabet_size];
+void makeReadableSetupPassword() {
+    uint64_t random_bits = get_rand_64();
+    for (std::size_t index = 0; index < kSetupPasswordCharacters; ++index) {
+        ap_password[index] = kSetupPasswordAlphabet[random_bits & 31U];
+        random_bits >>= 5U;
     }
-    ap_password[sizeof(ap_password) - 1] = '\0';
+    ap_password[kSetupPasswordCharacters] = '\0';
 }
 
 void captureSurvey() {
@@ -159,7 +163,7 @@ void setup() {
 
     WiFi.mode(WIFI_AP);
     const IPAddress address(192, 168, 4, 1);
-    generatePassword();
+    makeReadableSetupPassword();
     if (!WiFi.softAPConfig(address, address, IPAddress(255, 255, 255, 0)) || !WiFi.softAP(AP_NAME, ap_password)) {
         Serial.println("Access-point startup failed; reboot to retry.");
         return;

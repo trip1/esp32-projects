@@ -21,6 +21,13 @@ bool isValidOptionalCredential(const std::string& value, std::size_t maximum_byt
 bool isValidTopicPrefix(const std::string& value);
 bool isValidSleepMinutes(std::uint32_t value);
 bool isValidBme280Reading(float temperature_c, float humidity_percent, float pressure_hpa);
+bool mqttDeliveryMatches(
+    const char* expected_topic,
+    const char* expected_payload,
+    std::size_t expected_length,
+    const char* received_topic,
+    const std::uint8_t* received_payload,
+    std::size_t received_length);
 bool parseBoundedHttpHeaders(
     const char* data,
     std::size_t length,

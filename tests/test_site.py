@@ -109,7 +109,7 @@ class FirmwarePortalTests(unittest.TestCase):
     def test_pico_surveyor_protects_private_scan_results(self):
         source = (ROOT / "firmware" / "pico-lab" / "src" / "apps" / "wifi-surveyor.cpp").read_text()
         readme = (ROOT / "firmware" / "pico-lab" / "README.md").read_text()
-        self.assertIn("rp2040.hwrand32()", source)
+        self.assertIn("get_rand_64()", source)
         self.assertIn("WiFi.softAP(AP_NAME, ap_password)", source)
         self.assertIn("parseSurveyRequest", source)
         self.assertIn("Content-Security-Policy", source)
@@ -240,6 +240,25 @@ class FirmwarePortalTests(unittest.TestCase):
         self.assertIn("publishReading(reading, value, !pending)", wake)
         self.assertLess(wake.index("promotePending(value)"), wake.index("publishReading(reading, value, true)"))
 
+    def test_bme_mqtt_io_has_a_wake_level_deadline(self):
+        source = (ROOT / "firmware" / "bme280-mqtt-sensor" / "src" / "main.cpp").read_text()
+        self.assertIn("class DeadlineWiFiClient", source)
+        self.assertIn("network.startDeadline(kMqttConnectDeadlineMs)", source)
+        self.assertIn("network.startDeadline(kMqttConfirmationTimeoutMs)", source)
+        self.assertIn("mqtt.setSocketTimeout(1)", source)
+        self.assertIn("if (deadlineExpired())", source)
+        self.assertIn("int connect(IPAddress ip, uint16_t port) override", source)
+        self.assertIn("size_t write(const uint8_t* buffer, size_t size) override", source)
+        self.assertIn("select(socket_fd + 1", source)
+        self.assertIn("mqtt.setServer(broker_ip, value.mqtt_port)", source)
+        self.assertNotIn("mqtt.setServer(value.mqtt_host", source)
+
+    def test_bme_ipv4_upgrade_break_is_documented(self):
+        readme = (ROOT / "firmware" / "bme280-mqtt-sensor" / "README.md").read_text()
+        self.assertIn("## Upgrading from 1.2.x", readme)
+        self.assertIn("replace any MQTT hostname with its numeric IPv4 address before flashing", readme)
+        self.assertIn("existing hostname-based configuration will be rejected", readme)
+
     def test_ntp_clock_requires_a_fresh_sync_before_promotion(self):
         source = (ROOT / "firmware" / "hardware-lab" / "src" / "apps" / "ntp-desk-clock.cpp").read_text()
         validation = source.split("bool connectAndSynchronize", 1)[1].split("void showUnavailable", 1)[0]
@@ -259,7 +278,7 @@ class FirmwarePortalTests(unittest.TestCase):
 
     def test_bme280_setup_preflights_i2c_and_spi_before_credentials(self):
         project = next(project for project in self.load_catalog() if project["slug"] == "bme280-mqtt-sensor")
-        self.assertEqual("1.1.0", project["version"])
+        self.assertEqual("1.3.0", project["version"])
         self.assertIn("I²C/SPI sensor preflight", project["features"])
         source = (ROOT / project["project_dir"] / "src" / "main.cpp").read_text()
         page = source.split("String setupPage", 1)[1].split("void sendHttp", 1)[0]
@@ -290,6 +309,42 @@ class FirmwarePortalTests(unittest.TestCase):
         self.assertIn("xQueueReceive", bounded)
         self.assertIn("kSensorReadTimeoutMs", bounded)
         self.assertIn("vTaskDelete", bounded)
+
+    def test_protected_local_aps_use_short_unambiguous_passwords(self):
+        files = (
+            ROOT / "firmware" / "ble-mqtt-scanner" / "src" / "scanner_runtime_config.cpp",
+            ROOT / "firmware" / "bme280-mqtt-sensor" / "src" / "main.cpp",
+            ROOT / "firmware" / "hardware-lab" / "src" / "ntp_clock_config.cpp",
+            ROOT / "firmware" / "pico-lab" / "src" / "apps" / "wifi-surveyor.cpp",
+        )
+        expected_alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+        for path in files:
+            source = path.read_text()
+            self.assertIn(expected_alphabet, source, path)
+            self.assertIn("kSetupPasswordCharacters = 8U", source, path)
+            self.assertIn("makeReadableSetupPassword", source, path)
+            self.assertIn("kSetupPasswordCharacters + 1U", source, path)
+            self.assertIn("& 31U", source, path)
+            self.assertIn("[kSetupPasswordCharacters] = '\\0'", source, path)
+        esp_functions = (
+            (files[0].read_text(), "bool scannerStartProvisioning()"),
+            (files[1].read_text(), "void startProvisioning()"),
+            (files[2].read_text(), "bool clockStartProvisioning()"),
+        )
+        for source, signature in esp_functions:
+            provisioning = source.split(signature, 1)[1].split("}\n", 1)[0]
+            self.assertLess(provisioning.index("WiFi.mode(WIFI_AP)"), provisioning.index("makeReadableSetupPassword"))
+            self.assertLess(provisioning.index("WiFi.mode(WIFI_AP)"), provisioning.index("csrf_token"))
+            self.assertIn("WiFi.softAP(ssid, password, 1, false, 1)", provisioning)
+        pico_source = files[3].read_text()
+        self.assertIn('#include "pico/rand.h"', pico_source)
+        self.assertIn("get_rand_64()", pico_source)
+        self.assertNotIn("rp2040.hwrand32()", pico_source)
+        projects = {project["slug"]: project for project in self.load_catalog()}
+        self.assertEqual("3.1.0", projects["ble-mqtt-scanner"]["version"])
+        self.assertEqual("1.3.0", projects["bme280-mqtt-sensor"]["version"])
+        self.assertEqual("1.1.0", projects["ntp-desk-clock"]["version"])
+        self.assertEqual("1.1.0", projects["pico-wifi-surveyor"]["version"])
 
     def test_reboot_museum_clears_nvs_with_checked_clear(self):
         source = (ROOT / "firmware" / "no-hardware-lab" / "src" / "apps" / "boot-counter.cpp").read_text()

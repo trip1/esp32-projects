@@ -15,8 +15,11 @@ int main() {
     assert(!isValidWifiPassword("short"));
     assert(!isValidWifiPassword(std::string(64, 'p')));
 
-    assert(isValidMqttHost("mqtt.home.arpa"));
+    assert(!isValidMqttHost("mqtt.home.arpa"));
     assert(isValidMqttHost("10.0.0.10"));
+    assert(isValidMqttHost("255.255.255.255"));
+    assert(!isValidMqttHost("256.0.0.1"));
+    assert(!isValidMqttHost("10.0.0"));
     assert(!isValidMqttHost(""));
     assert(!isValidMqttHost("bad host"));
     assert(!isValidMqttHost("mqtt/#"));
@@ -47,6 +50,20 @@ int main() {
     assert(!isValidBme280Reading(-40.1F, 50.0F, 1000.0F));
     assert(!isValidBme280Reading(20.0F, 100.1F, 1000.0F));
     assert(!isValidBme280Reading(20.0F, 50.0F, 299.9F));
+
+    const std::string delivery_topic = "home/environment/esp32-bme280-aabbcc/state";
+    const std::string delivery_payload = "{\"delivery_id\":\"abc123\",\"temperature_c\":22.5}";
+    assert(mqttDeliveryMatches(delivery_topic.c_str(), delivery_payload.data(), delivery_payload.size(),
+                               delivery_topic.c_str(), reinterpret_cast<const std::uint8_t*>(delivery_payload.data()), delivery_payload.size()));
+    assert(!mqttDeliveryMatches(delivery_topic.c_str(), delivery_payload.data(), delivery_payload.size(),
+                                "home/environment/other/state", reinterpret_cast<const std::uint8_t*>(delivery_payload.data()), delivery_payload.size()));
+    const std::string stale_payload = "{\"delivery_id\":\"old\",\"temperature_c\":22.5}";
+    assert(!mqttDeliveryMatches(delivery_topic.c_str(), delivery_payload.data(), delivery_payload.size(),
+                                delivery_topic.c_str(), reinterpret_cast<const std::uint8_t*>(stale_payload.data()), stale_payload.size()));
+    std::string altered_payload = delivery_payload;
+    altered_payload[altered_payload.size() - 2U] = '6';
+    assert(!mqttDeliveryMatches(delivery_topic.c_str(), delivery_payload.data(), delivery_payload.size(),
+                                delivery_topic.c_str(), reinterpret_cast<const std::uint8_t*>(altered_payload.data()), altered_payload.size()));
 
     assert(classifyEnvironmentalSensorChip(0x60) == EnvironmentalSensorChip::Bme280);
     assert(classifyEnvironmentalSensorChip(0x56) == EnvironmentalSensorChip::Bmp280);

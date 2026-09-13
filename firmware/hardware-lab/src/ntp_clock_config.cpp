@@ -23,6 +23,9 @@ constexpr size_t kMaxBody = 512U;
 constexpr size_t kMaxRequest = kMaxHeader + kMaxBody;
 constexpr uint32_t kPortalTimeoutMs = 10U * 60U * 1000U;
 constexpr uint32_t kRejectedPendingMarker = 0x52504e44U;
+constexpr size_t kSetupPasswordCharacters = 8U;
+constexpr char kSetupPasswordAlphabet[] = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+static_assert(sizeof(kSetupPasswordAlphabet) - 1U == 32U, "password alphabet must preserve unbiased five-bit selection");
 RTC_DATA_ATTR uint32_t rejected_pending_marker = 0U;
 DNSServer dns;
 WiFiServer server(80);
@@ -175,6 +178,15 @@ void randomHex(char* output, size_t bytes) {
     }
     output[bytes * 2U] = '\0';
 }
+
+template <size_t N>
+void makeReadableSetupPassword(char (&output)[N]) {
+    static_assert(N >= kSetupPasswordCharacters + 1U, "setup password buffer is too small");
+    for (size_t index = 0U; index < kSetupPasswordCharacters; ++index) {
+        output[index] = kSetupPasswordAlphabet[esp_random() & 31U];
+    }
+    output[kSetupPasswordCharacters] = '\0';
+}
 }  // namespace
 
 bool clockConfigValid(const ClockConfig& value) {
@@ -240,10 +252,10 @@ bool clockRecoveryRequested() {
 
 bool clockStartProvisioning() {
     uint8_t mac[6]{}; esp_read_mac(mac, ESP_MAC_WIFI_STA);
-    char ssid[32]; char password[17];
+    char ssid[32]; char password[kSetupPasswordCharacters + 1U];
     std::snprintf(ssid, sizeof(ssid), "NTP-Clock-Setup-%02X%02X%02X", mac[3], mac[4], mac[5]);
-    randomHex(password, 8U); randomHex(csrf_token, 8U);
     WiFi.mode(WIFI_AP);
+    makeReadableSetupPassword(password); randomHex(csrf_token, 8U);
     if (!WiFi.softAP(ssid, password, 1, false, 1)) return false;
     if (!dns.start(53, "*", WiFi.softAPIP())) { WiFi.softAPdisconnect(true); return false; }
     server.begin(); provisioning = true; portal_started_ms = millis();

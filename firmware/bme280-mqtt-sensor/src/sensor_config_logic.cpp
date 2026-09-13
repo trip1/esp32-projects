@@ -66,11 +66,21 @@ bool isValidWifiPassword(const std::string& value) {
 }
 
 bool isValidMqttHost(const std::string& value) {
-    if (value.empty() || value.size() > 128U) return false;
-    for (const unsigned char character : value) {
-        if (!std::isalnum(character) && character != '.' && character != '-' && character != '_' && character != ':') return false;
+    if (value.empty() || value.size() > 15U) return false;
+    std::size_t start = 0U;
+    for (unsigned part = 0U; part < 4U; ++part) {
+        const std::size_t end = part == 3U ? value.size() : value.find('.', start);
+        if (end == std::string::npos || end == start || end - start > 3U) return false;
+        unsigned octet = 0U;
+        for (std::size_t index = start; index < end; ++index) {
+            const unsigned char character = static_cast<unsigned char>(value[index]);
+            if (!std::isdigit(character)) return false;
+            octet = octet * 10U + static_cast<unsigned>(character - '0');
+        }
+        if (octet > 255U || (end - start > 1U && value[start] == '0')) return false;
+        start = end + 1U;
     }
-    return true;
+    return start == value.size() + 1U;
 }
 
 bool isValidOptionalCredential(const std::string& value, std::size_t maximum_bytes) {
@@ -93,6 +103,18 @@ bool isValidBme280Reading(float temperature_c, float humidity_percent, float pre
     return std::isfinite(temperature_c) && temperature_c >= -40.0F && temperature_c <= 85.0F &&
            std::isfinite(humidity_percent) && humidity_percent >= 0.0F && humidity_percent <= 100.0F &&
            std::isfinite(pressure_hpa) && pressure_hpa >= 300.0F && pressure_hpa <= 1100.0F;
+}
+
+bool mqttDeliveryMatches(
+    const char* expected_topic,
+    const char* expected_payload,
+    std::size_t expected_length,
+    const char* received_topic,
+    const std::uint8_t* received_payload,
+    std::size_t received_length) {
+    return expected_topic != nullptr && expected_payload != nullptr && received_topic != nullptr && received_payload != nullptr &&
+           expected_length == received_length && std::strcmp(expected_topic, received_topic) == 0 &&
+           std::memcmp(expected_payload, received_payload, expected_length) == 0;
 }
 
 bool parseBoundedHttpHeaders(

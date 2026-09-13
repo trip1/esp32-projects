@@ -41,12 +41,12 @@ The clock synchronizes through NTP and drives a four-digit TM1637 display. NTP p
 
 Connect TM1637 `VCC` to 3.3 V, `GND` to ground, and the two signal pins above. On first boot:
 
-1. Open USB serial at 115200 baud and copy the random setup password.
+1. Open USB serial at 115200 baud and copy the randomized 8-character uppercase setup password; `I`, `O`, `0`, and `1` are omitted.
 2. Join `NTP-Clock-Setup-XXXXXX` with that password.
 3. Open `http://192.168.4.1` and select Wi-Fi plus a supported timezone (US Central is the default).
 4. Save. The clock stores a pending record, reboots, and promotes it only after Wi-Fi and NTP return a plausible date.
 
-To reopen setup, reset normally and then hold BOOT for two seconds during the five-second recovery window. The setup AP uses a random WPA2 password, per-boot state token, strict Host/Origin checks, fixed request limits, and a ten-minute rotation timeout. Credentials are stored in CRC-checked NVS and are not encrypted at rest.
+To reopen setup, reset normally and then hold BOOT for two seconds during the five-second recovery window. The setup AP uses a random 8-character WPA2 password with a 40-bit search space, a separate per-boot state token, strict Host/Origin checks, fixed request limits, and a ten-minute rotation timeout. Credentials are stored in CRC-checked NVS and are not encrypted at rest.
 
 ## Build and verification
 

@@ -36,9 +36,9 @@ The catalog contains 83 exact-board firmware targets across 22 projects. Existin
 
 Every external-hardware project includes a board-specific, color-coded wiring diagram and a non-affiliate Amazon search list for the required sensor, display, breadboard, jumpers, and safety components. The diagram changes with the exact board selected in the portal.
 
-BLE Proximity Scanner, BME280 MQTT Sleep Sensor, and NTP Desk Clock require first-boot network setup. Each creates a temporary password-protected setup network; its random password is printed only over USB serial. The portal identifies required fields before flashing. All other projects work from their local/offline defaults without first-boot settings.
+BLE Proximity Scanner, BME280 MQTT Sleep Sensor, and NTP Desk Clock require first-boot network setup. Each creates a temporary protected setup network with an 8-character, uppercase password printed only over USB serial. The alphabet omits `I`, `O`, `0`, and `1` to prevent transcription mistakes. The portal identifies required fields before flashing. All other projects work from their local/offline defaults without first-boot settings.
 
-The ESP local-dashboard AP projects create an open local network and serve a UI at `http://192.168.4.1`; those experimental networks never request router or broker credentials. Pico W Wi-Fi Surveyor instead prints a randomized per-boot WPA2 password over USB serial. Surveyed SSIDs are visible to every client that joins that protected AP.
+The ESP local-dashboard AP projects create an open local network and serve a UI at `http://192.168.4.1`; those experimental networks never request router or broker credentials. Pico W Wi-Fi Surveyor instead prints the same readable 8-character per-boot WPA2 password format over USB serial. Surveyed SSIDs are visible to every client that joins that protected AP.
 
 ## Firmware portal
 
