@@ -141,6 +141,14 @@ int main() {
     assert(!panelParseHttpRequest(hostile.data(), hostile.size(), 1024U, method, sizeof(method), target, sizeof(target), content_length, has_content_length));
     const std::string missing_origin = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nContent-Length: 7\r\n\r\n";
     assert(!panelParseHttpRequest(missing_origin.data(), missing_origin.size(), 1024U, method, sizeof(method), target, sizeof(target), content_length, has_content_length));
+    const std::string captive_referer_only = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nReferer: http://192.168.4.1/\r\nContent-Length: 7\r\n\r\n";
+    assert(panelParseHttpRequest(captive_referer_only.data(), captive_referer_only.size(), 1024U, method, sizeof(method), target, sizeof(target), content_length, has_content_length));
+    const std::string foreign_referer = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nReferer: http://attacker.example/\r\nContent-Length: 7\r\n\r\n";
+    assert(!panelParseHttpRequest(foreign_referer.data(), foreign_referer.size(), 1024U, method, sizeof(method), target, sizeof(target), content_length, has_content_length));
+    const std::string authority_confusion = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nReferer: http://192.168.4.1.attacker.example/\r\nContent-Length: 7\r\n\r\n";
+    assert(!panelParseHttpRequest(authority_confusion.data(), authority_confusion.size(), 1024U, method, sizeof(method), target, sizeof(target), content_length, has_content_length));
+    const std::string duplicate_referer = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nReferer: http://192.168.4.1/\r\nReferer: http://192.168.4.1/\r\nContent-Length: 7\r\n\r\n";
+    assert(!panelParseHttpRequest(duplicate_referer.data(), duplicate_referer.size(), 1024U, method, sizeof(method), target, sizeof(target), content_length, has_content_length));
     const std::string duplicate = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nContent-Length: 7\r\nContent-Length: 7\r\n\r\n";
     assert(!panelParseHttpRequest(duplicate.data(), duplicate.size(), 1024U, method, sizeof(method), target, sizeof(target), content_length, has_content_length));
     return 0;

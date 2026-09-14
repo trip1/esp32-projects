@@ -237,7 +237,7 @@ bool panelParseHttpRequest(const char* data, std::size_t length, std::size_t max
     while (cursor < end) {
         const char* line_end = findCrlf(cursor, end);
         if (line_end == nullptr) return false;
-        if (line_end == cursor) return line_end + 2 == end && host_seen && (!state_changing || origin_seen);
+        if (line_end == cursor) return line_end + 2 == end && host_seen && (!state_changing || origin_seen || referer_seen);
         const char* colon = static_cast<const char*>(std::memchr(cursor, ':', static_cast<std::size_t>(line_end - cursor)));
         if (colon == nullptr || colon == cursor) return false;
         for (const char* name = cursor; name < colon; ++name) if (!std::isalnum(static_cast<unsigned char>(*name)) && *name != '-') return false;

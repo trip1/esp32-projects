@@ -29,7 +29,7 @@ The Inland KS0061 is wired as a 5 V module. Power it from 5 V and use the requir
 4. Enter the fields shown for the selected project and choose **Save and test**.
 5. Before dependency validation starts, an RTC rejection guard is armed so an eight-second transport restart cannot retry the same pending record forever. The candidate is CRC-checked in NVS and promoted only after Wi-Fi plus its MQTT/API dependency succeeds. A failed candidate is discarded while the previous active configuration is preserved in a separate fallback record.
 
-To reopen setup, reset normally and hold BOOT for two seconds during the printed five-second application window. The protected AP has a separate per-boot state token, exact Host/origin checks, bounded headers/body/fields, one station maximum, and a ten-minute rotation timeout. Wi-Fi and MQTT credentials remain readable to someone with physical flash access because flash encryption is not enabled.
+To reopen setup, reset normally and hold BOOT for two seconds during the printed five-second application window. The protected AP has a separate per-boot state token, an exact local Host check, a strictly validated same-origin Origin or Referer on submissions, bounded headers/body/fields, one station maximum, and a ten-minute rotation timeout. Wi-Fi and MQTT credentials remain readable to someone with physical flash access because flash encryption is not enabled.
 
 ## UniFi metrics bridge contract
 

@@ -109,7 +109,7 @@ class FirmwarePortalTests(unittest.TestCase):
 
     def test_lcd1602_smart_dashboard_combines_all_screens(self):
         project = next(project for project in self.load_catalog() if project["slug"] == "lcd1602-smart-dashboard")
-        self.assertEqual("1.0.0", project["version"])
+        self.assertEqual("1.0.1", project["version"])
         self.assertEqual(set(ESP_TARGETS), {target["id"] for target in project["targets"]})
         self.assertIn("screen order", project["setup"]["summary"])
         root = ROOT / project["project_dir"]
@@ -148,7 +148,7 @@ class FirmwarePortalTests(unittest.TestCase):
         self.assertTrue(expected <= projects.keys())
         for slug in expected:
             project = projects[slug]
-            self.assertEqual("1.1.0", project["version"])
+            self.assertEqual("1.1.1", project["version"])
             self.assertEqual(set(ESP_TARGETS), {target["id"] for target in project["targets"]})
             self.assertTrue(project["extra_hardware"])
             self.assertIn("LCD1602", project["hardware"])
