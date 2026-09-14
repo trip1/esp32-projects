@@ -13,11 +13,11 @@ All four ESP32 profiles provide the Wi-Fi, BLE, flash, and serial capabilities u
 
 The S3 LED builds intentionally target **ESP32-S3-DevKitC-1 v1.0**, whose RGB LED is on GPIO48.[3] Espressif's v1.1 revision moves that LED to GPIO38, so the three original LED projects are not claimed to support S3 v1.1.[4]
 
-The generic ESP32 DevKit profile receives seventeen projects: every original project except the three that require a standardized addressable RGB LED. Its documented controls include a power LED, USB-to-UART bridge, Boot button, and reset button, but not a standardized software-controlled addressable RGB LED.[1]
+The generic ESP32 DevKit profile receives twenty-one projects: every project except the three that require a standardized addressable RGB LED. Its documented controls include a power LED, USB-to-UART bridge, Boot button, and reset button, but not a standardized software-controlled addressable RGB LED.[1]
 
 ### ESP32 compatibility
 
-- **All four ESP32 profiles:** BLE Proximity Scanner, Wi-Fi Surveyor, Device Console, ESP32 Diagnostic Console, BLE Presence Beacon, Decision Oracle, BLE Alias Shuffler, Pocket File Drop, Pocket Chat Room, BLE UART Console, Reboot Museum, Tiny Benchmark Lab, iBeacon Lab, BME280 MQTT Sleep Sensor, Ultrasonic Parking Assistant, PIR Occupancy Timer, and NTP Desk Clock.
+- **All four ESP32 profiles:** BLE Proximity Scanner, Wi-Fi Surveyor, Device Console, ESP32 Diagnostic Console, BLE Presence Beacon, Decision Oracle, BLE Alias Shuffler, Pocket File Drop, Pocket Chat Room, BLE UART Console, Reboot Museum, Tiny Benchmark Lab, iBeacon Lab, BME280 MQTT Sleep Sensor, Ultrasonic Parking Assistant, PIR Occupancy Timer, NTP Desk Clock, MQTT Home Status Panel, UniFi Network Panel, Space and Satellite Tracker, and Wi-Fi Weather Desk Station.
 - **C3, S3 v1.0, and C6 only:** Pocket RGB Lamp, Pomodoro Light, and Morse Beacon.
 
 ESP32 targets use ESP Web Tools through each development board's USB-to-UART connector. The S3 and C6 native-USB connectors are not claimed as verified flashing paths.
@@ -46,7 +46,7 @@ Pico targets use official BOOTSEL mass-storage flashing: hold BOOTSEL while conn
 
 ## External hardware
 
-Four ESP32 projects currently require external hardware: BME280 MQTT Sleep Sensor, Ultrasonic Parking Assistant, PIR Occupancy Timer, and NTP Desk Clock. Their exact-board diagrams, connection tables, parts lists, and voltage cautions appear in the portal.
+Eight ESP32 projects currently require external hardware: BME280 MQTT Sleep Sensor, Ultrasonic Parking Assistant, PIR Occupancy Timer, NTP Desk Clock, and the four LCD1602 network panels. Their exact-board diagrams, connection tables, parts lists, and voltage cautions appear in the portal.
 
 No Pico project in this first release requires external wiring. Pico wiring diagrams will be added when sensor/display projects are ported.
 

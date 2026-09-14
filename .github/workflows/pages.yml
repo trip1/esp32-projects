@@ -80,6 +80,14 @@ jobs:
           firmware/esp32-diagnostics/test/native/test_main.cpp
           -o /tmp/esp32-diagnostics-tests
           && /tmp/esp32-diagnostics-tests
+      - name: Test LCD1602 panel policy
+        run: >-
+          g++ -std=c++17 -Wall -Wextra -Werror
+          -I firmware/lcd-panels/include
+          firmware/lcd-panels/src/panel_logic.cpp
+          firmware/lcd-panels/test/native/test_main.cpp
+          -o /tmp/lcd-panel-tests
+          && /tmp/lcd-panel-tests
       - name: Build BLE scanner firmware
         run: pio run -d firmware/ble-mqtt-scanner
       - name: Build no-hardware firmware collection
@@ -92,6 +100,8 @@ jobs:
         run: pio run -d firmware/pico-lab
       - name: Build ESP32 diagnostics firmware
         run: pio run -d firmware/esp32-diagnostics
+      - name: Build LCD1602 network panel firmware
+        run: pio run -d firmware/lcd-panels
       - name: Assemble static portal
         run: python scripts/build_site.py --output _site
       - name: Upload Pages artifact

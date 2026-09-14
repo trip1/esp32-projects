@@ -34,6 +34,10 @@ EXPECTED_NEW_PROJECTS = {
     "pico-morse-beacon",
     "pico-wifi-surveyor",
     "esp32-diagnostics",
+    "mqtt-home-status-panel",
+    "unifi-network-panel",
+    "space-satellite-tracker",
+    "wifi-weather-station",
 }
 ESP_TARGETS = {
     "esp32-devkit-v1": "ESP32",
@@ -64,7 +68,10 @@ def make_uf2(family_id, payload=b"test"):
     )
     return header + data + bytes(508 - len(header) - len(data)) + struct.pack("<I", 0x0AB16F30)
 LED_PROJECTS = {"rgb-lamp", "pomodoro-light", "morse-beacon"}
-EXTRA_HARDWARE_PROJECTS = {"bme280-mqtt-sensor", "hc-sr04-parking", "pir-occupancy-timer", "ntp-desk-clock"}
+EXTRA_HARDWARE_PROJECTS = {
+    "bme280-mqtt-sensor", "hc-sr04-parking", "pir-occupancy-timer", "ntp-desk-clock",
+    "mqtt-home-status-panel", "unifi-network-panel", "space-satellite-tracker", "wifi-weather-station",
+}
 
 
 class FirmwarePortalTests(unittest.TestCase):
@@ -75,7 +82,7 @@ class FirmwarePortalTests(unittest.TestCase):
         catalog = self.load_catalog()
         slugs = {project["slug"] for project in catalog}
         self.assertEqual(EXPECTED_NEW_PROJECTS, slugs - {"ble-mqtt-scanner"})
-        self.assertEqual(23, len(catalog))
+        self.assertEqual(27, len(catalog))
         for project in catalog:
             self.assertTrue(project["installable"])
             self.assertEqual(project["slug"] in EXTRA_HARDWARE_PROJECTS, project["extra_hardware"])
@@ -94,8 +101,65 @@ class FirmwarePortalTests(unittest.TestCase):
             for target in project["targets"]:
                 self.assertTrue(target["name"])
                 self.assertTrue(target["environment"])
-        self.assertEqual(87, sum(len(project["targets"]) for project in catalog))
-        self.assertEqual(91, sum(len(project["targets"]) + sum(len(target.get("variants", [])) for target in project["targets"]) for project in catalog))
+        self.assertEqual(103, sum(len(project["targets"]) for project in catalog))
+        self.assertEqual(107, sum(len(project["targets"]) + sum(len(target.get("variants", [])) for target in project["targets"]) for project in catalog))
+
+    def test_lcd1602_network_panels_cover_all_esp_boards(self):
+        projects = {project["slug"]: project for project in self.load_catalog()}
+        expected = {
+            "mqtt-home-status-panel",
+            "unifi-network-panel",
+            "space-satellite-tracker",
+            "wifi-weather-station",
+        }
+        self.assertTrue(expected <= projects.keys())
+        for slug in expected:
+            project = projects[slug]
+            self.assertEqual("1.0.0", project["version"])
+            self.assertEqual(set(ESP_TARGETS), {target["id"] for target in project["targets"]})
+            self.assertTrue(project["extra_hardware"])
+            self.assertIn("LCD1602", project["hardware"])
+            config = configparser.ConfigParser(interpolation=None)
+            config.read(ROOT / project["project_dir"] / "platformio.ini")
+            for target in project["targets"]:
+                flags = config[f"env:{target['environment']}"]["build_flags"]
+                self.assertIn("PANEL_LCD_ADDRESS=0x27", flags)
+
+    def test_lcd1602_network_panels_bound_network_and_provisioning_inputs(self):
+        root = ROOT / "firmware" / "lcd-panels"
+        main = (root / "src" / "main.cpp").read_text()
+        logic = (root / "src" / "panel_logic.cpp").read_text()
+        http = (root / "src" / "bounded_http.cpp").read_text()
+        mqtt = (root / "src" / "bounded_mqtt.cpp").read_text()
+        config = (root / "src" / "panel_config.cpp").read_text()
+        lcd = (root / "src" / "panel_lcd.cpp").read_text()
+        workflow = (ROOT / ".github" / "workflows" / "pages.yml").read_text()
+        for required in (
+            "kMaximumResponse = 2048U", "kHttpDeadlineMs = 8000U", "xQueueReceive", "vTaskSuspend", "timestampFresh",
+            "length > 256U",
+        ):
+            self.assertIn(required, main)
+        for required in ("total_header > 2048U", "readChunked", "capacity > 2049U", "setCACert(ca_certificate)"):
+            self.assertIn(required, http)
+        for required in ("remaining_length_ > sizeof(body_)", "response_type != 0x90U", "network_.startDeadline(6000U)", "MSG_DONTWAIT", "packet_active_", "packet_type_ == 0xd0U"):
+            self.assertIn(required, mqtt)
+        self.assertIn("validExactMqttTopic", logic)
+        self.assertNotIn("setInsecure", main)
+        self.assertLess(main.index("if (mqtt.connected()) mqtt.loop();"), main.index("const uint32_t mqtt_now = millis();"))
+        self.assertNotIn("HTTPClient", main + http)
+        self.assertNotIn("unifi_api_key", main + config)
+        for required in (
+            "WiFi.softAP(ssid, password, 1, false, 1)", "panelParseHttpRequest",
+            "Content-Security-Policy", "rejected_pending_marker", "panelStoreConfig(\"pending\"",
+            "panelBeginPendingValidation",
+        ):
+            self.assertIn(required, config)
+        self.assertIn("nvs_get_blob", config)
+        self.assertIn("ESP_ERR_NVS_NOT_FOUND", config)
+        self.assertNotIn("preferences.isKey", config)
+        self.assertIn("Wire.setTimeOut", lcd)
+        self.assertIn("Wire.endTransmission(true) == 0U", lcd)
+        self.assertIn("pio run -d firmware/lcd-panels", workflow)
 
     def test_catalog_supports_four_exact_raspberry_pi_pico_boards(self):
         projects = {project["slug"]: project for project in self.load_catalog()}
@@ -137,7 +201,11 @@ class FirmwarePortalTests(unittest.TestCase):
 
     def test_catalog_declares_first_boot_setup_for_every_project(self):
         catalog = self.load_catalog()
-        setup_required = {"ble-mqtt-scanner", "bme280-mqtt-sensor", "ntp-desk-clock", "esp32-diagnostics"}
+        setup_required = {
+            "ble-mqtt-scanner", "bme280-mqtt-sensor", "ntp-desk-clock", "esp32-diagnostics",
+            "mqtt-home-status-panel", "unifi-network-panel", "space-satellite-tracker", "wifi-weather-station",
+        }
+        mqtt_required = {"ble-mqtt-scanner", "bme280-mqtt-sensor", "mqtt-home-status-panel"}
         for project in catalog:
             setup = project["setup"]
             self.assertIsInstance(setup["required"], bool)
@@ -146,9 +214,8 @@ class FirmwarePortalTests(unittest.TestCase):
             self.assertIsInstance(setup["fields"], list)
             if setup["required"]:
                 self.assertIn("Wi-Fi", setup["fields"])
-                if project["slug"] != "ntp-desk-clock":
-                    if project["slug"] != "esp32-diagnostics":
-                        self.assertIn("MQTT", setup["fields"])
+                if project["slug"] in mqtt_required:
+                    self.assertIn("MQTT", " ".join(setup["fields"]))
 
     def test_diagnostics_project_contract(self):
         project = next(project for project in self.load_catalog() if project["slug"] == "esp32-diagnostics")
@@ -216,7 +283,7 @@ class FirmwarePortalTests(unittest.TestCase):
                 for warning in wiring["warnings"]:
                     self.assertIn(warning, svg)
                 diagrams.add(diagram)
-        self.assertEqual(16, len(diagrams))
+        self.assertEqual(32, len(diagrams))
 
     def test_c6_external_wiring_avoids_gpio4_and_gpio5(self):
         for project in self.load_catalog():
@@ -242,6 +309,10 @@ class FirmwarePortalTests(unittest.TestCase):
             "hc-sr04-parking": ("TRIGGER_PIN", "ECHO_PIN"),
             "pir-occupancy-timer": ("PIR_PIN",),
             "ntp-desk-clock": ("CLOCK_CLK_PIN", "CLOCK_DIO_PIN"),
+            "mqtt-home-status-panel": ("PANEL_SDA_PIN", "PANEL_SCL_PIN"),
+            "unifi-network-panel": ("PANEL_SDA_PIN", "PANEL_SCL_PIN"),
+            "space-satellite-tracker": ("PANEL_SDA_PIN", "PANEL_SCL_PIN"),
+            "wifi-weather-station": ("PANEL_SDA_PIN", "PANEL_SCL_PIN"),
         }
         projects = {project["slug"]: project for project in self.load_catalog()}
         for slug, macros in macro_sets.items():

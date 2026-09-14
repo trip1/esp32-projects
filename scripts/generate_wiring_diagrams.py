@@ -21,6 +21,10 @@ COMPONENTS = {
     "hc-sr04-parking": "HC-SR04 ultrasonic sensor",
     "pir-occupancy-timer": "AM312 PIR sensor",
     "ntp-desk-clock": "TM1637 four-digit display",
+    "mqtt-home-status-panel": "LCD1602 MQTT status panel",
+    "unifi-network-panel": "LCD1602 UniFi network panel",
+    "space-satellite-tracker": "LCD1602 ISS tracker",
+    "wifi-weather-station": "LCD1602 weather station",
 }
 
 
@@ -38,9 +42,11 @@ def component_art(slug: str, variant_id: str | None = None) -> str:
         return '<g><circle cx="950" cy="265" r="42" fill="#c8d0d4" stroke="#65727a" stroke-width="5"/><circle cx="1040" cy="265" r="42" fill="#c8d0d4" stroke="#65727a" stroke-width="5"/><circle cx="950" cy="265" r="25" fill="#66757d"/><circle cx="1040" cy="265" r="25" fill="#66757d"/></g>'
     if slug == "pir-occupancy-timer":
         return '<g><circle cx="990" cy="305" r="70" fill="#eef1e9" stroke="#a7aea5" stroke-width="5"/><path d="M940 305h100M949 275h82M949 335h82M990 245v120" stroke="#c4cac1" stroke-width="3" opacity=".8"/></g>'
-    if slug == "ntp-desk-clock":
+    if slug in {"ntp-desk-clock", "mqtt-home-status-panel", "unifi-network-panel", "space-satellite-tracker", "wifi-weather-station"}:
         if variant_id == "lcd1602-i2c":
             return '<g><rect x="860" y="230" width="260" height="110" rx="8" fill="#1c6d67" stroke="#0c3734" stroke-width="4"/><rect x="880" y="250" width="220" height="70" fill="#9acb63" stroke="#233b19" stroke-width="3"/><text x="990" y="280" text-anchor="middle" style="font:700 18px ui-monospace,monospace;fill:#193111">Date 2026-09-13</text><text x="990" y="306" text-anchor="middle" style="font:700 18px ui-monospace,monospace;fill:#193111">Time 12:34:56</text></g>'
+        if slug != "ntp-desk-clock":
+            return '<g><rect x="860" y="230" width="260" height="110" rx="8" fill="#1c6d67" stroke="#0c3734" stroke-width="4"/><rect x="880" y="250" width="220" height="70" fill="#9acb63" stroke="#233b19" stroke-width="3"/><text x="990" y="280" text-anchor="middle" style="font:700 18px ui-monospace,monospace;fill:#193111">LCD1602 PANEL</text><text x="990" y="306" text-anchor="middle" style="font:700 18px ui-monospace,monospace;fill:#193111">STATUS READY</text></g>'
         return '<g><rect x="910" y="245" width="160" height="82" rx="8" fill="#120b0b" stroke="#724343" stroke-width="4"/><text x="990" y="302" text-anchor="middle" style="font:700 45px ui-monospace,monospace;fill:#e83b3b">12:34</text></g>'
     return '<g><rect x="945" y="260" width="90" height="90" rx="8" fill="#2d805c" stroke="#174732" stroke-width="4"/><rect x="970" y="285" width="40" height="40" rx="3" fill="#c8d0d4" stroke="#65727a" stroke-width="3"/><circle cx="955" cy="272" r="4" fill="#d5b642"/><circle cx="1025" cy="338" r="4" fill="#d5b642"/></g>'
 
