@@ -76,6 +76,11 @@ function selectProject(project) {
   document.querySelector("#selected-version").textContent = project.version;
   document.querySelector("#selected-hardware").textContent = selectedBuild.hardware || project.hardware;
   document.querySelector("#selected-setup").textContent = project.setup.summary;
+  document.querySelector("#selected-setup-fields").replaceChildren(...project.setup.fields.map((field) => {
+    const setupField = document.createElement("li");
+    setupField.textContent = field;
+    return setupField;
+  }));
   const hardwareGuide = document.querySelector("#hardware-guide");
   const wiring = document.querySelector("#selected-wiring");
   const connections = document.querySelector("#selected-connections");

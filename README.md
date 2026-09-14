@@ -25,6 +25,7 @@ A public firmware monorepo for four ESP32 boards and four official Raspberry Pi 
 - **MQTT Home Status Panel** — exact-topic trusted-LAN status display on an LCD1602
 - **UniFi Network Panel** — sanitized WAN, latency, client, and AP metrics from a local bridge
 - **Wi-Fi Weather Desk Station** — current Open-Meteo conditions for configured coordinates
+- **LCD1602 Smart Dashboard** — combines clock, MQTT, UniFi, ISS, and weather screens with web-configured order and duration
 
 ### Fun
 
@@ -37,11 +38,11 @@ A public firmware monorepo for four ESP32 boards and four official Raspberry Pi 
 - **Pico Morse Beacon** — repeats `HELLO WORLD` on the Pico status LED and USB serial
 - **Space and Satellite Tracker** — live ISS position and altitude on an LCD1602
 
-The catalog contains 103 exact-board targets and 107 exact firmware build configurations across 27 projects. Existing ESP32 support is unchanged. Pico Board Check and Pico Morse Beacon support Pico, Pico W, Pico 2, and Pico 2 W; Pico W Wi-Fi Surveyor supports the two wireless boards. Eight projects require external hardware. See [`docs/board-support.md`](docs/board-support.md) for the exact matrix, [`firmware/pico-lab/README.md`](firmware/pico-lab/README.md) for Pico behavior and UF2 installation, and the hardware project READMEs for exact wiring.
+The catalog contains 107 exact-board targets and 111 exact firmware build configurations across 28 projects. Existing ESP32 support is unchanged. Pico Board Check and Pico Morse Beacon support Pico, Pico W, Pico 2, and Pico 2 W; Pico W Wi-Fi Surveyor supports the two wireless boards. Nine projects require external hardware. See [`docs/board-support.md`](docs/board-support.md) for the exact matrix, [`firmware/pico-lab/README.md`](firmware/pico-lab/README.md) for Pico behavior and UF2 installation, and the hardware project READMEs for exact wiring.
 
 Every external-hardware project includes a board-specific, color-coded wiring diagram and a non-affiliate Amazon search list for the required sensor, display, breadboard, jumpers, and safety components. The diagram changes with the exact board selected in the portal.
 
-BLE Proximity Scanner, BME280 MQTT Sleep Sensor, NTP Desk Clock, ESP32 Diagnostic Console, and all four LCD network panels require first-boot network setup. Each creates a temporary protected setup network with an 8-character, uppercase password printed only over USB serial. The alphabet omits `I`, `O`, `0`, and `1` to prevent transcription mistakes. The portal identifies required fields before flashing. All other projects work from their local/offline defaults without first-boot settings.
+BLE Proximity Scanner, BME280 MQTT Sleep Sensor, NTP Desk Clock, ESP32 Diagnostic Console, the four single-purpose LCD panels, and LCD1602 Smart Dashboard require first-boot network setup. Each creates a temporary protected setup network with an 8-character, uppercase password printed only over USB serial. The alphabet omits `I`, `O`, `0`, and `1` to prevent transcription mistakes. The portal identifies required fields before flashing. All other projects work from their local/offline defaults without first-boot settings.
 
 The ESP local-dashboard AP projects create an open local network and serve a UI at `http://192.168.4.1`; those experimental networks never request router or broker credentials. Pico W Wi-Fi Surveyor instead prints the same readable 8-character per-boot WPA2 password format over USB serial. Surveyed SSIDs are visible to every client that joins that protected AP.
 
@@ -88,6 +89,7 @@ g++ -std=c++17 \
 ~/.venvs/platformio/bin/pio run -d firmware/pico-lab
 ~/.venvs/platformio/bin/pio run -d firmware/esp32-diagnostics
 g++ -std=c++17 -Wall -Wextra -Werror -I firmware/common -I firmware/lcd-panels/include firmware/lcd-panels/src/panel_logic.cpp firmware/lcd-panels/test/native/test_main.cpp -o /tmp/lcd-panel-tests && /tmp/lcd-panel-tests
+g++ -std=c++17 -Wall -Wextra -Werror -I firmware/lcd-panels/include firmware/lcd-panels/src/dashboard_logic.cpp firmware/lcd-panels/test/dashboard_native/test_main.cpp -o /tmp/dashboard-tests && /tmp/dashboard-tests
 ~/.venvs/platformio/bin/pio run -d firmware/lcd-panels
 python3 scripts/build_site.py --output _site
 ```

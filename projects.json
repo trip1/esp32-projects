@@ -2909,5 +2909,265 @@
         "Longitude"
       ]
     }
+  },
+  {
+    "slug": "lcd1602-smart-dashboard",
+    "name": "LCD1602 Smart Dashboard",
+    "version": "1.0.0",
+    "category": "Practical",
+    "description": "Combines clock, MQTT Home, UniFi, ISS tracking, and weather screens in one LCD1602 firmware with configurable order and per-screen duration.",
+    "hardware": "Inland KS0061 LCD1602 or compatible HD44780 16x2 LCD with common PCF8574 mapping at configured address 0x27, powered through a bidirectional I2C level shifter",
+    "features": [
+      "Five combined LCD1602 screens",
+      "Web-configured screen order",
+      "Per-screen duration from 5 to 3600 seconds",
+      "Protected first-boot setup",
+      "Bounded HTTPS, MQTT, and I2C behavior"
+    ],
+    "installable": true,
+    "extra_hardware": true,
+    "project_dir": "firmware/lcd-panels",
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "environment": "smart-dashboard--esp32",
+        "wiring": {
+          "diagram": "./wiring/lcd1602-smart-dashboard/esp32-devkit-v1.svg",
+          "connections": [
+            {
+              "from": "LCD1602 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "LCD1602 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "LCD1602 SDA",
+              "to": "GPIO21 through bidirectional I2C level shifter (HV1 to LV1)",
+              "wire": "green"
+            },
+            {
+              "from": "LCD1602 SCL",
+              "to": "GPIO22 through bidirectional I2C level shifter (HV2 to LV2)",
+              "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
+            }
+          ],
+          "warnings": [
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
+          ]
+        }
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "environment": "smart-dashboard--esp32-c3",
+        "wiring": {
+          "diagram": "./wiring/lcd1602-smart-dashboard/esp32-c3-devkitm-1.svg",
+          "connections": [
+            {
+              "from": "LCD1602 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "LCD1602 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "LCD1602 SDA",
+              "to": "GPIO4 through bidirectional I2C level shifter (HV1 to LV1)",
+              "wire": "green"
+            },
+            {
+              "from": "LCD1602 SCL",
+              "to": "GPIO5 through bidirectional I2C level shifter (HV2 to LV2)",
+              "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
+            }
+          ],
+          "warnings": [
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
+          ]
+        }
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "environment": "smart-dashboard--esp32-s3",
+        "wiring": {
+          "diagram": "./wiring/lcd1602-smart-dashboard/esp32-s3-devkitc-1.svg",
+          "connections": [
+            {
+              "from": "LCD1602 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "LCD1602 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "LCD1602 SDA",
+              "to": "GPIO8 through bidirectional I2C level shifter (HV1 to LV1)",
+              "wire": "green"
+            },
+            {
+              "from": "LCD1602 SCL",
+              "to": "GPIO9 through bidirectional I2C level shifter (HV2 to LV2)",
+              "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
+            }
+          ],
+          "warnings": [
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
+          ]
+        }
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "environment": "smart-dashboard--esp32-c6",
+        "wiring": {
+          "diagram": "./wiring/lcd1602-smart-dashboard/esp32-c6-devkitc-1.svg",
+          "connections": [
+            {
+              "from": "LCD1602 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "LCD1602 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "LCD1602 SDA",
+              "to": "GPIO6 through bidirectional I2C level shifter (HV1 to LV1)",
+              "wire": "green"
+            },
+            {
+              "from": "LCD1602 SCL",
+              "to": "GPIO7 through bidirectional I2C level shifter (HV2 to LV2)",
+              "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
+            }
+          ],
+          "warnings": [
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
+          ]
+        }
+      }
+    ],
+    "parts": [
+      {
+        "quantity": 1,
+        "name": "LCD1602 I2C display module",
+        "specification": "Inland KS0061 or compatible 16x2 HD44780 LCD with common PCF8574 backpack mapping at configured address 0x27; power at 5 V through an I2C level shifter",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=Inland+KS0061+LCD1602+I2C+display"
+      },
+      {
+        "quantity": 10,
+        "name": "Female-to-female jumper wires",
+        "specification": "2.54 mm Dupont leads for ESP32, level-shifter, power, and LCD connections",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=female+to+female+dupont+jumper+wires"
+      },
+      {
+        "quantity": 1,
+        "name": "Bidirectional I2C level shifter",
+        "specification": "Two-channel or four-channel bidirectional module rated for 3.3 V LV and 5 V HV I2C operation",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=bidirectional+I2C+logic+level+converter+3.3V+5V"
+      }
+    ],
+    "setup": {
+      "required": true,
+      "summary": "Open the protected setup page to enter all network sources, timezone, screen order, and a 5-3600 second duration for each screen.",
+      "fields": [
+        "Wi-Fi",
+        "Timezone",
+        "MQTT broker and topic",
+        "UniFi summary bridge URL",
+        "Weather coordinates",
+        "Five-screen order",
+        "Duration for each screen"
+      ]
+    }
   }
 ]

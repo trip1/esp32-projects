@@ -39,6 +39,7 @@ EXPECTED_NEW_PROJECTS = {
     "unifi-network-panel",
     "space-satellite-tracker",
     "wifi-weather-station",
+    "lcd1602-smart-dashboard",
 }
 ESP_TARGETS = {
     "esp32-devkit-v1": "ESP32",
@@ -72,6 +73,7 @@ LED_PROJECTS = {"rgb-lamp", "pomodoro-light", "morse-beacon"}
 EXTRA_HARDWARE_PROJECTS = {
     "bme280-mqtt-sensor", "hc-sr04-parking", "pir-occupancy-timer", "ntp-desk-clock",
     "mqtt-home-status-panel", "unifi-network-panel", "space-satellite-tracker", "wifi-weather-station",
+    "lcd1602-smart-dashboard",
 }
 
 
@@ -83,7 +85,7 @@ class FirmwarePortalTests(unittest.TestCase):
         catalog = self.load_catalog()
         slugs = {project["slug"] for project in catalog}
         self.assertEqual(EXPECTED_NEW_PROJECTS, slugs - {"ble-mqtt-scanner"})
-        self.assertEqual(27, len(catalog))
+        self.assertEqual(28, len(catalog))
         for project in catalog:
             self.assertTrue(project["installable"])
             self.assertEqual(project["slug"] in EXTRA_HARDWARE_PROJECTS, project["extra_hardware"])
@@ -102,8 +104,38 @@ class FirmwarePortalTests(unittest.TestCase):
             for target in project["targets"]:
                 self.assertTrue(target["name"])
                 self.assertTrue(target["environment"])
-        self.assertEqual(103, sum(len(project["targets"]) for project in catalog))
-        self.assertEqual(107, sum(len(project["targets"]) + sum(len(target.get("variants", [])) for target in project["targets"]) for project in catalog))
+        self.assertEqual(107, sum(len(project["targets"]) for project in catalog))
+        self.assertEqual(111, sum(len(project["targets"]) + sum(len(target.get("variants", [])) for target in project["targets"]) for project in catalog))
+
+    def test_lcd1602_smart_dashboard_combines_all_screens(self):
+        project = next(project for project in self.load_catalog() if project["slug"] == "lcd1602-smart-dashboard")
+        self.assertEqual("1.0.0", project["version"])
+        self.assertEqual(set(ESP_TARGETS), {target["id"] for target in project["targets"]})
+        self.assertIn("screen order", project["setup"]["summary"])
+        root = ROOT / project["project_dir"]
+        source = (root / "src" / "dashboard_main.cpp").read_text()
+        config_source = (root / "src" / "dashboard_config.cpp").read_text()
+        logic = (root / "src" / "dashboard_logic.cpp").read_text()
+        for required in ("DashboardScreen::Clock", "DashboardScreen::Mqtt", "DashboardScreen::Unifi", "DashboardScreen::Satellite", "DashboardScreen::Weather", "sntp_set_time_sync_notification_cb", "serviceRefresh"):
+            self.assertIn(required, source)
+        for required in ("order_", "duration_%s", "min=5 max=3600", "Content-Security-Policy", "dashboardStoreConfig(\"pending\"", "<title>", "<html lang=en>", "Leave blank to keep current"):
+            self.assertIn(required, config_source)
+        self.assertIn("dashboardSlotExpired", logic)
+        self.assertIn("dashboardDurationForSlot", logic)
+        self.assertIn('if (force_backup_marker == kRejectedPendingMarker) return loadExact("backup", value);', config_source)
+        self.assertIn('nvs_set_u32(handle, "forcebak"', config_source)
+        self.assertIn('nvs_get_u32(handle, "forcebak"', config_source)
+        self.assertNotIn('RTC_DATA_ATTR uint32_t force_backup_marker', config_source)
+        for message in ("request is incomplete", "setup session expired", "timezone", "screen order", "MQTT", "UniFi", "weather"):
+            self.assertIn(message, config_source)
+        self.assertIn('role=alert', config_source)
+        self.assertIn('return mqtt_ok && fetchUnifi(candidate) && fetchWeather(candidate);', source)
+        self.assertNotIn('mqtt_ok&&fetchUnifi(candidate)&&fetchSatellite(candidate)&&fetchWeather(candidate)', source)
+        self.assertIn('for (;;) delay(1000)', source)
+        platform = configparser.ConfigParser(interpolation=None)
+        platform.read(root / "platformio.ini")
+        for target in project["targets"]:
+            self.assertIn(f"env:{target['environment']}", platform)
 
     def test_lcd1602_network_panels_cover_all_esp_boards(self):
         projects = {project["slug"]: project for project in self.load_catalog()}
@@ -214,8 +246,9 @@ class FirmwarePortalTests(unittest.TestCase):
         setup_required = {
             "ble-mqtt-scanner", "bme280-mqtt-sensor", "ntp-desk-clock", "esp32-diagnostics",
             "mqtt-home-status-panel", "unifi-network-panel", "space-satellite-tracker", "wifi-weather-station",
+            "lcd1602-smart-dashboard",
         }
-        mqtt_required = {"ble-mqtt-scanner", "bme280-mqtt-sensor", "mqtt-home-status-panel"}
+        mqtt_required = {"ble-mqtt-scanner", "bme280-mqtt-sensor", "mqtt-home-status-panel", "lcd1602-smart-dashboard"}
         for project in catalog:
             setup = project["setup"]
             self.assertIsInstance(setup["required"], bool)
@@ -293,7 +326,7 @@ class FirmwarePortalTests(unittest.TestCase):
                 for warning in wiring["warnings"]:
                     self.assertIn(warning, svg)
                 diagrams.add(diagram)
-        self.assertEqual(32, len(diagrams))
+        self.assertEqual(36, len(diagrams))
 
     def test_c6_external_wiring_avoids_gpio4_and_gpio5(self):
         for project in self.load_catalog():
@@ -587,8 +620,11 @@ class FirmwarePortalTests(unittest.TestCase):
         self.assertIn('id="variant-select"', html)
         self.assertIn('id="selected-hardware"', html)
         self.assertIn('id="selected-setup"', html)
+        self.assertIn('id="selected-setup-fields"', html)
         self.assertIn('id="selected-wiring"', html)
         self.assertIn('selectedTarget.variants', javascript)
+        self.assertIn('project.setup.fields.map', javascript)
+        self.assertIn('setupField.textContent = field', javascript)
         self.assertIn('id="selected-connections"', html)
         self.assertIn('id="selected-warnings"', html)
         self.assertIn('id="selected-parts"', html)

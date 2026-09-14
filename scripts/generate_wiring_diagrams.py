@@ -26,6 +26,7 @@ COMPONENTS = {
     "unifi-network-panel": "LCD1602 UniFi network panel",
     "space-satellite-tracker": "LCD1602 ISS tracker",
     "wifi-weather-station": "LCD1602 weather station",
+    "lcd1602-smart-dashboard": "LCD1602 smart dashboard",
 }
 
 
@@ -43,7 +44,7 @@ def component_art(slug: str, variant_id: str | None = None) -> str:
         return '<g><circle cx="950" cy="265" r="42" fill="#c8d0d4" stroke="#65727a" stroke-width="5"/><circle cx="1040" cy="265" r="42" fill="#c8d0d4" stroke="#65727a" stroke-width="5"/><circle cx="950" cy="265" r="25" fill="#66757d"/><circle cx="1040" cy="265" r="25" fill="#66757d"/></g>'
     if slug == "pir-occupancy-timer":
         return '<g><circle cx="990" cy="305" r="70" fill="#eef1e9" stroke="#a7aea5" stroke-width="5"/><path d="M940 305h100M949 275h82M949 335h82M990 245v120" stroke="#c4cac1" stroke-width="3" opacity=".8"/></g>'
-    if slug in {"ntp-desk-clock", "mqtt-home-status-panel", "unifi-network-panel", "space-satellite-tracker", "wifi-weather-station"}:
+    if slug in {"ntp-desk-clock", "mqtt-home-status-panel", "unifi-network-panel", "space-satellite-tracker", "wifi-weather-station", "lcd1602-smart-dashboard"}:
         if variant_id == "lcd1602-i2c":
             return '<g><rect x="860" y="230" width="260" height="110" rx="8" fill="#1c6d67" stroke="#0c3734" stroke-width="4"/><rect x="880" y="250" width="220" height="70" fill="#9acb63" stroke="#233b19" stroke-width="3"/><text x="990" y="280" text-anchor="middle" style="font:700 18px ui-monospace,monospace;fill:#193111">Date 2026-09-13</text><text x="990" y="306" text-anchor="middle" style="font:700 18px ui-monospace,monospace;fill:#193111">Time 12:34:56</text></g>'
         if slug != "ntp-desk-clock":

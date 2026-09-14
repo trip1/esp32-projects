@@ -88,6 +88,14 @@ jobs:
           firmware/lcd-panels/test/native/test_main.cpp
           -o /tmp/lcd-panel-tests
           && /tmp/lcd-panel-tests
+      - name: Test LCD1602 dashboard scheduling
+        run: >-
+          g++ -std=c++17 -Wall -Wextra -Werror
+          -I firmware/lcd-panels/include
+          firmware/lcd-panels/src/dashboard_logic.cpp
+          firmware/lcd-panels/test/dashboard_native/test_main.cpp
+          -o /tmp/dashboard-tests
+          && /tmp/dashboard-tests
       - name: Build BLE scanner firmware
         run: pio run -d firmware/ble-mqtt-scanner
       - name: Build no-hardware firmware collection

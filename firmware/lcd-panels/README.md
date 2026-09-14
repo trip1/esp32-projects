@@ -1,11 +1,12 @@
 # LCD1602 Network Panels
 
-Four browser-flashable LCD1602 projects share one bounded runtime and four exact ESP32 board profiles:
+Five browser-flashable LCD1602 projects share bounded drivers and four exact ESP32 board profiles:
 
 - **MQTT Home Status Panel** subscribes to one exact trusted-LAN topic. It recognizes `temperature_c` plus `humidity_percent`, recognizes a string `value`, and otherwise displays sanitized payload text. Payloads over 256 bytes are ignored; data is marked stale after two minutes.
 - **UniFi Network Panel** reads a normalized metrics bridge. The bridge keeps the powerful UniFi API key off the display and returns only WAN state, latency, client count, AP count, and a freshness timestamp.
 - **Space and Satellite Tracker** polls the public Where the ISS at endpoint for NORAD 25544 every ten seconds.
 - **Wi-Fi Weather Desk Station** polls Open-Meteo current temperature, humidity, and WMO condition data every ten minutes for configured coordinates.
+- **LCD1602 Smart Dashboard** combines all five screen types. Its protected web setup orders Clock, MQTT Home, UniFi, Satellite, and Weather exactly once and assigns each named project its own display duration from 5 to 3600 seconds, so reordering does not transfer durations. Hold BOOT during the recovery window to reopen configuration.
 
 ## Hardware and wiring
 
@@ -24,7 +25,7 @@ The Inland KS0061 is wired as a 5 V module. Power it from 5 V and use the requir
 
 1. Open USB serial at 115200 baud.
 2. Copy the randomized eight-character setup password. Ambiguous `I`, `O`, `0`, and `1` are omitted.
-3. Join `LCD-Panel-Setup-XXXXXX` and open `http://192.168.4.1/`.
+3. Join `LCD-Panel-Setup-XXXXXX` for a single-purpose panel, or `LCD-Dashboard-XXXXXX` for Smart Dashboard, then open `http://192.168.4.1/`.
 4. Enter the fields shown for the selected project and choose **Save and test**.
 5. Before dependency validation starts, an RTC rejection guard is armed so an eight-second transport restart cannot retry the same pending record forever. The candidate is CRC-checked in NVS and promoted only after Wi-Fi plus its MQTT/API dependency succeeds. A failed candidate is discarded while the previous active configuration is preserved in a separate fallback record.
 
@@ -49,6 +50,7 @@ The local Network Integration API base is normally `https://<console>/proxy/netw
 - HTTP operations use fixed buffers with 2048-byte aggregate headers, 256-byte header/chunk lines, a 2048-byte body cap, strict content-length/chunked framing, and a disposable task with an eight-second outer deadline. A deadline overrun restarts the device to reset transport state.
 - MQTT accepts only a numeric RFC1918 broker address and one exact topic. Its local protocol client requires successful CONNACK and SUBACK, rejects oversized remaining lengths before draining them, caps packets and payloads, applies a six-second connect/subscribe deadline, disconnects two-second drip-fed packets, and uses ten-second reconnect backoff. Plain MQTT is suitable only on a trusted LAN.
 - API errors retain no unbounded response and render an explicit unavailable state.
+- Smart Dashboard runs at most one HTTP refresh worker at a time. LCD rotation and MQTT servicing continue while UniFi, ISS, or weather requests are in flight; snapshots cross tasks through a critical-section-protected fixed frame.
 
 ## Build and test
 
