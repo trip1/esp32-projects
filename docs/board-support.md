@@ -22,7 +22,7 @@ The generic ESP32 DevKit profile receives twenty-one projects: every project exc
 
 ESP32 targets use ESP Web Tools through each development board's USB-to-UART connector. The S3 and C6 native-USB connectors are not claimed as verified flashing paths.
 
-NTP Desk Clock provides two build configurations for every ESP32 profile: TM1637 (default) and LCD1602 I²C at address `0x27`. The portal's build selector changes the firmware artifact, wiring diagram, pins, and voltage warnings without treating the display choice as a different microcontroller board.
+NTP Desk Clock provides two build configurations for every ESP32 profile: TM1637 (default) and Inland/common LCD1602 I²C at explicitly configured address `0x27`. The LCD build reports address-phase responses only in the PCF8574/PCF8574A ranges `0x20`–`0x27` and `0x38`–`0x3F`; because PCF8574 has no identity register, responses at alternate addresses are diagnostic and never selected automatically. The portal's build selector changes the firmware artifact, wiring diagram, pins, and voltage warnings without treating the display choice as a different microcontroller board.
 
 ## Raspberry Pi Pico profiles
 

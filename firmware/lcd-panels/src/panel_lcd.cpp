@@ -1,4 +1,5 @@
 #include "panel_lcd.h"
+#include "lcd1602_i2c.h"
 
 #include <Arduino.h>
 #include <Wire.h>
@@ -21,6 +22,33 @@ constexpr unsigned char kBacklight = 0x08U;
 
 bool PanelLcd1602::begin() {
     if (!Wire.begin(PANEL_SDA_PIN, PANEL_SCL_PIN)) return false;
+    Wire.setTimeOut(10U);
+    const unsigned long scan_started = millis();
+    bool scan_timed_out = false;
+    const auto scan = lcd1602::scanAddresses([&](unsigned char address) {
+        const unsigned long elapsed = static_cast<unsigned long>(millis() - scan_started);
+        if (elapsed >= 250U) { scan_timed_out = true; return false; }
+        const unsigned long remaining = 250U - elapsed;
+        Wire.setTimeOut(remaining < 10U ? remaining : 10U);
+        Wire.beginTransmission(address);
+        const bool found = Wire.endTransmission(true) == 0U;
+        if (static_cast<unsigned long>(millis() - scan_started) > 250U) scan_timed_out = true;
+        if (found) Serial.printf("Possible PCF8574 I2C responder found at 0x%02X\n", static_cast<unsigned>(address));
+        return found;
+    }, PANEL_LCD_ADDRESS);
+    if (scan_timed_out || !scan.selected) {
+        Serial.printf("LCD1602 address scan %s with %u possible responders; writes require configured address 0x%02X\n",
+                      scan_timed_out ? "timed out" : "completed",
+                      static_cast<unsigned>(scan.responders), static_cast<unsigned>(PANEL_LCD_ADDRESS));
+        return false;
+    }
+    address_ = scan.address;
+    Wire.setTimeOut(10U);
+    for (unsigned char attempt = 0U; attempt < 2U; ++attempt) {
+        Wire.beginTransmission(address_);
+        if (Wire.endTransmission(true) != 0U) return false;
+    }
+    Serial.printf("Using LCD1602 I2C address 0x%02X\n", static_cast<unsigned>(address_));
     Wire.setTimeOut(25U);
     const unsigned long started = millis();
     delay(50);
@@ -46,7 +74,7 @@ bool PanelLcd1602::transmit(unsigned char value, unsigned long started, unsigned
     if (elapsed >= timeout_ms) return false;
     const unsigned long remaining = timeout_ms - elapsed;
     Wire.setTimeOut(remaining < 25U ? remaining : 25U);
-    Wire.beginTransmission(PANEL_LCD_ADDRESS);
+    Wire.beginTransmission(address_);
     if (Wire.write(value) != 1U) return false;
     return Wire.endTransmission(true) == 0U;
 }

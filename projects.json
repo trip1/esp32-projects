@@ -1283,15 +1283,16 @@
   {
     "slug": "ntp-desk-clock",
     "name": "NTP Desk Clock",
-    "version": "1.2.0",
+    "version": "1.3.0",
     "category": "Practical",
-    "description": "Synchronizes network time, applies a POSIX timezone, and drives either a four-digit TM1637 display or an optional 1602 I²C LCD build.",
+    "description": "Synchronizes local time over NTP and drives either a TM1637 display or an Inland/common LCD1602 I2C display at configured address 0x27 with bounded PCF8574-range diagnostics.",
     "features": [
       "NTP synchronization",
       "Timezone and DST",
       "TM1637 or LCD1602 I²C display builds",
       "First-boot setup portal",
-      "Readable 8-character local password"
+      "Readable 8-character local password",
+      "Bounded LCD1602 I2C responder scan"
     ],
     "installable": true,
     "extra_hardware": true,
@@ -1344,15 +1345,15 @@
         "variants": [
           {
             "id": "lcd1602-i2c",
-            "name": "1602 I²C LCD (0x27)",
+            "name": "Inland / 1602 I²C LCD (0x27)",
             "environment": "ntp-desk-clock-lcd1602--esp32",
-            "hardware": "LCD1602 16×2 display with PCF8574 I²C backpack + four jumper wires",
+            "hardware": "Inland KS0061 or compatible HD44780 16×2 display with common PCF8574 I²C backpack at configured address 0x27, plus bidirectional level shifter and jumper wires",
             "wiring": {
               "diagram": "./wiring/ntp-desk-clock/esp32-devkit-v1-lcd1602-i2c.svg",
               "connections": [
                 {
                   "from": "LCD1602 VCC",
-                  "to": "3V3",
+                  "to": "5V",
                   "wire": "red"
                 },
                 {
@@ -1362,20 +1363,34 @@
                 },
                 {
                   "from": "LCD1602 SDA",
-                  "to": "GPIO21",
+                  "to": "GPIO21 through bidirectional I2C level shifter (HV1 to LV1)",
                   "wire": "green"
                 },
                 {
                   "from": "LCD1602 SCL",
-                  "to": "GPIO22",
+                  "to": "GPIO22 through bidirectional I2C level shifter (HV2 to LV2)",
                   "wire": "yellow"
+                },
+                {
+                  "from": "Level shifter HV",
+                  "to": "5V",
+                  "wire": "red"
+                },
+                {
+                  "from": "Level shifter LV",
+                  "to": "3V3",
+                  "wire": "blue"
+                },
+                {
+                  "from": "Level shifter GND",
+                  "to": "GND",
+                  "wire": "black"
                 }
               ],
               "warnings": [
-                "Use only a 3.3 V-compatible LCD/backpack when connecting VCC directly to 3.3 V; display contrast and backlight must work at that voltage.",
-                "Many PCF8574 backpacks pull SDA and SCL up to VCC. If the module requires 5 V, add a bidirectional I²C level shifter and never expose ESP32 GPIO to 5 V pull-ups.",
-                "This prebuilt variant uses I²C address 0x27. For a 0x3F backpack, build locally with CLOCK_LCD_ADDRESS changed after confirming the address.",
-                "Wiring and LCD behavior are not yet physically verified."
+                "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+                "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+                "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
               ]
             }
           }
@@ -1420,15 +1435,15 @@
         "variants": [
           {
             "id": "lcd1602-i2c",
-            "name": "1602 I²C LCD (0x27)",
+            "name": "Inland / 1602 I²C LCD (0x27)",
             "environment": "ntp-desk-clock-lcd1602--esp32-c3",
-            "hardware": "LCD1602 16×2 display with PCF8574 I²C backpack + four jumper wires",
+            "hardware": "Inland KS0061 or compatible HD44780 16×2 display with common PCF8574 I²C backpack at configured address 0x27, plus bidirectional level shifter and jumper wires",
             "wiring": {
               "diagram": "./wiring/ntp-desk-clock/esp32-c3-devkitm-1-lcd1602-i2c.svg",
               "connections": [
                 {
                   "from": "LCD1602 VCC",
-                  "to": "3V3",
+                  "to": "5V",
                   "wire": "red"
                 },
                 {
@@ -1438,20 +1453,34 @@
                 },
                 {
                   "from": "LCD1602 SDA",
-                  "to": "GPIO4",
+                  "to": "GPIO4 through bidirectional I2C level shifter (HV1 to LV1)",
                   "wire": "green"
                 },
                 {
                   "from": "LCD1602 SCL",
-                  "to": "GPIO5",
+                  "to": "GPIO5 through bidirectional I2C level shifter (HV2 to LV2)",
                   "wire": "yellow"
+                },
+                {
+                  "from": "Level shifter HV",
+                  "to": "5V",
+                  "wire": "red"
+                },
+                {
+                  "from": "Level shifter LV",
+                  "to": "3V3",
+                  "wire": "blue"
+                },
+                {
+                  "from": "Level shifter GND",
+                  "to": "GND",
+                  "wire": "black"
                 }
               ],
               "warnings": [
-                "Use only a 3.3 V-compatible LCD/backpack when connecting VCC directly to 3.3 V; display contrast and backlight must work at that voltage.",
-                "Many PCF8574 backpacks pull SDA and SCL up to VCC. If the module requires 5 V, add a bidirectional I²C level shifter and never expose ESP32 GPIO to 5 V pull-ups.",
-                "This prebuilt variant uses I²C address 0x27. For a 0x3F backpack, build locally with CLOCK_LCD_ADDRESS changed after confirming the address.",
-                "Wiring and LCD behavior are not yet physically verified."
+                "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+                "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+                "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
               ]
             }
           }
@@ -1496,15 +1525,15 @@
         "variants": [
           {
             "id": "lcd1602-i2c",
-            "name": "1602 I²C LCD (0x27)",
+            "name": "Inland / 1602 I²C LCD (0x27)",
             "environment": "ntp-desk-clock-lcd1602--esp32-s3",
-            "hardware": "LCD1602 16×2 display with PCF8574 I²C backpack + four jumper wires",
+            "hardware": "Inland KS0061 or compatible HD44780 16×2 display with common PCF8574 I²C backpack at configured address 0x27, plus bidirectional level shifter and jumper wires",
             "wiring": {
               "diagram": "./wiring/ntp-desk-clock/esp32-s3-devkitc-1-lcd1602-i2c.svg",
               "connections": [
                 {
                   "from": "LCD1602 VCC",
-                  "to": "3V3",
+                  "to": "5V",
                   "wire": "red"
                 },
                 {
@@ -1514,20 +1543,34 @@
                 },
                 {
                   "from": "LCD1602 SDA",
-                  "to": "GPIO8",
+                  "to": "GPIO8 through bidirectional I2C level shifter (HV1 to LV1)",
                   "wire": "green"
                 },
                 {
                   "from": "LCD1602 SCL",
-                  "to": "GPIO9",
+                  "to": "GPIO9 through bidirectional I2C level shifter (HV2 to LV2)",
                   "wire": "yellow"
+                },
+                {
+                  "from": "Level shifter HV",
+                  "to": "5V",
+                  "wire": "red"
+                },
+                {
+                  "from": "Level shifter LV",
+                  "to": "3V3",
+                  "wire": "blue"
+                },
+                {
+                  "from": "Level shifter GND",
+                  "to": "GND",
+                  "wire": "black"
                 }
               ],
               "warnings": [
-                "Use only a 3.3 V-compatible LCD/backpack when connecting VCC directly to 3.3 V; display contrast and backlight must work at that voltage.",
-                "Many PCF8574 backpacks pull SDA and SCL up to VCC. If the module requires 5 V, add a bidirectional I²C level shifter and never expose ESP32 GPIO to 5 V pull-ups.",
-                "This prebuilt variant uses I²C address 0x27. For a 0x3F backpack, build locally with CLOCK_LCD_ADDRESS changed after confirming the address.",
-                "Wiring and LCD behavior are not yet physically verified."
+                "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+                "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+                "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
               ]
             }
           }
@@ -1572,15 +1615,15 @@
         "variants": [
           {
             "id": "lcd1602-i2c",
-            "name": "1602 I²C LCD (0x27)",
+            "name": "Inland / 1602 I²C LCD (0x27)",
             "environment": "ntp-desk-clock-lcd1602--esp32-c6",
-            "hardware": "LCD1602 16×2 display with PCF8574 I²C backpack + four jumper wires",
+            "hardware": "Inland KS0061 or compatible HD44780 16×2 display with common PCF8574 I²C backpack at configured address 0x27, plus bidirectional level shifter and jumper wires",
             "wiring": {
               "diagram": "./wiring/ntp-desk-clock/esp32-c6-devkitc-1-lcd1602-i2c.svg",
               "connections": [
                 {
                   "from": "LCD1602 VCC",
-                  "to": "3V3",
+                  "to": "5V",
                   "wire": "red"
                 },
                 {
@@ -1590,20 +1633,34 @@
                 },
                 {
                   "from": "LCD1602 SDA",
-                  "to": "GPIO6",
+                  "to": "GPIO6 through bidirectional I2C level shifter (HV1 to LV1)",
                   "wire": "green"
                 },
                 {
                   "from": "LCD1602 SCL",
-                  "to": "GPIO7",
+                  "to": "GPIO7 through bidirectional I2C level shifter (HV2 to LV2)",
                   "wire": "yellow"
+                },
+                {
+                  "from": "Level shifter HV",
+                  "to": "5V",
+                  "wire": "red"
+                },
+                {
+                  "from": "Level shifter LV",
+                  "to": "3V3",
+                  "wire": "blue"
+                },
+                {
+                  "from": "Level shifter GND",
+                  "to": "GND",
+                  "wire": "black"
                 }
               ],
               "warnings": [
-                "Use only a 3.3 V-compatible LCD/backpack when connecting VCC directly to 3.3 V; display contrast and backlight must work at that voltage.",
-                "Many PCF8574 backpacks pull SDA and SCL up to VCC. If the module requires 5 V, add a bidirectional I²C level shifter and never expose ESP32 GPIO to 5 V pull-ups.",
-                "This prebuilt variant uses I²C address 0x27. For a 0x3F backpack, build locally with CLOCK_LCD_ADDRESS changed after confirming the address.",
-                "Wiring and LCD behavior are not yet physically verified."
+                "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+                "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+                "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
               ]
             }
           }
@@ -1615,14 +1672,14 @@
       {
         "quantity": 1,
         "name": "TM1637 display or LCD1602 I²C module",
-        "specification": "Choose the display matching the selected firmware build; module must have an installed 2.54 mm male header. LCD variant expects a 16×2 HD44780 display with PCF8574 backpack at address 0x27 and 3.3 V-safe I²C levels",
+        "specification": "Choose the display matching the selected firmware build; module must have an installed 2.54 mm male header. LCD variant supports the Inland KS0061 or a 16×2 HD44780 display with the common PCF8574 mapping at configured address 0x27.",
         "required": true,
         "url": "https://www.amazon.com/s?k=TM1637+or+LCD1602+I2C+display+module+3.3V"
       },
       {
-        "quantity": 1,
+        "quantity": 10,
         "name": "Female-to-female jumper-wire set",
-        "specification": "2.54 mm Dupont socket jumpers; at least four conductors",
+        "specification": "2.54 mm Dupont socket jumpers; at least ten conductors for the Inland LCD, level shifter, power rails, and both sides of SDA/SCL",
         "required": true,
         "url": "https://www.amazon.com/s?k=female+to+female+dupont+jumper+wires"
       },
@@ -1632,6 +1689,13 @@
         "specification": "Half-size or larger",
         "required": false,
         "url": "https://www.amazon.com/s?k=solderless+breadboard+electronics"
+      },
+      {
+        "quantity": 1,
+        "name": "Bidirectional I2C level shifter",
+        "specification": "Required for the 5 V Inland LCD selection; shift SDA and SCL between the ESP32 3.3 V side and LCD 5 V side",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=bidirectional+I2C+logic+level+converter+3.3V+5V"
       }
     ]
   },
@@ -1823,16 +1887,17 @@
   {
     "slug": "mqtt-home-status-panel",
     "name": "MQTT Home Status Panel",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "Practical",
     "description": "Subscribes to one exact MQTT topic and shows a configured label with bounded text or common temperature and humidity JSON values on an LCD1602.",
-    "hardware": "LCD1602 16x2 display with PCF8574 I2C backpack",
+    "hardware": "Inland KS0061 LCD1602 or compatible HD44780 16x2 LCD with common PCF8574 mapping at configured address 0x27, powered through a bidirectional I2C level shifter",
     "features": [
       "Exact-topic MQTT subscription",
       "Common environmental JSON formatting",
       "Bounded payload handling",
       "Stale-data indication",
-      "Protected first-boot setup"
+      "Protected first-boot setup",
+      "Bounded LCD1602 I2C responder scan"
     ],
     "installable": true,
     "extra_hardware": true,
@@ -1848,7 +1913,7 @@
           "connections": [
             {
               "from": "LCD1602 VCC",
-              "to": "3V3",
+              "to": "5V",
               "wire": "red"
             },
             {
@@ -1858,19 +1923,34 @@
             },
             {
               "from": "LCD1602 SDA",
-              "to": "GPIO21",
+              "to": "GPIO21 through bidirectional I2C level shifter (HV1 to LV1)",
               "wire": "green"
             },
             {
               "from": "LCD1602 SCL",
-              "to": "GPIO22",
+              "to": "GPIO22 through bidirectional I2C level shifter (HV2 to LV2)",
               "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
             }
           ],
           "warnings": [
-            "Use a PCF8574 backpack configured at I2C address 0x27.",
-            "Power from 3.3 V only unless a bidirectional I2C level shifter isolates any 5 V pull-ups.",
-            "This wiring and display behavior are not yet physically verified on the named board."
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
           ]
         }
       },
@@ -1884,7 +1964,7 @@
           "connections": [
             {
               "from": "LCD1602 VCC",
-              "to": "3V3",
+              "to": "5V",
               "wire": "red"
             },
             {
@@ -1894,19 +1974,34 @@
             },
             {
               "from": "LCD1602 SDA",
-              "to": "GPIO4",
+              "to": "GPIO4 through bidirectional I2C level shifter (HV1 to LV1)",
               "wire": "green"
             },
             {
               "from": "LCD1602 SCL",
-              "to": "GPIO5",
+              "to": "GPIO5 through bidirectional I2C level shifter (HV2 to LV2)",
               "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
             }
           ],
           "warnings": [
-            "Use a PCF8574 backpack configured at I2C address 0x27.",
-            "Power from 3.3 V only unless a bidirectional I2C level shifter isolates any 5 V pull-ups.",
-            "This wiring and display behavior are not yet physically verified on the named board."
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
           ]
         }
       },
@@ -1920,7 +2015,7 @@
           "connections": [
             {
               "from": "LCD1602 VCC",
-              "to": "3V3",
+              "to": "5V",
               "wire": "red"
             },
             {
@@ -1930,19 +2025,34 @@
             },
             {
               "from": "LCD1602 SDA",
-              "to": "GPIO8",
+              "to": "GPIO8 through bidirectional I2C level shifter (HV1 to LV1)",
               "wire": "green"
             },
             {
               "from": "LCD1602 SCL",
-              "to": "GPIO9",
+              "to": "GPIO9 through bidirectional I2C level shifter (HV2 to LV2)",
               "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
             }
           ],
           "warnings": [
-            "Use a PCF8574 backpack configured at I2C address 0x27.",
-            "Power from 3.3 V only unless a bidirectional I2C level shifter isolates any 5 V pull-ups.",
-            "This wiring and display behavior are not yet physically verified on the named board."
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
           ]
         }
       },
@@ -1956,7 +2066,7 @@
           "connections": [
             {
               "from": "LCD1602 VCC",
-              "to": "3V3",
+              "to": "5V",
               "wire": "red"
             },
             {
@@ -1966,19 +2076,34 @@
             },
             {
               "from": "LCD1602 SDA",
-              "to": "GPIO6",
+              "to": "GPIO6 through bidirectional I2C level shifter (HV1 to LV1)",
               "wire": "green"
             },
             {
               "from": "LCD1602 SCL",
-              "to": "GPIO7",
+              "to": "GPIO7 through bidirectional I2C level shifter (HV2 to LV2)",
               "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
             }
           ],
           "warnings": [
-            "Use a PCF8574 backpack configured at I2C address 0x27.",
-            "Power from 3.3 V only unless a bidirectional I2C level shifter isolates any 5 V pull-ups.",
-            "This wiring and display behavior are not yet physically verified on the named board."
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
           ]
         }
       }
@@ -1987,16 +2112,23 @@
       {
         "quantity": 1,
         "name": "LCD1602 I2C display module",
-        "specification": "16x2 HD44780-compatible LCD with PCF8574 backpack configured at 0x27, installed 2.54 mm male header, and 3.3 V-safe I2C levels",
+        "specification": "Inland KS0061 or compatible 16x2 HD44780 LCD with common PCF8574 backpack mapping at configured address 0x27; power at 5 V through an I2C level shifter",
         "required": true,
-        "url": "https://www.amazon.com/s?k=LCD1602+I2C+PCF8574+3.3V+module"
+        "url": "https://www.amazon.com/s?k=Inland+KS0061+LCD1602+I2C+display"
       },
       {
-        "quantity": 4,
+        "quantity": 10,
         "name": "Female-to-female jumper wires",
-        "specification": "2.54 mm Dupont leads for direct module-to-DevKit connection",
+        "specification": "2.54 mm Dupont leads for ESP32, level-shifter, power, and LCD connections",
         "required": true,
         "url": "https://www.amazon.com/s?k=female+to+female+dupont+jumper+wires"
+      },
+      {
+        "quantity": 1,
+        "name": "Bidirectional I2C level shifter",
+        "specification": "Two-channel or four-channel bidirectional module rated for 3.3 V LV and 5 V HV I2C operation",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=bidirectional+I2C+logic+level+converter+3.3V+5V"
       }
     ],
     "setup": {
@@ -2013,16 +2145,17 @@
   {
     "slug": "unifi-network-panel",
     "name": "UniFi Network Panel",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "Practical",
     "description": "Shows WAN state, latency, connected clients, and access-point count from a sanitized read-only UniFi metrics bridge without storing a controller API key on the display.",
-    "hardware": "LCD1602 16x2 display with PCF8574 I2C backpack",
+    "hardware": "Inland KS0061 LCD1602 or compatible HD44780 16x2 LCD with common PCF8574 mapping at configured address 0x27, powered through a bidirectional I2C level shifter",
     "features": [
       "Sanitized metrics-bridge input",
       "WAN and latency status",
       "Client and AP counts",
       "Strict response bounds",
-      "Protected first-boot setup"
+      "Protected first-boot setup",
+      "Bounded LCD1602 I2C responder scan"
     ],
     "installable": true,
     "extra_hardware": true,
@@ -2038,7 +2171,7 @@
           "connections": [
             {
               "from": "LCD1602 VCC",
-              "to": "3V3",
+              "to": "5V",
               "wire": "red"
             },
             {
@@ -2048,19 +2181,34 @@
             },
             {
               "from": "LCD1602 SDA",
-              "to": "GPIO21",
+              "to": "GPIO21 through bidirectional I2C level shifter (HV1 to LV1)",
               "wire": "green"
             },
             {
               "from": "LCD1602 SCL",
-              "to": "GPIO22",
+              "to": "GPIO22 through bidirectional I2C level shifter (HV2 to LV2)",
               "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
             }
           ],
           "warnings": [
-            "Use a PCF8574 backpack configured at I2C address 0x27.",
-            "Power from 3.3 V only unless a bidirectional I2C level shifter isolates any 5 V pull-ups.",
-            "This wiring and display behavior are not yet physically verified on the named board."
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
           ]
         }
       },
@@ -2074,7 +2222,7 @@
           "connections": [
             {
               "from": "LCD1602 VCC",
-              "to": "3V3",
+              "to": "5V",
               "wire": "red"
             },
             {
@@ -2084,19 +2232,34 @@
             },
             {
               "from": "LCD1602 SDA",
-              "to": "GPIO4",
+              "to": "GPIO4 through bidirectional I2C level shifter (HV1 to LV1)",
               "wire": "green"
             },
             {
               "from": "LCD1602 SCL",
-              "to": "GPIO5",
+              "to": "GPIO5 through bidirectional I2C level shifter (HV2 to LV2)",
               "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
             }
           ],
           "warnings": [
-            "Use a PCF8574 backpack configured at I2C address 0x27.",
-            "Power from 3.3 V only unless a bidirectional I2C level shifter isolates any 5 V pull-ups.",
-            "This wiring and display behavior are not yet physically verified on the named board."
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
           ]
         }
       },
@@ -2110,7 +2273,7 @@
           "connections": [
             {
               "from": "LCD1602 VCC",
-              "to": "3V3",
+              "to": "5V",
               "wire": "red"
             },
             {
@@ -2120,19 +2283,34 @@
             },
             {
               "from": "LCD1602 SDA",
-              "to": "GPIO8",
+              "to": "GPIO8 through bidirectional I2C level shifter (HV1 to LV1)",
               "wire": "green"
             },
             {
               "from": "LCD1602 SCL",
-              "to": "GPIO9",
+              "to": "GPIO9 through bidirectional I2C level shifter (HV2 to LV2)",
               "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
             }
           ],
           "warnings": [
-            "Use a PCF8574 backpack configured at I2C address 0x27.",
-            "Power from 3.3 V only unless a bidirectional I2C level shifter isolates any 5 V pull-ups.",
-            "This wiring and display behavior are not yet physically verified on the named board."
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
           ]
         }
       },
@@ -2146,7 +2324,7 @@
           "connections": [
             {
               "from": "LCD1602 VCC",
-              "to": "3V3",
+              "to": "5V",
               "wire": "red"
             },
             {
@@ -2156,19 +2334,34 @@
             },
             {
               "from": "LCD1602 SDA",
-              "to": "GPIO6",
+              "to": "GPIO6 through bidirectional I2C level shifter (HV1 to LV1)",
               "wire": "green"
             },
             {
               "from": "LCD1602 SCL",
-              "to": "GPIO7",
+              "to": "GPIO7 through bidirectional I2C level shifter (HV2 to LV2)",
               "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
             }
           ],
           "warnings": [
-            "Use a PCF8574 backpack configured at I2C address 0x27.",
-            "Power from 3.3 V only unless a bidirectional I2C level shifter isolates any 5 V pull-ups.",
-            "This wiring and display behavior are not yet physically verified on the named board."
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
           ]
         }
       }
@@ -2177,16 +2370,23 @@
       {
         "quantity": 1,
         "name": "LCD1602 I2C display module",
-        "specification": "16x2 HD44780-compatible LCD with PCF8574 backpack configured at 0x27, installed 2.54 mm male header, and 3.3 V-safe I2C levels",
+        "specification": "Inland KS0061 or compatible 16x2 HD44780 LCD with common PCF8574 backpack mapping at configured address 0x27; power at 5 V through an I2C level shifter",
         "required": true,
-        "url": "https://www.amazon.com/s?k=LCD1602+I2C+PCF8574+3.3V+module"
+        "url": "https://www.amazon.com/s?k=Inland+KS0061+LCD1602+I2C+display"
       },
       {
-        "quantity": 4,
+        "quantity": 10,
         "name": "Female-to-female jumper wires",
-        "specification": "2.54 mm Dupont leads for direct module-to-DevKit connection",
+        "specification": "2.54 mm Dupont leads for ESP32, level-shifter, power, and LCD connections",
         "required": true,
         "url": "https://www.amazon.com/s?k=female+to+female+dupont+jumper+wires"
+      },
+      {
+        "quantity": 1,
+        "name": "Bidirectional I2C level shifter",
+        "specification": "Two-channel or four-channel bidirectional module rated for 3.3 V LV and 5 V HV I2C operation",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=bidirectional+I2C+logic+level+converter+3.3V+5V"
       }
     ],
     "setup": {
@@ -2201,16 +2401,17 @@
   {
     "slug": "space-satellite-tracker",
     "name": "Space and Satellite Tracker",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "Fun",
     "description": "Polls the public Where the ISS at API over validated HTTPS and displays the ISS latitude, longitude, and altitude on an LCD1602.",
-    "hardware": "LCD1602 16x2 display with PCF8574 I2C backpack",
+    "hardware": "Inland KS0061 LCD1602 or compatible HD44780 16x2 LCD with common PCF8574 mapping at configured address 0x27, powered through a bidirectional I2C level shifter",
     "features": [
       "Live ISS position",
       "Altitude display",
       "Validated HTTPS",
       "Timestamp freshness checks",
-      "Protected first-boot setup"
+      "Protected first-boot setup",
+      "Bounded LCD1602 I2C responder scan"
     ],
     "installable": true,
     "extra_hardware": true,
@@ -2226,7 +2427,7 @@
           "connections": [
             {
               "from": "LCD1602 VCC",
-              "to": "3V3",
+              "to": "5V",
               "wire": "red"
             },
             {
@@ -2236,19 +2437,34 @@
             },
             {
               "from": "LCD1602 SDA",
-              "to": "GPIO21",
+              "to": "GPIO21 through bidirectional I2C level shifter (HV1 to LV1)",
               "wire": "green"
             },
             {
               "from": "LCD1602 SCL",
-              "to": "GPIO22",
+              "to": "GPIO22 through bidirectional I2C level shifter (HV2 to LV2)",
               "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
             }
           ],
           "warnings": [
-            "Use a PCF8574 backpack configured at I2C address 0x27.",
-            "Power from 3.3 V only unless a bidirectional I2C level shifter isolates any 5 V pull-ups.",
-            "This wiring and display behavior are not yet physically verified on the named board."
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
           ]
         }
       },
@@ -2262,7 +2478,7 @@
           "connections": [
             {
               "from": "LCD1602 VCC",
-              "to": "3V3",
+              "to": "5V",
               "wire": "red"
             },
             {
@@ -2272,19 +2488,34 @@
             },
             {
               "from": "LCD1602 SDA",
-              "to": "GPIO4",
+              "to": "GPIO4 through bidirectional I2C level shifter (HV1 to LV1)",
               "wire": "green"
             },
             {
               "from": "LCD1602 SCL",
-              "to": "GPIO5",
+              "to": "GPIO5 through bidirectional I2C level shifter (HV2 to LV2)",
               "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
             }
           ],
           "warnings": [
-            "Use a PCF8574 backpack configured at I2C address 0x27.",
-            "Power from 3.3 V only unless a bidirectional I2C level shifter isolates any 5 V pull-ups.",
-            "This wiring and display behavior are not yet physically verified on the named board."
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
           ]
         }
       },
@@ -2298,7 +2529,7 @@
           "connections": [
             {
               "from": "LCD1602 VCC",
-              "to": "3V3",
+              "to": "5V",
               "wire": "red"
             },
             {
@@ -2308,19 +2539,34 @@
             },
             {
               "from": "LCD1602 SDA",
-              "to": "GPIO8",
+              "to": "GPIO8 through bidirectional I2C level shifter (HV1 to LV1)",
               "wire": "green"
             },
             {
               "from": "LCD1602 SCL",
-              "to": "GPIO9",
+              "to": "GPIO9 through bidirectional I2C level shifter (HV2 to LV2)",
               "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
             }
           ],
           "warnings": [
-            "Use a PCF8574 backpack configured at I2C address 0x27.",
-            "Power from 3.3 V only unless a bidirectional I2C level shifter isolates any 5 V pull-ups.",
-            "This wiring and display behavior are not yet physically verified on the named board."
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
           ]
         }
       },
@@ -2334,7 +2580,7 @@
           "connections": [
             {
               "from": "LCD1602 VCC",
-              "to": "3V3",
+              "to": "5V",
               "wire": "red"
             },
             {
@@ -2344,19 +2590,34 @@
             },
             {
               "from": "LCD1602 SDA",
-              "to": "GPIO6",
+              "to": "GPIO6 through bidirectional I2C level shifter (HV1 to LV1)",
               "wire": "green"
             },
             {
               "from": "LCD1602 SCL",
-              "to": "GPIO7",
+              "to": "GPIO7 through bidirectional I2C level shifter (HV2 to LV2)",
               "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
             }
           ],
           "warnings": [
-            "Use a PCF8574 backpack configured at I2C address 0x27.",
-            "Power from 3.3 V only unless a bidirectional I2C level shifter isolates any 5 V pull-ups.",
-            "This wiring and display behavior are not yet physically verified on the named board."
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
           ]
         }
       }
@@ -2365,16 +2626,23 @@
       {
         "quantity": 1,
         "name": "LCD1602 I2C display module",
-        "specification": "16x2 HD44780-compatible LCD with PCF8574 backpack configured at 0x27, installed 2.54 mm male header, and 3.3 V-safe I2C levels",
+        "specification": "Inland KS0061 or compatible 16x2 HD44780 LCD with common PCF8574 backpack mapping at configured address 0x27; power at 5 V through an I2C level shifter",
         "required": true,
-        "url": "https://www.amazon.com/s?k=LCD1602+I2C+PCF8574+3.3V+module"
+        "url": "https://www.amazon.com/s?k=Inland+KS0061+LCD1602+I2C+display"
       },
       {
-        "quantity": 4,
+        "quantity": 10,
         "name": "Female-to-female jumper wires",
-        "specification": "2.54 mm Dupont leads for direct module-to-DevKit connection",
+        "specification": "2.54 mm Dupont leads for ESP32, level-shifter, power, and LCD connections",
         "required": true,
         "url": "https://www.amazon.com/s?k=female+to+female+dupont+jumper+wires"
+      },
+      {
+        "quantity": 1,
+        "name": "Bidirectional I2C level shifter",
+        "specification": "Two-channel or four-channel bidirectional module rated for 3.3 V LV and 5 V HV I2C operation",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=bidirectional+I2C+logic+level+converter+3.3V+5V"
       }
     ],
     "setup": {
@@ -2388,16 +2656,17 @@
   {
     "slug": "wifi-weather-station",
     "name": "Wi-Fi Weather Desk Station",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "Practical",
     "description": "Fetches current Open-Meteo temperature, humidity, and WMO condition data for configured coordinates and presents it on an LCD1602.",
-    "hardware": "LCD1602 16x2 display with PCF8574 I2C backpack",
+    "hardware": "Inland KS0061 LCD1602 or compatible HD44780 16x2 LCD with common PCF8574 mapping at configured address 0x27, powered through a bidirectional I2C level shifter",
     "features": [
       "Current temperature and humidity",
       "Compact WMO conditions",
       "No weather API key",
       "Validated HTTPS",
-      "Protected first-boot setup"
+      "Protected first-boot setup",
+      "Bounded LCD1602 I2C responder scan"
     ],
     "installable": true,
     "extra_hardware": true,
@@ -2413,7 +2682,7 @@
           "connections": [
             {
               "from": "LCD1602 VCC",
-              "to": "3V3",
+              "to": "5V",
               "wire": "red"
             },
             {
@@ -2423,19 +2692,34 @@
             },
             {
               "from": "LCD1602 SDA",
-              "to": "GPIO21",
+              "to": "GPIO21 through bidirectional I2C level shifter (HV1 to LV1)",
               "wire": "green"
             },
             {
               "from": "LCD1602 SCL",
-              "to": "GPIO22",
+              "to": "GPIO22 through bidirectional I2C level shifter (HV2 to LV2)",
               "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
             }
           ],
           "warnings": [
-            "Use a PCF8574 backpack configured at I2C address 0x27.",
-            "Power from 3.3 V only unless a bidirectional I2C level shifter isolates any 5 V pull-ups.",
-            "This wiring and display behavior are not yet physically verified on the named board."
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
           ]
         }
       },
@@ -2449,7 +2733,7 @@
           "connections": [
             {
               "from": "LCD1602 VCC",
-              "to": "3V3",
+              "to": "5V",
               "wire": "red"
             },
             {
@@ -2459,19 +2743,34 @@
             },
             {
               "from": "LCD1602 SDA",
-              "to": "GPIO4",
+              "to": "GPIO4 through bidirectional I2C level shifter (HV1 to LV1)",
               "wire": "green"
             },
             {
               "from": "LCD1602 SCL",
-              "to": "GPIO5",
+              "to": "GPIO5 through bidirectional I2C level shifter (HV2 to LV2)",
               "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
             }
           ],
           "warnings": [
-            "Use a PCF8574 backpack configured at I2C address 0x27.",
-            "Power from 3.3 V only unless a bidirectional I2C level shifter isolates any 5 V pull-ups.",
-            "This wiring and display behavior are not yet physically verified on the named board."
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
           ]
         }
       },
@@ -2485,7 +2784,7 @@
           "connections": [
             {
               "from": "LCD1602 VCC",
-              "to": "3V3",
+              "to": "5V",
               "wire": "red"
             },
             {
@@ -2495,19 +2794,34 @@
             },
             {
               "from": "LCD1602 SDA",
-              "to": "GPIO8",
+              "to": "GPIO8 through bidirectional I2C level shifter (HV1 to LV1)",
               "wire": "green"
             },
             {
               "from": "LCD1602 SCL",
-              "to": "GPIO9",
+              "to": "GPIO9 through bidirectional I2C level shifter (HV2 to LV2)",
               "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
             }
           ],
           "warnings": [
-            "Use a PCF8574 backpack configured at I2C address 0x27.",
-            "Power from 3.3 V only unless a bidirectional I2C level shifter isolates any 5 V pull-ups.",
-            "This wiring and display behavior are not yet physically verified on the named board."
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
           ]
         }
       },
@@ -2521,7 +2835,7 @@
           "connections": [
             {
               "from": "LCD1602 VCC",
-              "to": "3V3",
+              "to": "5V",
               "wire": "red"
             },
             {
@@ -2531,19 +2845,34 @@
             },
             {
               "from": "LCD1602 SDA",
-              "to": "GPIO6",
+              "to": "GPIO6 through bidirectional I2C level shifter (HV1 to LV1)",
               "wire": "green"
             },
             {
               "from": "LCD1602 SCL",
-              "to": "GPIO7",
+              "to": "GPIO7 through bidirectional I2C level shifter (HV2 to LV2)",
               "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
             }
           ],
           "warnings": [
-            "Use a PCF8574 backpack configured at I2C address 0x27.",
-            "Power from 3.3 V only unless a bidirectional I2C level shifter isolates any 5 V pull-ups.",
-            "This wiring and display behavior are not yet physically verified on the named board."
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
           ]
         }
       }
@@ -2552,16 +2881,23 @@
       {
         "quantity": 1,
         "name": "LCD1602 I2C display module",
-        "specification": "16x2 HD44780-compatible LCD with PCF8574 backpack configured at 0x27, installed 2.54 mm male header, and 3.3 V-safe I2C levels",
+        "specification": "Inland KS0061 or compatible 16x2 HD44780 LCD with common PCF8574 backpack mapping at configured address 0x27; power at 5 V through an I2C level shifter",
         "required": true,
-        "url": "https://www.amazon.com/s?k=LCD1602+I2C+PCF8574+3.3V+module"
+        "url": "https://www.amazon.com/s?k=Inland+KS0061+LCD1602+I2C+display"
       },
       {
-        "quantity": 4,
+        "quantity": 10,
         "name": "Female-to-female jumper wires",
-        "specification": "2.54 mm Dupont leads for direct module-to-DevKit connection",
+        "specification": "2.54 mm Dupont leads for ESP32, level-shifter, power, and LCD connections",
         "required": true,
         "url": "https://www.amazon.com/s?k=female+to+female+dupont+jumper+wires"
+      },
+      {
+        "quantity": 1,
+        "name": "Bidirectional I2C level shifter",
+        "specification": "Two-channel or four-channel bidirectional module rated for 3.3 V LV and 5 V HV I2C operation",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=bidirectional+I2C+logic+level+converter+3.3V+5V"
       }
     ],
     "setup": {

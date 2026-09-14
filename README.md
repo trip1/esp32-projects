@@ -18,7 +18,7 @@ A public firmware monorepo for four ESP32 boards and four official Raspberry Pi 
 - **BME280 MQTT Sleep Sensor** — temperature, humidity, and pressure telemetry with captive setup and configurable deep sleep
 - **Ultrasonic Parking Assistant** — filtered HC-SR04 distance with a local parking/tank gauge
 - **PIR Occupancy Timer** — interrupt-driven motion events with a rollover-safe hold timer
-- **NTP Desk Clock** — network-synchronized local time with selectable TM1637 or LCD1602 I²C display builds
+- **NTP Desk Clock** — network-synchronized local time with selectable TM1637 or Inland/common LCD1602 I²C builds and bounded responder diagnostics
 - **Pico Board Check** — RP2040/RP2350 USB diagnostics and onboard LED heartbeat
 - **Pico W Wi-Fi Surveyor** — bounded boot-time wireless survey and local dashboard
 - **ESP32 Diagnostic Console** — protected Wi-Fi setup and real-time chip, memory, network, I²C, and interface dashboard
@@ -87,7 +87,7 @@ g++ -std=c++17 \
 ~/.venvs/platformio/bin/pio run -d firmware/bme280-mqtt-sensor
 ~/.venvs/platformio/bin/pio run -d firmware/pico-lab
 ~/.venvs/platformio/bin/pio run -d firmware/esp32-diagnostics
-g++ -std=c++17 -Wall -Wextra -Werror -I firmware/lcd-panels/include firmware/lcd-panels/src/panel_logic.cpp firmware/lcd-panels/test/native/test_main.cpp -o /tmp/lcd-panel-tests && /tmp/lcd-panel-tests
+g++ -std=c++17 -Wall -Wextra -Werror -I firmware/common -I firmware/lcd-panels/include firmware/lcd-panels/src/panel_logic.cpp firmware/lcd-panels/test/native/test_main.cpp -o /tmp/lcd-panel-tests && /tmp/lcd-panel-tests
 ~/.venvs/platformio/bin/pio run -d firmware/lcd-panels
 python3 scripts/build_site.py --output _site
 ```

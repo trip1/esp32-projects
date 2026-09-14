@@ -1,9 +1,16 @@
 #include "ntp_clock_display.h"
+#include "lcd1602_i2c.h"
 
 #include <cassert>
 #include <cstring>
 
 int main() {
+    const auto inland = lcd1602::scanAddresses([](std::uint8_t address) { return address == 0x27U; }, 0x27U);
+    assert(inland.selected && inland.address == 0x27U);
+    const auto alternate = lcd1602::scanAddresses([](std::uint8_t address) { return address == 0x3fU; }, 0x27U);
+    assert(!alternate.selected && alternate.responders == 1U);
+    const auto none = lcd1602::scanAddresses([](std::uint8_t) { return false; }, 0x27U);
+    assert(!none.selected && none.responders == 0U);
     char top[17]{};
     char bottom[17]{};
 

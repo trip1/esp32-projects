@@ -13,6 +13,9 @@
 
 #include "ntp_clock_config.h"
 #include "ntp_clock_display.h"
+#if defined(CLOCK_DISPLAY_LCD1602)
+#include "lcd1602_i2c.h"
+#endif
 
 #if defined(CLOCK_DISPLAY_LCD1602)
 #ifndef CLOCK_SDA_PIN
@@ -42,6 +45,33 @@ class CheckedLcd1602 {
 public:
     bool begin() {
         if (!Wire.begin(CLOCK_SDA_PIN, CLOCK_SCL_PIN)) return false;
+        Wire.setTimeOut(10U);
+        const uint32_t scan_started = millis();
+        bool scan_timed_out = false;
+        const auto scan = lcd1602::scanAddresses([&](uint8_t address) {
+            const uint32_t elapsed = static_cast<uint32_t>(millis() - scan_started);
+            if (elapsed >= 250U) { scan_timed_out = true; return false; }
+            const uint32_t remaining = 250U - elapsed;
+            Wire.setTimeOut(remaining < 10U ? remaining : 10U);
+            Wire.beginTransmission(address);
+            const bool found = Wire.endTransmission(true) == 0U;
+            if (static_cast<uint32_t>(millis() - scan_started) > 250U) scan_timed_out = true;
+            if (found) Serial.printf("Possible PCF8574 I2C responder found at 0x%02X\n", static_cast<unsigned>(address));
+            return found;
+        }, CLOCK_LCD_ADDRESS);
+        if (scan_timed_out || !scan.selected) {
+            Serial.printf("LCD1602 address scan %s with %u possible responders; writes require configured address 0x%02X\n",
+                          scan_timed_out ? "timed out" : "completed",
+                          static_cast<unsigned>(scan.responders), static_cast<unsigned>(CLOCK_LCD_ADDRESS));
+            return false;
+        }
+        address_ = scan.address;
+        Wire.setTimeOut(10U);
+        for (uint8_t attempt = 0U; attempt < 2U; ++attempt) {
+            Wire.beginTransmission(address_);
+            if (Wire.endTransmission(true) != 0U) return false;
+        }
+        Serial.printf("Using LCD1602 I2C address 0x%02X\n", static_cast<unsigned>(address_));
         Wire.setTimeOut(25U);
         const uint32_t started = millis();
         delay(50);
@@ -66,43 +96,47 @@ public:
             && writeText(bottom, started, 150U);
     }
 
+    uint8_t detectedAddress() const { return address_; }
+
 private:
     static constexpr uint8_t kEnable = 0x04U;
     static constexpr uint8_t kRegisterSelect = 0x01U;
     static constexpr uint8_t kBacklight = 0x08U;
 
-    static bool transmit(uint8_t value, uint32_t started, uint32_t timeout_ms) {
+    bool transmit(uint8_t value, uint32_t started, uint32_t timeout_ms) {
         const uint32_t elapsed = static_cast<uint32_t>(millis() - started);
         if (elapsed >= timeout_ms) return false;
         const uint32_t remaining = timeout_ms - elapsed;
         Wire.setTimeOut(remaining < 25U ? remaining : 25U);
-        Wire.beginTransmission(CLOCK_LCD_ADDRESS);
+        Wire.beginTransmission(address_);
         if (Wire.write(value) != 1U) return false;
         return Wire.endTransmission(true) == 0U;
     }
 
-    static bool writeNibble(uint8_t nibble, bool data, uint32_t started, uint32_t timeout_ms) {
+    bool writeNibble(uint8_t nibble, bool data, uint32_t started, uint32_t timeout_ms) {
         const uint8_t value = static_cast<uint8_t>((nibble & 0xF0U) | kBacklight | (data ? kRegisterSelect : 0U));
         return transmit(value, started, timeout_ms)
             && transmit(static_cast<uint8_t>(value | kEnable), started, timeout_ms)
             && transmit(value, started, timeout_ms);
     }
 
-    static bool writeByte(uint8_t value, bool data, uint32_t started, uint32_t timeout_ms) {
+    bool writeByte(uint8_t value, bool data, uint32_t started, uint32_t timeout_ms) {
         return writeNibble(value, data, started, timeout_ms)
             && writeNibble(static_cast<uint8_t>(value << 4U), data, started, timeout_ms);
     }
 
-    static bool command(uint8_t value, uint32_t started, uint32_t timeout_ms) {
+    bool command(uint8_t value, uint32_t started, uint32_t timeout_ms) {
         return writeByte(value, false, started, timeout_ms);
     }
 
-    static bool writeText(const char value[17], uint32_t started, uint32_t timeout_ms) {
+    bool writeText(const char value[17], uint32_t started, uint32_t timeout_ms) {
         for (uint8_t index = 0U; index < 16U; ++index) {
             if (!writeByte(static_cast<uint8_t>(value[index]), true, started, timeout_ms)) return false;
         }
         return true;
     }
+
+    uint8_t address_ = CLOCK_LCD_ADDRESS;
 };
 #endif
 
@@ -143,7 +177,7 @@ bool connectAndSynchronize(const ClockConfig& value, uint32_t timeout_ms) {
 bool initializeDisplay() {
 #if defined(CLOCK_DISPLAY_LCD1602)
     if (!display.begin()) {
-        Serial.printf("LCD1602 initialization failed at I2C address 0x%02X on SDA GPIO%d / SCL GPIO%d\n", CLOCK_LCD_ADDRESS, CLOCK_SDA_PIN, CLOCK_SCL_PIN);
+        Serial.printf("LCD1602 initialization failed at configured I2C address 0x%02X on SDA GPIO%d / SCL GPIO%d\n", static_cast<unsigned>(CLOCK_LCD_ADDRESS), CLOCK_SDA_PIN, CLOCK_SCL_PIN);
         return false;
     }
     display_ready = true;
@@ -183,7 +217,7 @@ void showTime(const struct tm& local) {
 void initializeClock() {
     configTzTime(active_config.timezone, "pool.ntp.org", "time.nist.gov");
 #if defined(CLOCK_DISPLAY_LCD1602)
-    Serial.printf("Clock ready for LCD1602 at I2C 0x%02X on SDA GPIO%d / SCL GPIO%d; timezone %s\n", CLOCK_LCD_ADDRESS, CLOCK_SDA_PIN, CLOCK_SCL_PIN, active_config.timezone);
+    Serial.printf("Clock ready for LCD1602 at I2C 0x%02X on SDA GPIO%d / SCL GPIO%d; timezone %s\n", static_cast<unsigned>(display.detectedAddress()), CLOCK_SDA_PIN, CLOCK_SCL_PIN, active_config.timezone);
 #else
     Serial.printf("Clock ready on CLK GPIO%d / DIO GPIO%d; timezone %s\n", CLOCK_CLK_PIN, CLOCK_DIO_PIN, active_config.timezone);
 #endif

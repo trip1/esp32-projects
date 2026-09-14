@@ -1,4 +1,5 @@
 #include "panel_logic.h"
+#include "lcd1602_i2c.h"
 
 #include <cassert>
 #include <cmath>
@@ -13,6 +14,20 @@ void expectLine(const char actual[17], const char* expected) {
 }
 
 int main() {
+    assert(lcd1602::kCandidateAddressCount == 16U);
+    assert(lcd1602::candidateAddress(0U) == 0x20U);
+    assert(lcd1602::candidateAddress(7U) == 0x27U);
+    assert(lcd1602::candidateAddress(8U) == 0x38U);
+    assert(lcd1602::candidateAddress(15U) == 0x3fU);
+    const auto inland = lcd1602::scanAddresses([](std::uint8_t address) { return address == 0x27U; }, 0x27U);
+    assert(inland.responders == 1U && inland.address == 0x27U && inland.selected);
+    const auto alternate = lcd1602::scanAddresses([](std::uint8_t address) { return address == 0x3fU; }, 0x27U);
+    assert(alternate.responders == 1U && !alternate.selected);
+    const auto ambiguous = lcd1602::scanAddresses([](std::uint8_t address) { return address == 0x20U || address == 0x3fU; }, 0x27U);
+    assert(ambiguous.responders == 2U && !ambiguous.selected);
+    const auto preferred = lcd1602::scanAddresses([](std::uint8_t address) { return address == 0x20U || address == 0x27U; }, 0x27U);
+    assert(preferred.responders == 2U && preferred.address == 0x27U && preferred.selected);
+
     char top[17]{};
     char bottom[17]{};
 

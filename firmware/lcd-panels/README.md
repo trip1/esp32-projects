@@ -9,7 +9,7 @@ Four browser-flashable LCD1602 projects share one bounded runtime and four exact
 
 ## Hardware and wiring
 
-All builds expect an HD44780-compatible 16×2 LCD with the common PCF8574 mapping (P0=RS, P1=RW, P2=Enable, P3=backlight, P4–P7=data) at I²C address `0x27`.
+All builds support the Inland 1602 I²C module (SKU 221861 / KS0061) and HD44780-compatible 16×2 LCDs with the common PCF8574 mapping (P0=RS, P1=RW, P2=Enable, P3=backlight, P4–P7=data) at explicitly configured address `0x27`. On the fixed board-specific SDA/SCL pins, firmware reports address-phase responses only across the 16 possible PCF8574/PCF8574A addresses: `0x20`–`0x27` and `0x38`–`0x3F`. PCF8574 has no identity register, so alternate responders are diagnostic only and never receive data writes. The configured address must acknowledge repeatedly before initialization. Firmware never scans arbitrary GPIOs.
 
 | Board | SDA | SCL | Setup button |
 |---|---:|---:|---:|
@@ -18,7 +18,7 @@ All builds expect an HD44780-compatible 16×2 LCD with the common PCF8574 mappin
 | ESP32-S3-DevKitC-1 v1.0 | GPIO8 | GPIO9 | BOOT / GPIO0 |
 | ESP32-C6-DevKitC-1 | GPIO6 | GPIO7 | BOOT / GPIO9 |
 
-Power the backpack from 3.3 V only if its contrast and backlight work at that voltage. Many boards pull SDA/SCL up to VCC. A backpack powered from 5 V therefore needs a bidirectional I²C level shifter; never expose an ESP32 GPIO to a 5 V pull-up. The checked driver caps each transaction at 25 ms, initialization after bus start at 250 ms, and each refresh at 150 ms, aborting on the first failed write.
+The Inland KS0061 is wired as a 5 V module. Power it from 5 V and use the required bidirectional I²C level shifter shown in each diagram: LV at 3.3 V, HV at 5 V, and common ground. Never expose an ESP32 GPIO to a 5 V pull-up. The responder scan clamps each transaction to its remaining 250 ms aggregate budget and 10 ms maximum. The checked display driver caps each write transaction at 25 ms, initialization at 250 ms, and each refresh at 150 ms, aborting on the first failed write.
 
 ## First boot
 
@@ -53,7 +53,7 @@ The local Network Integration API base is normally `https://<console>/proxy/netw
 ## Build and test
 
 ```bash
-g++ -std=c++17 -Wall -Wextra -Werror -I include src/panel_logic.cpp test/native/test_main.cpp -o /tmp/lcd-panel-tests
+g++ -std=c++17 -Wall -Wextra -Werror -I ../common -I include src/panel_logic.cpp test/native/test_main.cpp -o /tmp/lcd-panel-tests
 /tmp/lcd-panel-tests
 ~/.venvs/platformio/bin/pio run
 ```

@@ -6,6 +6,7 @@ import struct
 import subprocess
 import tempfile
 import unittest
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 from scripts import build_site
@@ -115,10 +116,13 @@ class FirmwarePortalTests(unittest.TestCase):
         self.assertTrue(expected <= projects.keys())
         for slug in expected:
             project = projects[slug]
-            self.assertEqual("1.0.0", project["version"])
+            self.assertEqual("1.1.0", project["version"])
             self.assertEqual(set(ESP_TARGETS), {target["id"] for target in project["targets"]})
             self.assertTrue(project["extra_hardware"])
             self.assertIn("LCD1602", project["hardware"])
+            self.assertIn("Inland", project["hardware"])
+            shifter = next(part for part in project["parts"] if part["name"] == "Bidirectional I2C level shifter")
+            self.assertTrue(shifter["required"])
             config = configparser.ConfigParser(interpolation=None)
             config.read(ROOT / project["project_dir"] / "platformio.ini")
             for target in project["targets"]:
@@ -133,6 +137,7 @@ class FirmwarePortalTests(unittest.TestCase):
         mqtt = (root / "src" / "bounded_mqtt.cpp").read_text()
         config = (root / "src" / "panel_config.cpp").read_text()
         lcd = (root / "src" / "panel_lcd.cpp").read_text()
+        address_scan = (ROOT / "firmware" / "common" / "lcd1602_i2c.h").read_text()
         workflow = (ROOT / ".github" / "workflows" / "pages.yml").read_text()
         for required in (
             "kMaximumResponse = 2048U", "kHttpDeadlineMs = 8000U", "xQueueReceive", "vTaskSuspend", "timestampFresh",
@@ -159,6 +164,11 @@ class FirmwarePortalTests(unittest.TestCase):
         self.assertNotIn("preferences.isKey", config)
         self.assertIn("Wire.setTimeOut", lcd)
         self.assertIn("Wire.endTransmission(true) == 0U", lcd)
+        self.assertIn("lcd1602::scanAddresses", lcd)
+        self.assertIn("kCandidateAddressCount = 16U", address_scan)
+        self.assertIn("0x20U + index", address_scan)
+        self.assertIn("0x38U + (index - 8U)", address_scan)
+        self.assertNotIn("for (unsigned char address = 1", lcd)
         self.assertIn("pio run -d firmware/lcd-panels", workflow)
 
     def test_catalog_supports_four_exact_raspberry_pi_pico_boards(self):
@@ -375,7 +385,11 @@ class FirmwarePortalTests(unittest.TestCase):
 
     def test_ntp_clock_has_optional_lcd1602_i2c_builds_for_every_esp_board(self):
         project = next(project for project in self.load_catalog() if project["slug"] == "ntp-desk-clock")
-        self.assertEqual("1.2.0", project["version"])
+        self.assertEqual("1.3.0", project["version"])
+        shifter = next(part for part in project["parts"] if part["name"] == "Bidirectional I2C level shifter")
+        self.assertTrue(shifter["required"])
+        jumper = next(part for part in project["parts"] if "jumper" in part["name"].lower())
+        self.assertGreaterEqual(jumper["quantity"], 10)
         config = configparser.ConfigParser(interpolation=None)
         config.read(ROOT / project["project_dir"] / "platformio.ini")
         expected_pins = {
@@ -388,6 +402,8 @@ class FirmwarePortalTests(unittest.TestCase):
             variants = target.get("variants", [])
             self.assertEqual(["lcd1602-i2c"], [variant["id"] for variant in variants])
             variant = variants[0]
+            self.assertIn("Inland", variant["name"])
+            self.assertIn("Inland", variant["hardware"])
             flags = config[f"env:{variant['environment']}"]["build_flags"]
             sda, scl = expected_pins[target["id"]]
             self.assertIn("-DCLOCK_DISPLAY_LCD1602=1", flags)
@@ -398,13 +414,27 @@ class FirmwarePortalTests(unittest.TestCase):
             self.assertIn(f"GPIO{sda}", wiring)
             self.assertIn(f"GPIO{scl}", wiring)
             self.assertIn("3.3 V", wiring)
+            svg = (ROOT / "web" / variant["wiring"]["diagram"].removeprefix("./")).read_text()
+            self.assertIn("LV1 / 3.3 V", svg)
+            self.assertIn("HV1 / 5 V", svg)
+            document = ET.fromstring(svg)
+            view_height = float(document.attrib["viewBox"].split()[3])
+            text_nodes = [node for node in document.iter() if node.tag.endswith("text")]
+            lv1 = next(node for node in text_nodes if "".join(node.itertext()) == "LV1 / 3.3 V")
+            hv1 = next(node for node in text_nodes if "".join(node.itertext()) == "HV1 / 5 V")
+            self.assertLess(float(lv1.attrib["x"]) + 7 * len("LV1 / 3.3 V"), float(hv1.attrib["x"]) - 7 * len("HV1 / 5 V"))
+            for node in (node for node in text_nodes if node.attrib.get("class") == "warning"):
+                warning = "".join(node.itertext())
+                self.assertLessEqual(float(node.attrib["x"]) + 7 * len(warning), 1200)
+                self.assertLessEqual(float(node.attrib["y"]), view_height)
 
         source = (ROOT / project["project_dir"] / "src" / "apps" / "ntp-desk-clock.cpp").read_text()
         self.assertIn("CLOCK_DISPLAY_LCD1602", source)
         self.assertIn("class CheckedLcd1602", source)
         self.assertIn("Wire.begin(CLOCK_SDA_PIN, CLOCK_SCL_PIN)", source)
         self.assertIn("Wire.setTimeOut", source)
-        self.assertIn("Wire.beginTransmission(CLOCK_LCD_ADDRESS)", source)
+        self.assertIn("lcd1602::scanAddresses", source)
+        self.assertIn("Wire.beginTransmission(address_)", source)
         self.assertIn("Wire.endTransmission(true) == 0U", source)
         self.assertIn("const uint32_t remaining = timeout_ms - elapsed", source)
         self.assertIn("Wire.setTimeOut(remaining < 25U ? remaining : 25U)", source)
@@ -531,7 +561,7 @@ class FirmwarePortalTests(unittest.TestCase):
         projects = {project["slug"]: project for project in self.load_catalog()}
         self.assertEqual("3.1.0", projects["ble-mqtt-scanner"]["version"])
         self.assertEqual("1.3.0", projects["bme280-mqtt-sensor"]["version"])
-        self.assertEqual("1.2.0", projects["ntp-desk-clock"]["version"])
+        self.assertEqual("1.3.0", projects["ntp-desk-clock"]["version"])
         self.assertEqual("1.1.0", projects["pico-wifi-surveyor"]["version"])
 
     def test_reboot_museum_clears_nvs_with_checked_clear(self):
