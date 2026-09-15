@@ -33,6 +33,12 @@ const char* dashboardScreenName(DashboardScreen value) {
         case DashboardScreen::Mqtt: return "mqtt";
         case DashboardScreen::Satellite: return "satellite";
         case DashboardScreen::Weather: return "weather";
+        case DashboardScreen::Launch: return "launch";
+        case DashboardScreen::Moon: return "moon";
+        case DashboardScreen::Solar: return "solar";
+        case DashboardScreen::Planet: return "planet";
+        case DashboardScreen::Neo: return "neo";
+        case DashboardScreen::DeepSpace: return "deep-space";
     }
     return "";
 }

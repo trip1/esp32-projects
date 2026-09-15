@@ -3,8 +3,11 @@
 #include <cstddef>
 #include <cstdint>
 
-enum class DashboardScreen : std::uint8_t { Clock = 0, Mqtt = 1, Satellite = 2, Weather = 3 };
-constexpr std::size_t kDashboardScreenCount = 4U;
+enum class DashboardScreen : std::uint8_t {
+    Clock = 0, Mqtt = 1, Satellite = 2, Weather = 3, Launch = 4,
+    Moon = 5, Solar = 6, Planet = 7, Neo = 8, DeepSpace = 9,
+};
+constexpr std::size_t kDashboardScreenCount = 10U;
 
 struct DashboardSchedule {
     DashboardScreen order[kDashboardScreenCount]{};

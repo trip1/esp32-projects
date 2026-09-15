@@ -25,7 +25,7 @@ A public firmware monorepo for four ESP32 boards and four official Raspberry Pi 
 - **MQTT Home Status Panel** — exact-topic trusted-LAN status display on an LCD1602
 - **UniFi Network Panel** — sanitized WAN, latency, client, and AP metrics from a local bridge
 - **Wi-Fi Weather Desk Station** — current Open-Meteo conditions for configured coordinates
-- **LCD1602 Smart Dashboard** — combines clock, MQTT, ISS, and weather screens with web-configured order and duration
+- **LCD1602 Smart Dashboard** — ten configurable screens for clock, MQTT, ISS, weather, launches, Moon, solar activity, planet visibility, near-Earth objects, and Voyager 1
 
 ### Fun
 

@@ -17,22 +17,25 @@
 
 namespace {
 constexpr uint32_t kMagic = 0x4c444153U;
-constexpr uint16_t kVersion = 2U;
+constexpr uint16_t kVersion = 3U;
 constexpr size_t kMaxHeader = 1024U;
-constexpr size_t kMaxBody = 2048U;
+constexpr size_t kMaxBody = 3072U;
 constexpr size_t kMaxRequest = kMaxHeader + kMaxBody;
 constexpr uint32_t kPortalTimeoutMs = 10U * 60U * 1000U;
 constexpr uint32_t kRejectedPendingMarker = 0x44415358U;
 constexpr char kPasswordAlphabet[] = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
 struct StoredConfig { uint32_t magic; uint16_t version; uint16_t reserved; DashboardConfig value; uint32_t crc32; };
+struct LegacyScheduleV2 { DashboardScreen order[4]{}; uint16_t duration_seconds[4]{}; };
+struct LegacyConfigV2 { PanelConfig sources{}; char timezone[65]{}; LegacyScheduleV2 schedule{}; };
+struct LegacyStoredConfigV2 { uint32_t magic; uint16_t version; uint16_t reserved; LegacyConfigV2 value; uint32_t crc32; };
 struct Fields {
     DashboardConfig value{};
     char csrf[17]{};
     char mqtt_port[6]{};
     char order[kDashboardScreenCount][12]{};
     char duration[kDashboardScreenCount][5]{};
-    uint32_t seen = 0U;
+    uint64_t seen = 0U;
 };
 
 RTC_DATA_ATTR uint32_t rejected_pending_marker = 0U;
@@ -81,10 +84,10 @@ bool assign(Fields& fields, const char* name, size_t name_length, const char* va
         fields.seen |= definition.bit; return true;
     }
     for (size_t index = 0U; index < kDashboardScreenCount; ++index) {
-        char order_name[8]{}; char duration_name[24]{};
+        char order_name[9]{}; char duration_name[24]{};
         std::snprintf(order_name, sizeof(order_name), "order_%u", static_cast<unsigned>(index + 1U));
         std::snprintf(duration_name, sizeof(duration_name), "duration_%s", dashboardScreenName(static_cast<DashboardScreen>(index)));
-        const uint32_t order_bit = 1U << (12U + index); const uint32_t duration_bit = 1U << (16U + index);
+        const uint64_t order_bit = 1ULL << (12U + index); const uint64_t duration_bit = 1ULL << (22U + index);
         if (std::strlen(order_name) == name_length && std::memcmp(name, order_name, name_length) == 0) {
             if ((fields.seen & order_bit) != 0U || !decode(value, value_length, fields.order[index], sizeof(fields.order[index]))) return false;
             fields.seen |= order_bit; return true;
@@ -101,13 +104,13 @@ bool parseForm(const char* body, size_t length, Fields& fields) {
     if (body == nullptr || length == 0U || length > kMaxBody) return false;
     size_t start = 0U; unsigned count = 0U;
     while (start < length) {
-        if (++count > 20U) return false;
+        if (++count > 32U) return false;
         size_t end = start; while (end < length && body[end] != '&') ++end;
         size_t equals = start; while (equals < end && body[equals] != '=') ++equals;
         if (equals == start || equals == end || !assign(fields, body + start, equals - start, body + equals + 1U, end - equals - 1U)) return false;
         start = end + 1U;
     }
-    if (fields.seen != 0xfffffU) return false;
+    if (fields.seen != 0xffffffffULL) return false;
     unsigned port = 0U;
     for (const char* digit = fields.mqtt_port; *digit != '\0'; ++digit) { if (*digit < '0' || *digit > '9') return false; port = port * 10U + static_cast<unsigned>(*digit - '0'); if (port > 65535U) return false; }
     fields.value.sources.mqtt_port = static_cast<uint16_t>(port);
@@ -128,8 +131,8 @@ void appendEscaped(String& output, const char* value) {
 }
 
 void addScreenOptions(String& output, size_t selected) {
-    static constexpr const char* values[] = {"clock", "mqtt", "satellite", "weather"};
-    static constexpr const char* labels[] = {"Clock", "MQTT Home", "Satellite", "Weather"};
+    static constexpr const char* values[] = {"clock", "mqtt", "satellite", "weather", "launch", "moon", "solar", "planet", "neo", "deep-space"};
+    static constexpr const char* labels[] = {"Clock", "MQTT Home", "ISS", "Weather", "Next Launch", "Moon", "Solar Activity", "Planet Visibility", "Near-Earth Object", "Deep-Space Mission"};
     for (size_t index = 0U; index < kDashboardScreenCount; ++index) {
         output += F("<option value="); output += values[index];
         if (index == selected) output += F(" selected");
@@ -144,8 +147,8 @@ void addTextInput(String& output, const char* label, const char* name, size_t ma
 }
 
 String page(const char* message = nullptr, const DashboardConfig* preset = nullptr) {
-    String output; output.reserve(9000U);
-    output += F("<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content='width=device-width'><title>LCD1602 Smart Dashboard setup</title><style>body{font:16px system-ui;max-width:44rem;margin:2rem auto;padding:0 1rem;background:#0b1020;color:#e8eefc}main,fieldset{background:#151d33;padding:1rem;border-radius:14px;border:1px solid #354263;margin:1rem 0}label{display:block;margin:.65rem 0}input,select{box-sizing:border-box;width:100%;padding:.65rem;background:#0b1020;color:#fff;border:1px solid #52638f;border-radius:8px}.row{display:grid;grid-template-columns:2fr 1fr;gap:.75rem}button{padding:.8rem 1rem;background:#62d6a7;border:0;border-radius:8px;font-weight:700}</style></head><body><main><h1>LCD1602 Smart Dashboard</h1><p>Configure all four screens, their order, and display duration. Settings are tested before promotion.</p>");
+    String output; output.reserve(16000U);
+    output += F("<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content='width=device-width'><title>LCD1602 Smart Dashboard setup</title><style>body{font:16px system-ui;max-width:44rem;margin:2rem auto;padding:0 1rem;background:#0b1020;color:#e8eefc}main,fieldset{background:#151d33;padding:1rem;border-radius:14px;border:1px solid #354263;margin:1rem 0}label{display:block;margin:.65rem 0}input,select{box-sizing:border-box;width:100%;padding:.65rem;background:#0b1020;color:#fff;border:1px solid #52638f;border-radius:8px}.row{display:grid;grid-template-columns:2fr 1fr;gap:.75rem}button{padding:.8rem 1rem;background:#62d6a7;border:0;border-radius:8px;font-weight:700}</style></head><body><main><h1>LCD1602 Smart Dashboard</h1><p>Configure all ten screens, their order, and display duration. Space screens use your weather coordinates with the DS9 launch tracker bridge. Settings are tested before promotion.</p>");
     if (message) { output += F("<p role=alert><strong>"); appendEscaped(output, message); output += F("</strong></p>"); }
     output += F("<form method=post action=/save><input type=hidden name=csrf value='"); output += csrf_token;
     output += F("'><fieldset><legend>Network and clock</legend>");
@@ -165,7 +168,7 @@ String page(const char* message = nullptr, const DashboardConfig* preset = nullp
         const size_t selected=preset?static_cast<size_t>(preset->schedule.order[index]):index;output += F("<label>Position "); output += String(index + 1U); output += F("<select name=order_"); output += String(index + 1U); output += F(" required>"); addScreenOptions(output, selected); output += F("</select></label>");
     }
     output += F("<h2>Duration for each screen</h2>");
-    static constexpr const char* duration_labels[] = {"Clock", "MQTT Home", "Satellite", "Weather"};
+    static constexpr const char* duration_labels[] = {"Clock", "MQTT Home", "ISS", "Weather", "Next Launch", "Moon", "Solar Activity", "Planet Visibility", "Near-Earth Object", "Deep-Space Mission"};
     for (size_t index = 0U; index < kDashboardScreenCount; ++index) {
         output += F("<label>"); output += duration_labels[index]; output += F(" seconds<input type=number min=5 max=3600 name=duration_");
         output += dashboardScreenName(static_cast<DashboardScreen>(index)); output += F(" value="); output += String(preset?preset->schedule.duration_seconds[index]:15U); output += F(" required></label>");
@@ -204,6 +207,19 @@ bool loadExact(const char* key, DashboardConfig& value) {
     if (read!=sizeof(stored)||stored.magic!=kMagic||stored.version!=kVersion||stored.reserved!=0U||stored.crc32!=checksum(stored)||!dashboardConfigValid(stored.value)) return false;
     value=stored.value; return true;
 }
+
+bool loadLegacyV2(const char* key, DashboardConfig& value) {
+    Preferences preferences; if (!preferences.begin("lcddash", true)) return false; LegacyStoredConfigV2 stored{};
+    const size_t length=preferences.getBytesLength(key); const size_t read=length==sizeof(stored)?preferences.getBytes(key,&stored,sizeof(stored)):0U; preferences.end();
+    const uint32_t crc=panelCrc32(reinterpret_cast<const unsigned char*>(&stored),offsetof(LegacyStoredConfigV2,crc32));
+    if(read!=sizeof(stored)||stored.magic!=kMagic||stored.version!=2U||stored.reserved!=0U||stored.crc32!=crc)return false;
+    value.sources=stored.value.sources;std::memcpy(value.timezone,stored.value.timezone,sizeof(value.timezone));
+    for(size_t index=0U;index<4U;++index){const uint8_t raw=static_cast<uint8_t>(stored.value.schedule.order[index]);if(raw>=4U)return false;value.schedule.order[index]=static_cast<DashboardScreen>(raw);value.schedule.duration_seconds[index]=stored.value.schedule.duration_seconds[index];}
+    for(size_t index=4U;index<kDashboardScreenCount;++index){value.schedule.order[index]=static_cast<DashboardScreen>(index);value.schedule.duration_seconds[index]=15U;}
+    return dashboardConfigValid(value);
+}
+
+bool loadAny(const char* key, DashboardConfig& value) { return loadExact(key,value)||loadLegacyV2(key,value); }
 
 bool loadForceBackupMarker(uint32_t& marker) {
     nvs_handle_t handle = 0;
@@ -247,11 +263,11 @@ bool dashboardLoadConfig(const char* key, DashboardConfig& value) {
     if (std::strcmp(key, "active") == 0) {
         uint32_t force_backup_marker = 0U;
         if (!loadForceBackupMarker(force_backup_marker)) return false;
-        if (force_backup_marker == kRejectedPendingMarker) return loadExact("backup", value);
-        if (loadExact("active", value)) return true;
-        return loadExact("backup", value);
+        if (force_backup_marker == kRejectedPendingMarker) return loadAny("backup", value);
+        if (loadAny("active", value)) return true;
+        return loadAny("backup", value);
     }
-    return loadExact(key, value);
+    return loadAny(key, value);
 }
 bool dashboardStoreConfig(const char* key, const DashboardConfig& value) {
     if (!dashboardConfigValid(value)) return false;
@@ -314,6 +330,6 @@ void dashboardHandleProvisioning() {
         send(client, 500, "Storage Error", page("Settings could not be saved.", &fields.value)); client.stop(); return;
     }
     rejected_pending_marker = 0U;
-    send(client, 200, "OK", page("Saved. The dashboard will reboot and test every source.", &fields.value));
+    send(client, 200, "OK", page("Saved. The dashboard will reboot and verify Wi-Fi, time, MQTT, and weather.", &fields.value));
     client.stop(); restart_requested = true;
 }

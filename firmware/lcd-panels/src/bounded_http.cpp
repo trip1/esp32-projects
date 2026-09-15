@@ -5,6 +5,7 @@
 #include <WiFiClientSecure.h>
 
 #include <cctype>
+#include <cmath>
 #include <cstdio>
 #include <cstring>
 
@@ -147,7 +148,7 @@ bool readChunked(Client& client, char* output, size_t capacity, uint32_t started
     }
 }
 
-bool exchange(Client& client, const ParsedUrl& parsed, char* output, size_t capacity) {
+bool exchange(Client& client, const ParsedUrl& parsed, const char* coordinate_headers, char* output, size_t capacity) {
     char request[512]{};
     char host_header[160]{};
     const bool default_port = (parsed.secure && parsed.port == 443U) || (!parsed.secure && parsed.port == 80U);
@@ -155,7 +156,7 @@ bool exchange(Client& client, const ParsedUrl& parsed, char* output, size_t capa
                                          : std::snprintf(host_header, sizeof(host_header), "%s:%u", parsed.host, parsed.port);
     if (host_length <= 0 || static_cast<size_t>(host_length) >= sizeof(host_header)) return false;
     const int request_length = std::snprintf(request, sizeof(request),
-        "GET %s HTTP/1.1\r\nHost: %s\r\nAccept: application/json\r\nConnection: close\r\n\r\n", parsed.path, host_header);
+        "GET %s HTTP/1.1\r\nHost: %s\r\nAccept: application/json\r\n%sConnection: close\r\n\r\n", parsed.path, host_header, coordinate_headers == nullptr ? "" : coordinate_headers);
     if (request_length <= 0 || static_cast<size_t>(request_length) >= sizeof(request)
         || client.write(reinterpret_cast<const uint8_t*>(request), static_cast<size_t>(request_length)) != static_cast<size_t>(request_length)) return false;
     const uint32_t started = millis();
@@ -181,9 +182,8 @@ bool exchange(Client& client, const ParsedUrl& parsed, char* output, size_t capa
     return chunked_seen ? readChunked(client, output, capacity, started)
                         : content_length != 0U && readContentLength(client, output, capacity, content_length, started);
 }
-}
 
-bool panelHttpGetBounded(const char* url, const char* ca_certificate, char* output, std::size_t capacity) {
+bool get(const char* url, const char* ca_certificate, const char* coordinate_headers, char* output, std::size_t capacity) {
     ParsedUrl parsed{};
     if (output == nullptr || capacity < 2U || capacity > 2049U || !parseUrl(url, parsed)) return false;
     bool result = false;
@@ -193,15 +193,28 @@ bool panelHttpGetBounded(const char* url, const char* ca_certificate, char* outp
         client.setCACert(ca_certificate);
         client.setHandshakeTimeout(3U);
         client.setTimeout(3000U);
-        if (client.connect(parsed.host, parsed.port, 3000)) result = exchange(client, parsed, output, capacity);
+        if (client.connect(parsed.host, parsed.port, 3000)) result = exchange(client, parsed, coordinate_headers, output, capacity);
         client.stop();
     } else {
         IPAddress address;
         if (!address.fromString(parsed.host)) return false;
         WiFiClient client;
         client.setTimeout(3000U);
-        if (client.connect(address, parsed.port, 3000)) result = exchange(client, parsed, output, capacity);
+        if (client.connect(address, parsed.port, 3000)) result = exchange(client, parsed, coordinate_headers, output, capacity);
         client.stop();
     }
     return result;
+}
+}
+
+bool panelHttpGetBounded(const char* url, const char* ca_certificate, char* output, std::size_t capacity) {
+    return get(url, ca_certificate, nullptr, output, capacity);
+}
+
+bool panelHttpGetBoundedAt(const char* url, const char* ca_certificate, double latitude, double longitude, char* output, std::size_t capacity) {
+    if (!std::isfinite(latitude) || latitude < -90.0 || latitude > 90.0 || !std::isfinite(longitude) || longitude < -180.0 || longitude > 180.0) return false;
+    char headers[96]{};
+    const int length = std::snprintf(headers, sizeof(headers), "X-LCD-Latitude: %.1f\r\nX-LCD-Longitude: %.1f\r\n", latitude, longitude);
+    if (length <= 0 || static_cast<size_t>(length) >= sizeof(headers)) return false;
+    return get(url, ca_certificate, headers, output, capacity);
 }

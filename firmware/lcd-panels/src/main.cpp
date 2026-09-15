@@ -48,7 +48,7 @@ struct FetchArguments {
 
 void fetchTask(void* raw) {
     auto* arguments = static_cast<FetchArguments*>(raw);
-    const bool success = panelHttpGetBounded(arguments->url, PANEL_ISRG_ROOT_X1, arguments->output, arguments->capacity);
+    const bool success = panelHttpGetBounded(arguments->url, PANEL_PUBLIC_ROOTS, arguments->output, arguments->capacity);
     xQueueSend(arguments->completed, &success, 0U);
     vTaskSuspend(nullptr);
 }

@@ -109,16 +109,16 @@ class FirmwarePortalTests(unittest.TestCase):
 
     def test_lcd1602_smart_dashboard_combines_all_screens(self):
         project = next(project for project in self.load_catalog() if project["slug"] == "lcd1602-smart-dashboard")
-        self.assertEqual("1.1.0", project["version"])
+        self.assertEqual("2.0.0", project["version"])
         self.assertEqual(set(ESP_TARGETS), {target["id"] for target in project["targets"]})
-        self.assertIn("four-screen order", project["setup"]["summary"])
+        self.assertIn("ten-screen order", project["setup"]["summary"])
         self.assertNotIn("UniFi", project["description"])
         self.assertNotIn("UniFi summary bridge URL", project["setup"]["fields"])
         root = ROOT / project["project_dir"]
         source = (root / "src" / "dashboard_main.cpp").read_text()
         config_source = (root / "src" / "dashboard_config.cpp").read_text()
         logic = (root / "src" / "dashboard_logic.cpp").read_text()
-        for required in ("DashboardScreen::Clock", "DashboardScreen::Mqtt", "DashboardScreen::Satellite", "DashboardScreen::Weather", "sntp_set_time_sync_notification_cb", "serviceRefresh"):
+        for required in ("DashboardScreen::Clock", "DashboardScreen::Mqtt", "DashboardScreen::Satellite", "DashboardScreen::Weather", "DashboardScreen::Launch", "DashboardScreen::Moon", "DashboardScreen::Solar", "DashboardScreen::Planet", "DashboardScreen::Neo", "DashboardScreen::DeepSpace", "api.justsome.space/v1/lcd/space", "sntp_set_time_sync_notification_cb", "serviceRefresh"):
             self.assertIn(required, source)
         self.assertNotIn("DashboardScreen::Unifi", source)
         self.assertNotIn("fetchUnifi", source)
@@ -126,7 +126,7 @@ class FirmwarePortalTests(unittest.TestCase):
             self.assertIn(required, config_source)
         self.assertIn("dashboardSlotExpired", logic)
         self.assertIn("dashboardDurationForSlot", logic)
-        self.assertIn('if (force_backup_marker == kRejectedPendingMarker) return loadExact("backup", value);', config_source)
+        self.assertIn('if (force_backup_marker == kRejectedPendingMarker) return loadAny("backup", value);', config_source)
         self.assertIn('nvs_set_u32(handle, "forcebak"', config_source)
         self.assertIn('nvs_get_u32(handle, "forcebak"', config_source)
         self.assertNotIn('RTC_DATA_ATTR uint32_t force_backup_marker', config_source)
@@ -134,6 +134,14 @@ class FirmwarePortalTests(unittest.TestCase):
             self.assertIn(message, config_source)
         self.assertNotIn("unifi_url", config_source)
         self.assertNotIn("UniFi bridge", config_source)
+        self.assertIn("0xffffffffULL", config_source)
+        self.assertIn("count > 32U", config_source)
+        self.assertIn("kVersion = 3U", config_source)
+        self.assertIn("loadLegacyV2", config_source)
+        self.assertIn("stored.version!=2U", config_source)
+        ca_source = (root / "include" / "panel_ca.h").read_text()
+        self.assertIn("PANEL_PUBLIC_ROOTS", ca_source)
+        self.assertIn("MIICCTCCAY6g", ca_source)
         self.assertIn('role=alert', config_source)
         self.assertIn('return mqtt_ok && fetchWeather(candidate);', source)
         self.assertIn('for (;;) delay(1000)', source)

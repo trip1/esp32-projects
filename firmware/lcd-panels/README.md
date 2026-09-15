@@ -6,7 +6,7 @@ Five browser-flashable LCD1602 projects share bounded drivers and four exact ESP
 - **UniFi Network Panel** reads a normalized metrics bridge. The bridge keeps the powerful UniFi API key off the display and returns only WAN state, latency, client count, AP count, and a freshness timestamp.
 - **Space and Satellite Tracker** polls the public Where the ISS at endpoint for NORAD 25544 every ten seconds.
 - **Wi-Fi Weather Desk Station** polls Open-Meteo current temperature, humidity, and WMO condition data every ten minutes for configured coordinates.
-- **LCD1602 Smart Dashboard** combines four screen types. Its protected web setup orders Clock, MQTT Home, Satellite, and Weather exactly once and assigns each named project its own display duration from 5 to 3600 seconds, so reordering does not transfer durations. Hold BOOT during the recovery window to reopen configuration. Version 1.1.0 removes UniFi and uses a new configuration schema, so existing dashboard settings must be entered again after upgrading.
+- **LCD1602 Smart Dashboard** combines ten screen types: Clock, MQTT Home, ISS, Weather, Next Launch, Moon, Solar Activity, Planet Visibility, Near-Earth Object, and Deep-Space Mission. Its protected setup orders every screen exactly once and assigns each screen its own 5-3600 second duration. The six space-summary screens refresh through `https://api.justsome.space/v1/lcd/space`; the request rounds configured coordinates to one decimal degree for planet visibility. Version 2.0.0 uses configuration schema v3; schema-v2 Wi-Fi, MQTT, weather, ordering, and duration settings migrate in memory, with the six new screens appended at 15 seconds each.
 
 ## Hardware and wiring
 
@@ -50,7 +50,7 @@ The local Network Integration API base is normally `https://<console>/proxy/netw
 - HTTP operations use fixed buffers with 2048-byte aggregate headers, 256-byte header/chunk lines, a 2048-byte body cap, strict content-length/chunked framing, and a disposable task with an eight-second outer deadline. A deadline overrun restarts the device to reset transport state.
 - MQTT accepts only a numeric RFC1918 broker address and one exact topic. Its local protocol client requires successful CONNACK and SUBACK, rejects oversized remaining lengths before draining them, caps packets and payloads, applies a six-second connect/subscribe deadline, disconnects two-second drip-fed packets, and uses ten-second reconnect backoff. Plain MQTT is suitable only on a trusted LAN.
 - API errors retain no unbounded response and render an explicit unavailable state.
-- Smart Dashboard runs at most one HTTP refresh worker at a time. LCD rotation and MQTT servicing continue while ISS or weather requests are in flight; snapshots cross tasks through a critical-section-protected fixed frame.
+- Smart Dashboard runs at most one HTTP refresh worker at a time. LCD rotation and MQTT servicing continue while ISS, weather, or the five-minute DS9 space summary is in flight; snapshots cross tasks through a critical-section-protected fixed frame. Public feed failures affect only their cached/unavailable screens and do not block configuration promotion.
 
 ## Build and test
 

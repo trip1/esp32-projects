@@ -110,6 +110,15 @@ jobs:
         run: pio run -d firmware/esp32-diagnostics
       - name: Build LCD1602 network panel firmware
         run: pio run -d firmware/lcd-panels
+      - name: Test LCD1602 space response contract
+        run: >-
+          g++ -std=c++17 -Wall -Wextra -Werror
+          -I firmware/lcd-panels/include
+          -I firmware/lcd-panels/.pio/libdeps/smart-dashboard--esp32/ArduinoJson/src
+          firmware/lcd-panels/src/dashboard_space.cpp
+          firmware/lcd-panels/test/dashboard_space_native/test_main.cpp
+          -o /tmp/dashboard-space-tests
+          && /tmp/dashboard-space-tests
       - name: Assemble static portal
         run: python scripts/build_site.py --output _site
       - name: Upload Pages artifact
