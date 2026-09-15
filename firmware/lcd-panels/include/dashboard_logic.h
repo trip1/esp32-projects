@@ -3,11 +3,12 @@
 #include <cstddef>
 #include <cstdint>
 
-enum class DashboardScreen : std::uint8_t { Clock = 0, Mqtt = 1, Unifi = 2, Satellite = 3, Weather = 4 };
+enum class DashboardScreen : std::uint8_t { Clock = 0, Mqtt = 1, Satellite = 2, Weather = 3 };
+constexpr std::size_t kDashboardScreenCount = 4U;
 
 struct DashboardSchedule {
-    DashboardScreen order[5]{};
-    std::uint16_t duration_seconds[5]{};
+    DashboardScreen order[kDashboardScreenCount]{};
+    std::uint16_t duration_seconds[kDashboardScreenCount]{};
 };
 
 bool dashboardScheduleValid(const DashboardSchedule& value);

@@ -3,22 +3,22 @@
 #include <cstring>
 
 bool dashboardScheduleValid(const DashboardSchedule& value) {
-    bool seen[5]{};
-    for (std::size_t index = 0U; index < 5U; ++index) {
+    bool seen[kDashboardScreenCount]{};
+    for (std::size_t index = 0U; index < kDashboardScreenCount; ++index) {
         const auto screen = static_cast<std::uint8_t>(value.order[index]);
-        if (screen >= 5U || seen[screen] || value.duration_seconds[index] < 5U || value.duration_seconds[index] > 3600U) return false;
+        if (screen >= kDashboardScreenCount || seen[screen] || value.duration_seconds[index] < 5U || value.duration_seconds[index] > 3600U) return false;
         seen[screen] = true;
     }
     return true;
 }
 
 std::size_t dashboardNextSlot(const DashboardSchedule& value, std::size_t current_slot) {
-    if (!dashboardScheduleValid(value) || current_slot >= 5U) return 0U;
-    return (current_slot + 1U) % 5U;
+    if (!dashboardScheduleValid(value) || current_slot >= kDashboardScreenCount) return 0U;
+    return (current_slot + 1U) % kDashboardScreenCount;
 }
 
 std::uint16_t dashboardDurationForSlot(const DashboardSchedule& value, std::size_t slot) {
-    if (!dashboardScheduleValid(value) || slot >= 5U) return 0U;
+    if (!dashboardScheduleValid(value) || slot >= kDashboardScreenCount) return 0U;
     return value.duration_seconds[static_cast<std::uint8_t>(value.order[slot])];
 }
 
@@ -31,7 +31,6 @@ const char* dashboardScreenName(DashboardScreen value) {
     switch (value) {
         case DashboardScreen::Clock: return "clock";
         case DashboardScreen::Mqtt: return "mqtt";
-        case DashboardScreen::Unifi: return "unifi";
         case DashboardScreen::Satellite: return "satellite";
         case DashboardScreen::Weather: return "weather";
     }
@@ -40,7 +39,7 @@ const char* dashboardScreenName(DashboardScreen value) {
 
 bool dashboardParseScreen(const char* value, DashboardScreen& output) {
     if (value == nullptr) return false;
-    for (std::uint8_t raw = 0U; raw < 5U; ++raw) {
+    for (std::uint8_t raw = 0U; raw < kDashboardScreenCount; ++raw) {
         const auto candidate = static_cast<DashboardScreen>(raw);
         if (std::strcmp(value, dashboardScreenName(candidate)) == 0) {
             output = candidate;

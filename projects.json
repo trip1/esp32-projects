@@ -2913,12 +2913,12 @@
   {
     "slug": "lcd1602-smart-dashboard",
     "name": "LCD1602 Smart Dashboard",
-    "version": "1.0.1",
+    "version": "1.1.0",
     "category": "Practical",
-    "description": "Combines clock, MQTT Home, UniFi, ISS tracking, and weather screens in one LCD1602 firmware with configurable order and per-screen duration.",
+    "description": "Combines clock, MQTT Home, ISS tracking, and weather screens in one LCD1602 firmware with configurable order and per-screen duration.",
     "hardware": "Inland KS0061 LCD1602 or compatible HD44780 16x2 LCD with common PCF8574 mapping at configured address 0x27, powered through a bidirectional I2C level shifter",
     "features": [
-      "Five combined LCD1602 screens",
+      "Four combined LCD1602 screens",
       "Web-configured screen order",
       "Per-screen duration from 5 to 3600 seconds",
       "Protected first-boot setup",
@@ -3158,14 +3158,13 @@
     ],
     "setup": {
       "required": true,
-      "summary": "Open the protected setup page to enter all network sources, timezone, screen order, and a 5-3600 second duration for each screen.",
+      "summary": "Open the protected setup page to enter Wi-Fi, MQTT, weather coordinates, timezone, four-screen order, and a 5-3600 second duration for each screen.",
       "fields": [
         "Wi-Fi",
         "Timezone",
         "MQTT broker and topic",
-        "UniFi summary bridge URL",
         "Weather coordinates",
-        "Five-screen order",
+        "Four-screen order",
         "Duration for each screen"
       ]
     }

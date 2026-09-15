@@ -109,15 +109,19 @@ class FirmwarePortalTests(unittest.TestCase):
 
     def test_lcd1602_smart_dashboard_combines_all_screens(self):
         project = next(project for project in self.load_catalog() if project["slug"] == "lcd1602-smart-dashboard")
-        self.assertEqual("1.0.1", project["version"])
+        self.assertEqual("1.1.0", project["version"])
         self.assertEqual(set(ESP_TARGETS), {target["id"] for target in project["targets"]})
-        self.assertIn("screen order", project["setup"]["summary"])
+        self.assertIn("four-screen order", project["setup"]["summary"])
+        self.assertNotIn("UniFi", project["description"])
+        self.assertNotIn("UniFi summary bridge URL", project["setup"]["fields"])
         root = ROOT / project["project_dir"]
         source = (root / "src" / "dashboard_main.cpp").read_text()
         config_source = (root / "src" / "dashboard_config.cpp").read_text()
         logic = (root / "src" / "dashboard_logic.cpp").read_text()
-        for required in ("DashboardScreen::Clock", "DashboardScreen::Mqtt", "DashboardScreen::Unifi", "DashboardScreen::Satellite", "DashboardScreen::Weather", "sntp_set_time_sync_notification_cb", "serviceRefresh"):
+        for required in ("DashboardScreen::Clock", "DashboardScreen::Mqtt", "DashboardScreen::Satellite", "DashboardScreen::Weather", "sntp_set_time_sync_notification_cb", "serviceRefresh"):
             self.assertIn(required, source)
+        self.assertNotIn("DashboardScreen::Unifi", source)
+        self.assertNotIn("fetchUnifi", source)
         for required in ("order_", "duration_%s", "min=5 max=3600", "Content-Security-Policy", "dashboardStoreConfig(\"pending\"", "<title>", "<html lang=en>", "Leave blank to keep current"):
             self.assertIn(required, config_source)
         self.assertIn("dashboardSlotExpired", logic)
@@ -126,11 +130,12 @@ class FirmwarePortalTests(unittest.TestCase):
         self.assertIn('nvs_set_u32(handle, "forcebak"', config_source)
         self.assertIn('nvs_get_u32(handle, "forcebak"', config_source)
         self.assertNotIn('RTC_DATA_ATTR uint32_t force_backup_marker', config_source)
-        for message in ("request is incomplete", "setup session expired", "timezone", "screen order", "MQTT", "UniFi", "weather"):
+        for message in ("request is incomplete", "setup session expired", "timezone", "screen order", "MQTT", "weather"):
             self.assertIn(message, config_source)
+        self.assertNotIn("unifi_url", config_source)
+        self.assertNotIn("UniFi bridge", config_source)
         self.assertIn('role=alert', config_source)
-        self.assertIn('return mqtt_ok && fetchUnifi(candidate) && fetchWeather(candidate);', source)
-        self.assertNotIn('mqtt_ok&&fetchUnifi(candidate)&&fetchSatellite(candidate)&&fetchWeather(candidate)', source)
+        self.assertIn('return mqtt_ok && fetchWeather(candidate);', source)
         self.assertIn('for (;;) delay(1000)', source)
         platform = configparser.ConfigParser(interpolation=None)
         platform.read(root / "platformio.ini")

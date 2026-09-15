@@ -17,7 +17,7 @@
 
 namespace {
 constexpr uint32_t kMagic = 0x4c444153U;
-constexpr uint16_t kVersion = 1U;
+constexpr uint16_t kVersion = 2U;
 constexpr size_t kMaxHeader = 1024U;
 constexpr size_t kMaxBody = 2048U;
 constexpr size_t kMaxRequest = kMaxHeader + kMaxBody;
@@ -30,8 +30,8 @@ struct Fields {
     DashboardConfig value{};
     char csrf[17]{};
     char mqtt_port[6]{};
-    char order[5][12]{};
-    char duration[5][5]{};
+    char order[kDashboardScreenCount][12]{};
+    char duration[kDashboardScreenCount][5]{};
     uint32_t seen = 0U;
 };
 
@@ -71,20 +71,20 @@ bool assign(Fields& fields, const char* name, size_t name_length, const char* va
         {"wifi_password",1U<<2,fields.value.sources.wifi_password,sizeof(fields.value.sources.wifi_password)}, {"mqtt_host",1U<<3,fields.value.sources.mqtt_host,sizeof(fields.value.sources.mqtt_host)},
         {"mqtt_port",1U<<4,fields.mqtt_port,sizeof(fields.mqtt_port)}, {"mqtt_username",1U<<5,fields.value.sources.mqtt_username,sizeof(fields.value.sources.mqtt_username)},
         {"mqtt_password",1U<<6,fields.value.sources.mqtt_password,sizeof(fields.value.sources.mqtt_password)}, {"mqtt_topic",1U<<7,fields.value.sources.mqtt_topic,sizeof(fields.value.sources.mqtt_topic)},
-        {"label",1U<<8,fields.value.sources.label,sizeof(fields.value.sources.label)}, {"unifi_url",1U<<9,fields.value.sources.unifi_url,sizeof(fields.value.sources.unifi_url)},
-        {"latitude",1U<<10,fields.value.sources.latitude,sizeof(fields.value.sources.latitude)}, {"longitude",1U<<11,fields.value.sources.longitude,sizeof(fields.value.sources.longitude)},
-        {"timezone",1U<<12,fields.value.timezone,sizeof(fields.value.timezone)},
+        {"label",1U<<8,fields.value.sources.label,sizeof(fields.value.sources.label)},
+        {"latitude",1U<<9,fields.value.sources.latitude,sizeof(fields.value.sources.latitude)}, {"longitude",1U<<10,fields.value.sources.longitude,sizeof(fields.value.sources.longitude)},
+        {"timezone",1U<<11,fields.value.timezone,sizeof(fields.value.timezone)},
     };
     for (const auto& definition : definitions) {
         if (std::strlen(definition.name) != name_length || std::memcmp(name, definition.name, name_length) != 0) continue;
         if ((fields.seen & definition.bit) != 0U || !decode(value, value_length, definition.output, definition.capacity)) return false;
         fields.seen |= definition.bit; return true;
     }
-    for (size_t index = 0U; index < 5U; ++index) {
+    for (size_t index = 0U; index < kDashboardScreenCount; ++index) {
         char order_name[8]{}; char duration_name[24]{};
         std::snprintf(order_name, sizeof(order_name), "order_%u", static_cast<unsigned>(index + 1U));
         std::snprintf(duration_name, sizeof(duration_name), "duration_%s", dashboardScreenName(static_cast<DashboardScreen>(index)));
-        const uint32_t order_bit = 1U << (13U + index); const uint32_t duration_bit = 1U << (18U + index);
+        const uint32_t order_bit = 1U << (12U + index); const uint32_t duration_bit = 1U << (16U + index);
         if (std::strlen(order_name) == name_length && std::memcmp(name, order_name, name_length) == 0) {
             if ((fields.seen & order_bit) != 0U || !decode(value, value_length, fields.order[index], sizeof(fields.order[index]))) return false;
             fields.seen |= order_bit; return true;
@@ -101,17 +101,17 @@ bool parseForm(const char* body, size_t length, Fields& fields) {
     if (body == nullptr || length == 0U || length > kMaxBody) return false;
     size_t start = 0U; unsigned count = 0U;
     while (start < length) {
-        if (++count > 23U) return false;
+        if (++count > 20U) return false;
         size_t end = start; while (end < length && body[end] != '&') ++end;
         size_t equals = start; while (equals < end && body[equals] != '=') ++equals;
         if (equals == start || equals == end || !assign(fields, body + start, equals - start, body + equals + 1U, end - equals - 1U)) return false;
         start = end + 1U;
     }
-    if (fields.seen != 0x7fffffU) return false;
+    if (fields.seen != 0xfffffU) return false;
     unsigned port = 0U;
     for (const char* digit = fields.mqtt_port; *digit != '\0'; ++digit) { if (*digit < '0' || *digit > '9') return false; port = port * 10U + static_cast<unsigned>(*digit - '0'); if (port > 65535U) return false; }
     fields.value.sources.mqtt_port = static_cast<uint16_t>(port);
-    for (size_t index = 0U; index < 5U; ++index) {
+    for (size_t index = 0U; index < kDashboardScreenCount; ++index) {
         if (!dashboardParseScreen(fields.order[index], fields.value.schedule.order[index])) return false;
         unsigned duration = 0U;
         for (const char* digit = fields.duration[index]; *digit != '\0'; ++digit) { if (*digit < '0' || *digit > '9') return false; duration = duration * 10U + static_cast<unsigned>(*digit - '0'); }
@@ -128,9 +128,9 @@ void appendEscaped(String& output, const char* value) {
 }
 
 void addScreenOptions(String& output, size_t selected) {
-    static constexpr const char* values[] = {"clock", "mqtt", "unifi", "satellite", "weather"};
-    static constexpr const char* labels[] = {"Clock", "MQTT Home", "UniFi", "Satellite", "Weather"};
-    for (size_t index = 0U; index < 5U; ++index) {
+    static constexpr const char* values[] = {"clock", "mqtt", "satellite", "weather"};
+    static constexpr const char* labels[] = {"Clock", "MQTT Home", "Satellite", "Weather"};
+    for (size_t index = 0U; index < kDashboardScreenCount; ++index) {
         output += F("<option value="); output += values[index];
         if (index == selected) output += F(" selected");
         output += '>'; output += labels[index]; output += F("</option>");
@@ -145,7 +145,7 @@ void addTextInput(String& output, const char* label, const char* name, size_t ma
 
 String page(const char* message = nullptr, const DashboardConfig* preset = nullptr) {
     String output; output.reserve(9000U);
-    output += F("<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content='width=device-width'><title>LCD1602 Smart Dashboard setup</title><style>body{font:16px system-ui;max-width:44rem;margin:2rem auto;padding:0 1rem;background:#0b1020;color:#e8eefc}main,fieldset{background:#151d33;padding:1rem;border-radius:14px;border:1px solid #354263;margin:1rem 0}label{display:block;margin:.65rem 0}input,select{box-sizing:border-box;width:100%;padding:.65rem;background:#0b1020;color:#fff;border:1px solid #52638f;border-radius:8px}.row{display:grid;grid-template-columns:2fr 1fr;gap:.75rem}button{padding:.8rem 1rem;background:#62d6a7;border:0;border-radius:8px;font-weight:700}</style></head><body><main><h1>LCD1602 Smart Dashboard</h1><p>Configure all five screens, their order, and display duration. Settings are tested before promotion.</p>");
+    output += F("<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content='width=device-width'><title>LCD1602 Smart Dashboard setup</title><style>body{font:16px system-ui;max-width:44rem;margin:2rem auto;padding:0 1rem;background:#0b1020;color:#e8eefc}main,fieldset{background:#151d33;padding:1rem;border-radius:14px;border:1px solid #354263;margin:1rem 0}label{display:block;margin:.65rem 0}input,select{box-sizing:border-box;width:100%;padding:.65rem;background:#0b1020;color:#fff;border:1px solid #52638f;border-radius:8px}.row{display:grid;grid-template-columns:2fr 1fr;gap:.75rem}button{padding:.8rem 1rem;background:#62d6a7;border:0;border-radius:8px;font-weight:700}</style></head><body><main><h1>LCD1602 Smart Dashboard</h1><p>Configure all four screens, their order, and display duration. Settings are tested before promotion.</p>");
     if (message) { output += F("<p role=alert><strong>"); appendEscaped(output, message); output += F("</strong></p>"); }
     output += F("<form method=post action=/save><input type=hidden name=csrf value='"); output += csrf_token;
     output += F("'><fieldset><legend>Network and clock</legend>");
@@ -160,14 +160,13 @@ String page(const char* message = nullptr, const DashboardConfig* preset = nullp
     addTextInput(output,"Username","mqtt_username",64U,preset?preset->sources.mqtt_username:"",false);
     output += F("<label>MQTT password<input type=password autocomplete=new-password name=mqtt_password maxlength=64 placeholder='Leave blank to keep current'></label>");
     addTextInput(output,"Exact topic","mqtt_topic",128U,preset?preset->sources.mqtt_topic:"");addTextInput(output,"Display label","label",16U,preset?preset->sources.label:"");
-    output += F("</fieldset><fieldset><legend>UniFi bridge</legend>");addTextInput(output,"Summary URL","unifi_url",160U,preset?preset->sources.unifi_url:"");
     output += F("</fieldset><fieldset><legend>Weather</legend>");addTextInput(output,"Latitude","latitude",16U,preset?preset->sources.latitude:"");addTextInput(output,"Longitude","longitude",16U,preset?preset->sources.longitude:"");output += F("</fieldset><fieldset><legend>Screen rotation</legend>");
-    for (size_t index = 0U; index < 5U; ++index) {
+    for (size_t index = 0U; index < kDashboardScreenCount; ++index) {
         const size_t selected=preset?static_cast<size_t>(preset->schedule.order[index]):index;output += F("<label>Position "); output += String(index + 1U); output += F("<select name=order_"); output += String(index + 1U); output += F(" required>"); addScreenOptions(output, selected); output += F("</select></label>");
     }
     output += F("<h2>Duration for each screen</h2>");
-    static constexpr const char* duration_labels[] = {"Clock", "MQTT Home", "UniFi", "Satellite", "Weather"};
-    for (size_t index = 0U; index < 5U; ++index) {
+    static constexpr const char* duration_labels[] = {"Clock", "MQTT Home", "Satellite", "Weather"};
+    for (size_t index = 0U; index < kDashboardScreenCount; ++index) {
         output += F("<label>"); output += duration_labels[index]; output += F(" seconds<input type=number min=5 max=3600 name=duration_");
         output += dashboardScreenName(static_cast<DashboardScreen>(index)); output += F(" value="); output += String(preset?preset->schedule.duration_seconds[index]:15U); output += F(" required></label>");
     }
@@ -230,7 +229,7 @@ bool storeForceBackupMarker(bool enabled) {
 
 bool dashboardConfigValid(const DashboardConfig& value) {
     return dashboardTimezoneValid(value.timezone) && dashboardScheduleValid(value.schedule)
-        && panelConfigValid(PanelKind::Mqtt, value.sources) && panelConfigValid(PanelKind::Unifi, value.sources)
+        && panelConfigValid(PanelKind::Mqtt, value.sources)
         && panelConfigValid(PanelKind::Weather, value.sources) && panelConfigValid(PanelKind::Space, value.sources);
 }
 
@@ -239,7 +238,7 @@ const char* dashboardValidationError(const DashboardConfig& value) {
     if (!dashboardTimezoneValid(value.timezone)) return "Select a supported timezone.";
     if (!dashboardScheduleValid(value.schedule)) return "Check the screen order and ensure every screen appears once with durations from 5 to 3600 seconds.";
     if (!panelConfigValid(PanelKind::Mqtt, value.sources)) return "Check the MQTT private IPv4 broker, port, exact topic, label, username, and password.";
-    if (!panelConfigValid(PanelKind::Unifi, value.sources)) return "Check the UniFi bridge URL; use the exact /api/unifi/summary path on an allowed private address and port.";
+
     if (!panelConfigValid(PanelKind::Weather, value.sources)) return "Check the weather latitude and longitude.";
     return nullptr;
 }
