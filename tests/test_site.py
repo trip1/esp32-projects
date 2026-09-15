@@ -109,7 +109,7 @@ class FirmwarePortalTests(unittest.TestCase):
 
     def test_lcd1602_smart_dashboard_combines_all_screens(self):
         project = next(project for project in self.load_catalog() if project["slug"] == "lcd1602-smart-dashboard")
-        self.assertEqual("3.0.0", project["version"])
+        self.assertEqual("3.0.1", project["version"])
         self.assertEqual(set(ESP_TARGETS), {target["id"] for target in project["targets"]})
         self.assertIn("nine-screen order", project["setup"]["summary"])
         self.assertNotIn("MQTT", " ".join(project["setup"]["fields"]))
@@ -137,6 +137,7 @@ class FirmwarePortalTests(unittest.TestCase):
             self.assertIn(message, config_source)
         self.assertNotIn("unifi_url", config_source)
         self.assertNotIn("UniFi bridge", config_source)
+        self.assertIn("kMaxHeader = 2048U", config_source)
         self.assertIn("0xffffffULL", config_source)
         self.assertIn("count > 24U", config_source)
         self.assertIn("kVersion = 4U", config_source)

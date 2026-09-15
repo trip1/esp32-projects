@@ -18,7 +18,7 @@
 namespace {
 constexpr uint32_t kMagic = 0x4c444153U;
 constexpr uint16_t kVersion = 4U;
-constexpr size_t kMaxHeader = 1024U;
+constexpr size_t kMaxHeader = 2048U;
 constexpr size_t kMaxBody = 3072U;
 constexpr size_t kMaxRequest = kMaxHeader + kMaxBody;
 constexpr uint32_t kPortalTimeoutMs = 10U * 60U * 1000U;
@@ -178,12 +178,12 @@ void send(WiFiClient& client, int status, const char* reason, const String& body
     client.printf("HTTP/1.1 %d %s\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: %u\r\nConnection: close\r\nCache-Control: no-store\r\nContent-Security-Policy: default-src 'none'; style-src 'unsafe-inline'; form-action 'self'\r\nX-Content-Type-Options: nosniff\r\nReferrer-Policy: no-referrer\r\n\r\n", status, reason, static_cast<unsigned>(body.length())); client.print(body);
 }
 
-bool readRequest(WiFiClient& client, char* request, size_t capacity, size_t& header_end, size_t& content_length, char* method, size_t method_capacity, char* target, size_t target_capacity) {
-    size_t used = 0U; header_end = 0U; content_length = 0U; const uint32_t started = millis();
+bool readRequest(WiFiClient& client, char* request, size_t capacity, size_t& bytes_read, size_t& header_end, size_t& content_length, char* method, size_t method_capacity, char* target, size_t target_capacity) {
+    size_t used = 0U; bytes_read = 0U; header_end = 0U; content_length = 0U; const uint32_t started = millis();
     while (client.connected() && static_cast<uint32_t>(millis() - started) < 2000U) {
         while (client.available()) {
             if (used + 1U >= capacity) return false;
-            request[used++] = static_cast<char>(client.read()); request[used] = '\0';
+            request[used++] = static_cast<char>(client.read()); bytes_read = used; request[used] = '\0';
             if (header_end == 0U && used >= 4U && std::memcmp(request + used - 4U, "\r\n\r\n", 4U) == 0) {
                 header_end = used; if (header_end > kMaxHeader) return false; bool has_length = false;
                 if (!panelParseHttpRequest(request, header_end, kMaxBody, method, method_capacity, target, target_capacity, content_length, has_length)) return false;
@@ -322,10 +322,11 @@ void dashboardHandleProvisioning() {
     if (!client) return;
     client.setTimeout(2U);
     clearRequestBuffer(); RequestBufferGuard request_guard; char method[8]{}; char target[64]{};
-    size_t header_end = 0U; size_t content_length = 0U;
+    size_t bytes_read = 0U; size_t header_end = 0U; size_t content_length = 0U;
     DashboardConfig existing{};
     const bool has_existing = dashboardLoadConfig("active", existing);
-    if (!readRequest(client, request_buffer, sizeof(request_buffer), header_end, content_length, method, sizeof(method), target, sizeof(target))) {
+    if (!readRequest(client, request_buffer, sizeof(request_buffer), bytes_read, header_end, content_length, method, sizeof(method), target, sizeof(target))) {
+        Serial.printf("Dashboard setup request rejected: bytes=%u header=%u body=%u\n",static_cast<unsigned>(bytes_read),static_cast<unsigned>(header_end),static_cast<unsigned>(content_length));
         send(client, 400, "Bad Request", page("Malformed or oversized request.", has_existing ? &existing : nullptr)); client.stop(); return;
     }
     if (std::strcmp(method, "GET") == 0 && std::strcmp(target, "/") == 0) {
