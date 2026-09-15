@@ -17,7 +17,7 @@
 
 namespace {
 constexpr uint32_t kMagic = 0x4c444153U;
-constexpr uint16_t kVersion = 3U;
+constexpr uint16_t kVersion = 4U;
 constexpr size_t kMaxHeader = 1024U;
 constexpr size_t kMaxBody = 3072U;
 constexpr size_t kMaxRequest = kMaxHeader + kMaxBody;
@@ -26,13 +26,15 @@ constexpr uint32_t kRejectedPendingMarker = 0x44415358U;
 constexpr char kPasswordAlphabet[] = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
 struct StoredConfig { uint32_t magic; uint16_t version; uint16_t reserved; DashboardConfig value; uint32_t crc32; };
-struct LegacyScheduleV2 { DashboardScreen order[4]{}; uint16_t duration_seconds[4]{}; };
+struct LegacyScheduleV2 { uint8_t order[4]{}; uint16_t duration_seconds[4]{}; };
 struct LegacyConfigV2 { PanelConfig sources{}; char timezone[65]{}; LegacyScheduleV2 schedule{}; };
 struct LegacyStoredConfigV2 { uint32_t magic; uint16_t version; uint16_t reserved; LegacyConfigV2 value; uint32_t crc32; };
+struct LegacyScheduleV3 { uint8_t order[10]{}; uint16_t duration_seconds[10]{}; };
+struct LegacyConfigV3 { PanelConfig sources{}; char timezone[65]{}; LegacyScheduleV3 schedule{}; };
+struct LegacyStoredConfigV3 { uint32_t magic; uint16_t version; uint16_t reserved; LegacyConfigV3 value; uint32_t crc32; };
 struct Fields {
     DashboardConfig value{};
     char csrf[17]{};
-    char mqtt_port[6]{};
     char order[kDashboardScreenCount][12]{};
     char duration[kDashboardScreenCount][5]{};
     uint64_t seen = 0U;
@@ -79,12 +81,9 @@ bool decode(const char* input, size_t length, char* output, size_t capacity) {
 bool assign(Fields& fields, const char* name, size_t name_length, const char* value, size_t value_length) {
     struct Definition { const char* name; uint32_t bit; char* output; size_t capacity; } definitions[] = {
         {"csrf",1U<<0,fields.csrf,sizeof(fields.csrf)}, {"wifi_ssid",1U<<1,fields.value.sources.wifi_ssid,sizeof(fields.value.sources.wifi_ssid)},
-        {"wifi_password",1U<<2,fields.value.sources.wifi_password,sizeof(fields.value.sources.wifi_password)}, {"mqtt_host",1U<<3,fields.value.sources.mqtt_host,sizeof(fields.value.sources.mqtt_host)},
-        {"mqtt_port",1U<<4,fields.mqtt_port,sizeof(fields.mqtt_port)}, {"mqtt_username",1U<<5,fields.value.sources.mqtt_username,sizeof(fields.value.sources.mqtt_username)},
-        {"mqtt_password",1U<<6,fields.value.sources.mqtt_password,sizeof(fields.value.sources.mqtt_password)}, {"mqtt_topic",1U<<7,fields.value.sources.mqtt_topic,sizeof(fields.value.sources.mqtt_topic)},
-        {"label",1U<<8,fields.value.sources.label,sizeof(fields.value.sources.label)},
-        {"latitude",1U<<9,fields.value.sources.latitude,sizeof(fields.value.sources.latitude)}, {"longitude",1U<<10,fields.value.sources.longitude,sizeof(fields.value.sources.longitude)},
-        {"timezone",1U<<11,fields.value.timezone,sizeof(fields.value.timezone)},
+        {"wifi_password",1U<<2,fields.value.sources.wifi_password,sizeof(fields.value.sources.wifi_password)},
+        {"latitude",1U<<3,fields.value.sources.latitude,sizeof(fields.value.sources.latitude)}, {"longitude",1U<<4,fields.value.sources.longitude,sizeof(fields.value.sources.longitude)},
+        {"timezone",1U<<5,fields.value.timezone,sizeof(fields.value.timezone)},
     };
     for (const auto& definition : definitions) {
         if (std::strlen(definition.name) != name_length || std::memcmp(name, definition.name, name_length) != 0) continue;
@@ -95,7 +94,7 @@ bool assign(Fields& fields, const char* name, size_t name_length, const char* va
         char order_name[9]{}; char duration_name[24]{};
         std::snprintf(order_name, sizeof(order_name), "order_%u", static_cast<unsigned>(index + 1U));
         std::snprintf(duration_name, sizeof(duration_name), "duration_%s", dashboardScreenName(static_cast<DashboardScreen>(index)));
-        const uint64_t order_bit = 1ULL << (12U + index); const uint64_t duration_bit = 1ULL << (22U + index);
+        const uint64_t order_bit = 1ULL << (6U + index); const uint64_t duration_bit = 1ULL << (15U + index);
         if (std::strlen(order_name) == name_length && std::memcmp(name, order_name, name_length) == 0) {
             if ((fields.seen & order_bit) != 0U || !decode(value, value_length, fields.order[index], sizeof(fields.order[index]))) return false;
             fields.seen |= order_bit; return true;
@@ -112,16 +111,13 @@ bool parseForm(const char* body, size_t length, Fields& fields) {
     if (body == nullptr || length == 0U || length > kMaxBody) return false;
     size_t start = 0U; unsigned count = 0U;
     while (start < length) {
-        if (++count > 32U) return false;
+        if (++count > 24U) return false;
         size_t end = start; while (end < length && body[end] != '&') ++end;
         size_t equals = start; while (equals < end && body[equals] != '=') ++equals;
         if (equals == start || equals == end || !assign(fields, body + start, equals - start, body + equals + 1U, end - equals - 1U)) return false;
         start = end + 1U;
     }
-    if (fields.seen != 0xffffffffULL) return false;
-    unsigned port = 0U;
-    for (const char* digit = fields.mqtt_port; *digit != '\0'; ++digit) { if (*digit < '0' || *digit > '9') return false; port = port * 10U + static_cast<unsigned>(*digit - '0'); if (port > 65535U) return false; }
-    fields.value.sources.mqtt_port = static_cast<uint16_t>(port);
+    if (fields.seen != 0xffffffULL) return false;
     for (size_t index = 0U; index < kDashboardScreenCount; ++index) {
         if (!dashboardParseScreen(fields.order[index], fields.value.schedule.order[index])) return false;
         unsigned duration = 0U;
@@ -139,8 +135,8 @@ void appendEscaped(String& output, const char* value) {
 }
 
 void addScreenOptions(String& output, size_t selected) {
-    static constexpr const char* values[] = {"clock", "mqtt", "satellite", "weather", "launch", "moon", "solar", "planet", "neo", "deep-space"};
-    static constexpr const char* labels[] = {"Clock", "MQTT Home", "ISS", "Weather", "Next Launch", "Moon", "Solar Activity", "Planet Visibility", "Near-Earth Object", "Deep-Space Mission"};
+    static constexpr const char* values[] = {"clock", "satellite", "weather", "launch", "moon", "solar", "planet", "neo", "deep-space"};
+    static constexpr const char* labels[] = {"Clock", "ISS", "Weather", "Next Launch", "Moon", "Solar Activity", "Planet Visibility", "Near-Earth Object", "Deep-Space Mission"};
     for (size_t index = 0U; index < kDashboardScreenCount; ++index) {
         output += F("<option value="); output += values[index];
         if (index == selected) output += F(" selected");
@@ -156,7 +152,7 @@ void addTextInput(String& output, const char* label, const char* name, size_t ma
 
 String page(const char* message = nullptr, const DashboardConfig* preset = nullptr) {
     String output; output.reserve(16000U);
-    output += F("<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content='width=device-width'><title>LCD1602 Smart Dashboard setup</title><style>body{font:16px system-ui;max-width:44rem;margin:2rem auto;padding:0 1rem;background:#0b1020;color:#e8eefc}main,fieldset{background:#151d33;padding:1rem;border-radius:14px;border:1px solid #354263;margin:1rem 0}label{display:block;margin:.65rem 0}input,select{box-sizing:border-box;width:100%;padding:.65rem;background:#0b1020;color:#fff;border:1px solid #52638f;border-radius:8px}.row{display:grid;grid-template-columns:2fr 1fr;gap:.75rem}button{padding:.8rem 1rem;background:#62d6a7;border:0;border-radius:8px;font-weight:700}</style></head><body><main><h1>LCD1602 Smart Dashboard</h1><p>Configure all ten screens, their order, and display duration. Space screens use your weather coordinates with the DS9 launch tracker bridge. Settings are tested before promotion.</p>");
+    output += F("<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content='width=device-width'><title>LCD1602 Smart Dashboard setup</title><style>body{font:16px system-ui;max-width:44rem;margin:2rem auto;padding:0 1rem;background:#0b1020;color:#e8eefc}main,fieldset{background:#151d33;padding:1rem;border-radius:14px;border:1px solid #354263;margin:1rem 0}label{display:block;margin:.65rem 0}input,select{box-sizing:border-box;width:100%;padding:.65rem;background:#0b1020;color:#fff;border:1px solid #52638f;border-radius:8px}.row{display:grid;grid-template-columns:2fr 1fr;gap:.75rem}button{padding:.8rem 1rem;background:#62d6a7;border:0;border-radius:8px;font-weight:700}</style></head><body><main><h1>LCD1602 Smart Dashboard</h1><p>Configure all nine screens, their order, and display duration. Space screens use your weather coordinates with the DS9 launch tracker bridge. Settings are tested before promotion.</p>");
     if (message) { output += F("<p role=alert><strong>"); appendEscaped(output, message); output += F("</strong></p>"); }
     output += F("<form method=post action=/save><input type=hidden name=csrf value='"); output += csrf_token;
     output += F("'><fieldset><legend>Network and clock</legend>");
@@ -165,18 +161,12 @@ String page(const char* message = nullptr, const DashboardConfig* preset = nullp
     static constexpr const char* zones[] = {"CST6CDT,M3.2.0,M11.1.0","EST5EDT,M3.2.0,M11.1.0","MST7MDT,M3.2.0,M11.1.0","MST7","PST8PDT,M3.2.0,M11.1.0","AKST9AKDT,M3.2.0,M11.1.0","HST10","UTC0","GMT0BST,M3.5.0/1,M10.5.0","CET-1CEST,M3.5.0,M10.5.0/3","AEST-10AEDT,M10.1.0,M4.1.0/3","JST-9","IST-5:30"};
     static constexpr const char* zone_labels[] = {"US Central","US Eastern","US Mountain","US Arizona","US Pacific","US Alaska","US Hawaii","UTC","United Kingdom","Central Europe","Australia Eastern","Japan","India"};
     for(size_t i=0U;i<13U;++i){output+=F("<option value=\"");appendEscaped(output,zones[i]);output+='"';if(preset&&std::strcmp(preset->timezone,zones[i])==0)output+=F(" selected");output+='>';output+=zone_labels[i];output+=F("</option>");}
-    output += F("</select></label></fieldset><fieldset><legend>MQTT Home</legend>");
-    addTextInput(output,"Broker private IPv4","mqtt_host",64U,preset?preset->sources.mqtt_host:"");
-    char port[6]="1883";if(preset)std::snprintf(port,sizeof(port),"%u",static_cast<unsigned>(preset->sources.mqtt_port));addTextInput(output,"Port","mqtt_port",5U,port);
-    addTextInput(output,"Username","mqtt_username",64U,preset?preset->sources.mqtt_username:"",false);
-    output += F("<label>MQTT password<input type=password autocomplete=new-password name=mqtt_password maxlength=64 placeholder='Leave blank to keep current'></label>");
-    addTextInput(output,"Exact topic","mqtt_topic",128U,preset?preset->sources.mqtt_topic:"");addTextInput(output,"Display label","label",16U,preset?preset->sources.label:"");
-    output += F("</fieldset><fieldset><legend>Weather</legend>");addTextInput(output,"Latitude","latitude",16U,preset?preset->sources.latitude:"");addTextInput(output,"Longitude","longitude",16U,preset?preset->sources.longitude:"");output += F("</fieldset><fieldset><legend>Screen rotation</legend>");
+    output += F("</select></label></fieldset><fieldset><legend>Weather and sky location</legend>");addTextInput(output,"Latitude","latitude",16U,preset?preset->sources.latitude:"");addTextInput(output,"Longitude","longitude",16U,preset?preset->sources.longitude:"");output += F("</fieldset><fieldset><legend>Screen rotation</legend>");
     for (size_t index = 0U; index < kDashboardScreenCount; ++index) {
         const size_t selected=preset?static_cast<size_t>(preset->schedule.order[index]):index;output += F("<label>Position "); output += String(index + 1U); output += F("<select name=order_"); output += String(index + 1U); output += F(" required>"); addScreenOptions(output, selected); output += F("</select></label>");
     }
     output += F("<h2>Duration for each screen</h2>");
-    static constexpr const char* duration_labels[] = {"Clock", "MQTT Home", "ISS", "Weather", "Next Launch", "Moon", "Solar Activity", "Planet Visibility", "Near-Earth Object", "Deep-Space Mission"};
+    static constexpr const char* duration_labels[] = {"Clock", "ISS", "Weather", "Next Launch", "Moon", "Solar Activity", "Planet Visibility", "Near-Earth Object", "Deep-Space Mission"};
     for (size_t index = 0U; index < kDashboardScreenCount; ++index) {
         output += F("<label>"); output += duration_labels[index]; output += F(" seconds<input type=number min=5 max=3600 name=duration_");
         output += dashboardScreenName(static_cast<DashboardScreen>(index)); output += F(" value="); output += String(preset?preset->schedule.duration_seconds[index]:15U); output += F(" required></label>");
@@ -216,18 +206,43 @@ bool loadExact(const char* key, DashboardConfig& value) {
     value=stored.value; return true;
 }
 
+void clearMqtt(PanelConfig& value) {
+    std::memset(value.mqtt_host,0,sizeof(value.mqtt_host));value.mqtt_port=0U;
+    std::memset(value.mqtt_username,0,sizeof(value.mqtt_username));std::memset(value.mqtt_password,0,sizeof(value.mqtt_password));
+    std::memset(value.mqtt_topic,0,sizeof(value.mqtt_topic));std::memset(value.label,0,sizeof(value.label));
+}
+
+bool loadLegacyV3(const char* key, DashboardConfig& value) {
+    Preferences preferences; if (!preferences.begin("lcddash", true)) return false; LegacyStoredConfigV3 stored{};
+    const size_t length=preferences.getBytesLength(key); const size_t read=length==sizeof(stored)?preferences.getBytes(key,&stored,sizeof(stored)):0U; preferences.end();
+    const uint32_t crc=panelCrc32(reinterpret_cast<const unsigned char*>(&stored),offsetof(LegacyStoredConfigV3,crc32));
+    if(read!=sizeof(stored)||stored.magic!=kMagic||stored.version!=3U||stored.reserved!=0U||stored.crc32!=crc)return false;
+    value.sources=stored.value.sources;clearMqtt(value.sources);std::memcpy(value.timezone,stored.value.timezone,sizeof(value.timezone));
+    return dashboardMigrateLegacySchedule(stored.value.schedule.order,stored.value.schedule.duration_seconds,10U,value.schedule)&&dashboardConfigValid(value);
+}
+
 bool loadLegacyV2(const char* key, DashboardConfig& value) {
     Preferences preferences; if (!preferences.begin("lcddash", true)) return false; LegacyStoredConfigV2 stored{};
     const size_t length=preferences.getBytesLength(key); const size_t read=length==sizeof(stored)?preferences.getBytes(key,&stored,sizeof(stored)):0U; preferences.end();
     const uint32_t crc=panelCrc32(reinterpret_cast<const unsigned char*>(&stored),offsetof(LegacyStoredConfigV2,crc32));
     if(read!=sizeof(stored)||stored.magic!=kMagic||stored.version!=2U||stored.reserved!=0U||stored.crc32!=crc)return false;
-    value.sources=stored.value.sources;std::memcpy(value.timezone,stored.value.timezone,sizeof(value.timezone));
-    for(size_t index=0U;index<4U;++index){const uint8_t raw=static_cast<uint8_t>(stored.value.schedule.order[index]);if(raw>=4U)return false;value.schedule.order[index]=static_cast<DashboardScreen>(raw);value.schedule.duration_seconds[index]=stored.value.schedule.duration_seconds[index];}
-    for(size_t index=4U;index<kDashboardScreenCount;++index){value.schedule.order[index]=static_cast<DashboardScreen>(index);value.schedule.duration_seconds[index]=15U;}
-    return dashboardConfigValid(value);
+    value.sources=stored.value.sources;clearMqtt(value.sources);std::memcpy(value.timezone,stored.value.timezone,sizeof(value.timezone));
+    return dashboardMigrateLegacySchedule(stored.value.schedule.order,stored.value.schedule.duration_seconds,4U,value.schedule)&&dashboardConfigValid(value);
 }
 
-bool loadAny(const char* key, DashboardConfig& value) { return loadExact(key,value)||loadLegacyV2(key,value); }
+bool loadLegacy(const char* key, DashboardConfig& value) { return loadLegacyV3(key,value)||loadLegacyV2(key,value); }
+
+bool loadAny(const char* key, DashboardConfig& value) {
+    if(loadExact(key,value))return true;
+    DashboardConfig migrated{};if(!loadLegacy(key,migrated))return false;
+    if(std::strcmp(key,"active")==0){
+        DashboardConfig legacy_backup{};DashboardConfig current_backup{};
+        if(loadLegacy("backup",legacy_backup)){if(!dashboardStoreConfig("backup", legacy_backup))return false;}
+        else if(!loadExact("backup",current_backup)&&!dashboardStoreConfig("backup",migrated))return false;
+    }
+    if(!dashboardStoreConfig(key, migrated))return false;
+    value=migrated;return true;
+}
 
 bool loadForceBackupMarker(uint32_t& marker) {
     nvs_handle_t handle = 0;
@@ -253,7 +268,6 @@ bool storeForceBackupMarker(bool enabled) {
 
 bool dashboardConfigValid(const DashboardConfig& value) {
     return dashboardTimezoneValid(value.timezone) && dashboardScheduleValid(value.schedule)
-        && panelConfigValid(PanelKind::Mqtt, value.sources)
         && panelConfigValid(PanelKind::Weather, value.sources) && panelConfigValid(PanelKind::Space, value.sources);
 }
 
@@ -261,8 +275,6 @@ const char* dashboardValidationError(const DashboardConfig& value) {
     if (!panelConfigValid(PanelKind::Space, value.sources)) return "Check the Wi-Fi name and password (passwords must be blank or at least 8 characters).";
     if (!dashboardTimezoneValid(value.timezone)) return "Select a supported timezone.";
     if (!dashboardScheduleValid(value.schedule)) return "Check the screen order and ensure every screen appears once with durations from 5 to 3600 seconds.";
-    if (!panelConfigValid(PanelKind::Mqtt, value.sources)) return "Check the MQTT private IPv4 broker, port, exact topic, label, username, and password.";
-
     if (!panelConfigValid(PanelKind::Weather, value.sources)) return "Check the weather latitude and longitude.";
     return nullptr;
 }
@@ -271,8 +283,12 @@ bool dashboardLoadConfig(const char* key, DashboardConfig& value) {
     if (std::strcmp(key, "active") == 0) {
         uint32_t force_backup_marker = 0U;
         if (!loadForceBackupMarker(force_backup_marker)) return false;
-        if (force_backup_marker == kRejectedPendingMarker) return loadAny("backup", value);
+        if (force_backup_marker == kRejectedPendingMarker) {
+            if (!loadAny("backup", value) || !dashboardRemoveConfig("active")) return false;
+            return true;
+        }
         if (loadAny("active", value)) return true;
+        if (!dashboardRemoveConfig("active")) return false;
         return loadAny("backup", value);
     }
     return loadAny(key, value);
@@ -322,7 +338,6 @@ void dashboardHandleProvisioning() {
     const bool parsed = parseForm(request_buffer + header_end, content_length, fields);
     if (parsed && has_existing) {
         if (fields.value.sources.wifi_password[0] == '\0') std::memcpy(fields.value.sources.wifi_password, existing.sources.wifi_password, sizeof(fields.value.sources.wifi_password));
-        if (fields.value.sources.mqtt_password[0] == '\0') std::memcpy(fields.value.sources.mqtt_password, existing.sources.mqtt_password, sizeof(fields.value.sources.mqtt_password));
     }
     if (!parsed) {
         send(client, 400, "Bad Request", page("The request is incomplete or contains an invalid field.", has_existing ? &existing : nullptr)); client.stop(); return;
@@ -338,6 +353,6 @@ void dashboardHandleProvisioning() {
         send(client, 500, "Storage Error", page("Settings could not be saved.", &fields.value)); client.stop(); return;
     }
     rejected_pending_marker = 0U;
-    send(client, 200, "OK", page("Saved. The dashboard will reboot and verify Wi-Fi, time, MQTT, and weather.", &fields.value));
+    send(client, 200, "OK", page("Saved. The dashboard will reboot and verify Wi-Fi, time, and weather.", &fields.value));
     client.stop(); restart_requested = true;
 }

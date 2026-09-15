@@ -2913,18 +2913,19 @@
   {
     "slug": "lcd1602-smart-dashboard",
     "name": "LCD1602 Smart Dashboard",
-    "version": "2.0.1",
+    "version": "3.0.0",
     "category": "Practical",
-    "description": "Rotates clock, MQTT Home, ISS, weather, next launch, Moon, solar activity, planet visibility, near-Earth object, and deep-space mission screens on one LCD1602.",
+    "description": "Rotates clock, ISS, weather, next launch, Moon, solar activity, planet visibility, near-Earth object, and deep-space mission screens on one LCD1602.",
     "hardware": "Inland KS0061 LCD1602 or compatible HD44780 16x2 LCD with common PCF8574 mapping at configured address 0x27, powered through a bidirectional I2C level shifter",
     "features": [
-      "Ten configurable LCD1602 screens",
+      "Nine configurable LCD1602 screens",
       "Next launch from the DS9 launch tracker",
       "Moon, solar, planet, asteroid, and Voyager status",
       "Web-configured screen order",
       "Per-screen duration from 5 to 3600 seconds",
       "Protected first-boot setup",
-      "Bounded HTTPS, MQTT, and I2C behavior"
+      "Bounded HTTPS and I2C behavior",
+      "Visible startup and configuration status"
     ],
     "installable": true,
     "extra_hardware": true,
@@ -3160,13 +3161,12 @@
     ],
     "setup": {
       "required": true,
-      "summary": "Open the protected setup page to enter Wi-Fi, MQTT, weather coordinates, timezone, ten-screen order, and a 5-3600 second duration for each screen. Coarse coordinates are sent to the DS9 space-summary endpoint for planet visibility.",
+      "summary": "Open the protected setup page to enter Wi-Fi, weather coordinates, timezone, nine-screen order, and a 5-3600 second duration for each screen. Coarse coordinates are sent to the DS9 space-summary endpoint for planet visibility.",
       "fields": [
         "Wi-Fi",
         "Timezone",
-        "MQTT broker and topic",
         "Weather and planet coordinates",
-        "Ten-screen order",
+        "Nine-screen order",
         "Duration for each screen"
       ]
     }

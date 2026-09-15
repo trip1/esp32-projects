@@ -30,7 +30,6 @@ bool dashboardSlotExpired(std::uint32_t started_ms, std::uint32_t now_ms, std::u
 const char* dashboardScreenName(DashboardScreen value) {
     switch (value) {
         case DashboardScreen::Clock: return "clock";
-        case DashboardScreen::Mqtt: return "mqtt";
         case DashboardScreen::Satellite: return "satellite";
         case DashboardScreen::Weather: return "weather";
         case DashboardScreen::Launch: return "launch";
@@ -53,6 +52,36 @@ bool dashboardParseScreen(const char* value, DashboardScreen& output) {
         }
     }
     return false;
+}
+
+bool dashboardMigrateLegacySchedule(const std::uint8_t* legacy_order, const std::uint16_t* legacy_durations,
+                                    std::size_t legacy_count, DashboardSchedule& output) {
+    if (legacy_order == nullptr || legacy_durations == nullptr || (legacy_count != 4U && legacy_count != 10U)) return false;
+    bool legacy_seen[10]{};
+    for (std::size_t index = 0U; index < legacy_count; ++index) {
+        if (legacy_order[index] >= legacy_count || legacy_seen[legacy_order[index]]) return false;
+        legacy_seen[legacy_order[index]] = true;
+    }
+    for (std::size_t index = 0U; index < kDashboardScreenCount; ++index) output.duration_seconds[index] = 15U;
+    for (std::uint8_t legacy = 0U; legacy < legacy_count; ++legacy) {
+        if (legacy == 1U) continue;
+        const std::uint8_t current = legacy == 0U ? 0U : static_cast<std::uint8_t>(legacy - 1U);
+        if (legacy_durations[legacy] < 5U || legacy_durations[legacy] > 3600U) return false;
+        output.duration_seconds[current] = legacy_durations[legacy];
+    }
+    bool current_seen[kDashboardScreenCount]{};
+    std::size_t written = 0U;
+    for (std::size_t index = 0U; index < legacy_count; ++index) {
+        const std::uint8_t legacy = legacy_order[index];
+        if (legacy == 1U) continue;
+        const std::uint8_t current = legacy == 0U ? 0U : static_cast<std::uint8_t>(legacy - 1U);
+        output.order[written++] = static_cast<DashboardScreen>(current);
+        current_seen[current] = true;
+    }
+    for (std::uint8_t current = 0U; current < kDashboardScreenCount; ++current) {
+        if (!current_seen[current]) output.order[written++] = static_cast<DashboardScreen>(current);
+    }
+    return written == kDashboardScreenCount && dashboardScheduleValid(output);
 }
 
 bool dashboardTimezoneValid(const char* value) {

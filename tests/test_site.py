@@ -109,41 +109,49 @@ class FirmwarePortalTests(unittest.TestCase):
 
     def test_lcd1602_smart_dashboard_combines_all_screens(self):
         project = next(project for project in self.load_catalog() if project["slug"] == "lcd1602-smart-dashboard")
-        self.assertEqual("2.0.1", project["version"])
+        self.assertEqual("3.0.0", project["version"])
         self.assertEqual(set(ESP_TARGETS), {target["id"] for target in project["targets"]})
-        self.assertIn("ten-screen order", project["setup"]["summary"])
+        self.assertIn("nine-screen order", project["setup"]["summary"])
+        self.assertNotIn("MQTT", " ".join(project["setup"]["fields"]))
         self.assertNotIn("UniFi", project["description"])
         self.assertNotIn("UniFi summary bridge URL", project["setup"]["fields"])
         root = ROOT / project["project_dir"]
         source = (root / "src" / "dashboard_main.cpp").read_text()
         config_source = (root / "src" / "dashboard_config.cpp").read_text()
         logic = (root / "src" / "dashboard_logic.cpp").read_text()
-        for required in ("DashboardScreen::Clock", "DashboardScreen::Mqtt", "DashboardScreen::Satellite", "DashboardScreen::Weather", "DashboardScreen::Launch", "DashboardScreen::Moon", "DashboardScreen::Solar", "DashboardScreen::Planet", "DashboardScreen::Neo", "DashboardScreen::DeepSpace", "api.justsome.space/v1/lcd/space", "sntp_set_time_sync_notification_cb", "serviceRefresh"):
+        for required in ("DashboardScreen::Clock", "DashboardScreen::Satellite", "DashboardScreen::Weather", "DashboardScreen::Launch", "DashboardScreen::Moon", "DashboardScreen::Solar", "DashboardScreen::Planet", "DashboardScreen::Neo", "DashboardScreen::DeepSpace", "api.justsome.space/v1/lcd/space", "sntp_set_time_sync_notification_cb", "serviceRefresh", "Testing settings", "Setup ready"):
             self.assertIn(required, source)
+        self.assertNotIn("DashboardScreen::Mqtt", source)
+        self.assertNotIn("BoundedMqttClient", source)
         self.assertNotIn("DashboardScreen::Unifi", source)
         self.assertNotIn("fetchUnifi", source)
         for required in ("order_", "duration_%s", "min=5 max=3600", "Content-Security-Policy", "dashboardStoreConfig(\"pending\"", "<title>", "<html lang=en>", "Leave blank to keep current"):
             self.assertIn(required, config_source)
         self.assertIn("dashboardSlotExpired", logic)
         self.assertIn("dashboardDurationForSlot", logic)
-        self.assertIn('if (force_backup_marker == kRejectedPendingMarker) return loadAny("backup", value);', config_source)
+        self.assertIn('if (!loadAny("backup", value) || !dashboardRemoveConfig("active")) return false;', config_source)
         self.assertIn('nvs_set_u32(handle, "forcebak"', config_source)
         self.assertIn('nvs_get_u32(handle, "forcebak"', config_source)
         self.assertNotIn('RTC_DATA_ATTR uint32_t force_backup_marker', config_source)
-        for message in ("request is incomplete", "setup session expired", "timezone", "screen order", "MQTT", "weather"):
+        for message in ("request is incomplete", "setup session expired", "timezone", "screen order", "weather"):
             self.assertIn(message, config_source)
         self.assertNotIn("unifi_url", config_source)
         self.assertNotIn("UniFi bridge", config_source)
-        self.assertIn("0xffffffffULL", config_source)
-        self.assertIn("count > 32U", config_source)
-        self.assertIn("kVersion = 3U", config_source)
+        self.assertIn("0xffffffULL", config_source)
+        self.assertIn("count > 24U", config_source)
+        self.assertIn("kVersion = 4U", config_source)
         self.assertIn("loadLegacyV2", config_source)
+        self.assertIn("loadLegacyV3", config_source)
+        self.assertIn('dashboardStoreConfig("backup", legacy_backup)', config_source)
+        self.assertIn("dashboardStoreConfig(key, migrated)", config_source)
         self.assertIn("stored.version!=2U", config_source)
         ca_source = (root / "include" / "panel_ca.h").read_text()
         self.assertIn("PANEL_PUBLIC_ROOTS", ca_source)
         self.assertIn("MIICCTCCAY6g", ca_source)
         self.assertIn('role=alert', config_source)
-        self.assertIn('return mqtt_ok && fetchWeather(candidate);', source)
+        self.assertIn('synchronizeFresh(candidate.timezone)&&fetchWeather(candidate)', source)
+        self.assertIn("serviceProvisioningDisplay", source)
+        self.assertIn('showImmediate("Setup ready","See USB serial")', source)
         self.assertIn('for (;;) delay(1000)', source)
         platform = configparser.ConfigParser(interpolation=None)
         platform.read(root / "platformio.ini")
@@ -261,7 +269,7 @@ class FirmwarePortalTests(unittest.TestCase):
             "mqtt-home-status-panel", "unifi-network-panel", "space-satellite-tracker", "wifi-weather-station",
             "lcd1602-smart-dashboard",
         }
-        mqtt_required = {"ble-mqtt-scanner", "bme280-mqtt-sensor", "mqtt-home-status-panel", "lcd1602-smart-dashboard"}
+        mqtt_required = {"ble-mqtt-scanner", "bme280-mqtt-sensor", "mqtt-home-status-panel"}
         for project in catalog:
             setup = project["setup"]
             self.assertIsInstance(setup["required"], bool)
