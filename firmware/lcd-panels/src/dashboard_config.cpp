@@ -45,6 +45,14 @@ bool provisioning = false;
 bool restart_requested = false;
 uint32_t portal_started_ms = 0U;
 char csrf_token[17]{};
+char request_buffer[kMaxRequest + 1U]{};
+
+void clearRequestBuffer() {
+    volatile char* cursor = request_buffer;
+    for (size_t index = 0U; index < sizeof(request_buffer); ++index) cursor[index] = '\0';
+}
+
+struct RequestBufferGuard { ~RequestBufferGuard() { clearRequestBuffer(); } };
 
 uint32_t checksum(const StoredConfig& value) { return panelCrc32(reinterpret_cast<const unsigned char*>(&value), offsetof(StoredConfig, crc32)); }
 
@@ -297,11 +305,11 @@ void dashboardHandleProvisioning() {
     WiFiClient client = server.accept();
     if (!client) return;
     client.setTimeout(2U);
-    char request[kMaxRequest + 1U]{}; char method[8]{}; char target[64]{};
+    clearRequestBuffer(); RequestBufferGuard request_guard; char method[8]{}; char target[64]{};
     size_t header_end = 0U; size_t content_length = 0U;
     DashboardConfig existing{};
     const bool has_existing = dashboardLoadConfig("active", existing);
-    if (!readRequest(client, request, sizeof(request), header_end, content_length, method, sizeof(method), target, sizeof(target))) {
+    if (!readRequest(client, request_buffer, sizeof(request_buffer), header_end, content_length, method, sizeof(method), target, sizeof(target))) {
         send(client, 400, "Bad Request", page("Malformed or oversized request.", has_existing ? &existing : nullptr)); client.stop(); return;
     }
     if (std::strcmp(method, "GET") == 0 && std::strcmp(target, "/") == 0) {
@@ -311,7 +319,7 @@ void dashboardHandleProvisioning() {
         send(client, 404, "Not Found", page("Not found.", has_existing ? &existing : nullptr)); client.stop(); return;
     }
     Fields fields{};
-    const bool parsed = parseForm(request + header_end, content_length, fields);
+    const bool parsed = parseForm(request_buffer + header_end, content_length, fields);
     if (parsed && has_existing) {
         if (fields.value.sources.wifi_password[0] == '\0') std::memcpy(fields.value.sources.wifi_password, existing.sources.wifi_password, sizeof(fields.value.sources.wifi_password));
         if (fields.value.sources.mqtt_password[0] == '\0') std::memcpy(fields.value.sources.mqtt_password, existing.sources.mqtt_password, sizeof(fields.value.sources.mqtt_password));

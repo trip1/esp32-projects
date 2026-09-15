@@ -110,6 +110,11 @@ jobs:
         run: pio run -d firmware/esp32-diagnostics
       - name: Build LCD1602 network panel firmware
         run: pio run -d firmware/lcd-panels
+      - name: Enforce LCD1602 dashboard stack budget
+        run: |
+          for environment in smart-dashboard--esp32 smart-dashboard--esp32-c3 smart-dashboard--esp32-s3 smart-dashboard--esp32-c6; do
+            python scripts/check_dashboard_stack.py "firmware/lcd-panels/.pio/build/$environment/src/dashboard_config.cpp.su"
+          done
       - name: Test LCD1602 space response contract
         run: >-
           g++ -std=c++17 -Wall -Wextra -Werror

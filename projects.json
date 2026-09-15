@@ -2913,7 +2913,7 @@
   {
     "slug": "lcd1602-smart-dashboard",
     "name": "LCD1602 Smart Dashboard",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "category": "Practical",
     "description": "Rotates clock, MQTT Home, ISS, weather, next launch, Moon, solar activity, planet visibility, near-Earth object, and deep-space mission screens on one LCD1602.",
     "hardware": "Inland KS0061 LCD1602 or compatible HD44780 16x2 LCD with common PCF8574 mapping at configured address 0x27, powered through a bidirectional I2C level shifter",
