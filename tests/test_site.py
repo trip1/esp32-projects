@@ -1190,18 +1190,22 @@ class FirmwarePortalTests(unittest.TestCase):
             self.assertNotEqual(0, result.returncode)
             self.assertIn("artifact source reused", result.stderr + result.stdout)
 
-    def test_pages_permissions_are_scoped_to_deployment(self):
+    def test_pages_are_locally_published_and_hosted_from_branch(self):
         workflow = (ROOT / ".github" / "workflows" / "pages.yml").read_text()
-        global_permissions = workflow.split("permissions:", 1)[1].split("concurrency:", 1)[0]
-        deploy_job = workflow.split("  deploy:", 1)[1]
-        self.assertNotIn("pages: write", global_permissions)
-        self.assertNotIn("id-token: write", global_permissions)
-        self.assertIn("permissions:\n      pages: write\n      id-token: write", deploy_job)
+        publisher = (ROOT / "scripts" / "publish_pages_local.py").read_text()
+        self.assertIn("workflow_dispatch:", workflow)
+        self.assertNotIn("  push:", workflow)
+        self.assertNotIn("  pull_request:", workflow)
+        self.assertNotIn("pages: write", workflow)
+        self.assertNotIn("deploy-pages", workflow)
+        self.assertNotIn("upload-pages-artifact", workflow)
         self.assertIn("firmware/no-hardware-lab/test/native/test_main.cpp", workflow)
         self.assertIn("pio run -d firmware/no-hardware-lab", workflow)
         self.assertIn("bme280-mqtt-sensor/test/native/test_main.cpp", workflow)
         self.assertIn("pio run -d firmware/bme280-mqtt-sensor", workflow)
         self.assertIn("python scripts/build_site.py --output _site", workflow)
+        for required in ("gh-pages", "build_type", "legacy", "SOURCE_COMMIT", "--force-with-lease", "verify_live", "assert_clean_main"):
+            self.assertIn(required, publisher)
 
 
 if __name__ == "__main__":

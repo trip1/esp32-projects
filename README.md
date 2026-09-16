@@ -67,7 +67,7 @@ web/                              Static installer source
 scripts/                          Manifest and site assembly tools
 web/wiring/                       Generated board-specific SVG wiring diagrams
 tests/                            Portal packaging tests
-.github/workflows/pages.yml       Firmware CI and Pages deployment
+.github/workflows/pages.yml       Optional manual full verification
 ```
 
 ## Local verification
@@ -93,6 +93,16 @@ g++ -std=c++17 -Wall -Wextra -Werror -I firmware/lcd-panels/include firmware/lcd
 ~/.venvs/platformio/bin/pio run -d firmware/lcd-panels
 python3 scripts/build_site.py --output _site
 ```
+
+## Publish GitHub Pages locally
+
+Pages is served from the root of the `gh-pages` branch. A normal push to `main` does not run the long firmware workflow. From a clean, pushed `main` branch, run:
+
+```bash
+python3 scripts/publish_pages_local.py
+```
+
+The publisher runs the complete test/build matrix, cleans every compiled target while retaining only PlatformIO's downloaded dependency/tool caches, regenerates and checks wiring, assembles `_site`, records the exact source commit and deployment ID plus each payload file's size and SHA-256 in `BUILD_INFO.json` (the index cannot hash itself), creates a single orphan deployment commit, force-pushes it with a lease to keep binary history bounded, configures the repository's Pages source, waits for that unique deployment ID to become live, and compares every served file byte-for-byte (`.nojekyll` is consumed by Pages rather than served). `.github/workflows/pages.yml` remains available through `workflow_dispatch` for optional hosted verification only.
 
 Each ESP32 project/board pair publishes:
 
