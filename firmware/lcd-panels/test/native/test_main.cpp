@@ -143,6 +143,10 @@ int main() {
     assert(!panelParseHttpRequest(missing_origin.data(), missing_origin.size(), 1024U, method, sizeof(method), target, sizeof(target), content_length, has_content_length));
     const std::string captive_referer_only = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nReferer: http://192.168.4.1/\r\nContent-Length: 7\r\n\r\n";
     assert(panelParseHttpRequest(captive_referer_only.data(), captive_referer_only.size(), 1024U, method, sizeof(method), target, sizeof(target), content_length, has_content_length));
+    const std::string default_port_origin = "POST /save HTTP/1.1\r\nHost: 192.168.4.1:80\r\nOrigin: http://192.168.4.1:80\r\nContent-Length: 7\r\n\r\n";
+    assert(panelParseHttpRequest(default_port_origin.data(), default_port_origin.size(), 1024U, method, sizeof(method), target, sizeof(target), content_length, has_content_length));
+    const std::string default_port_referer = "POST /save HTTP/1.1\r\nHost: 192.168.4.1:80\r\nReferer: http://192.168.4.1:80/\r\nContent-Length: 7\r\n\r\n";
+    assert(panelParseHttpRequest(default_port_referer.data(), default_port_referer.size(), 1024U, method, sizeof(method), target, sizeof(target), content_length, has_content_length));
     const std::string android_chrome = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nReferer: http://192.168.4.1/\r\nX-Android-Filler: " + std::string(1300U, 'a') + "\r\nContent-Length: 7\r\n\r\n";
     assert(android_chrome.size() > 1024U && android_chrome.size() < 2048U);
     assert(panelParseHttpRequest(android_chrome.data(), android_chrome.size(), 3072U, method, sizeof(method), target, sizeof(target), content_length, has_content_length));

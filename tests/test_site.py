@@ -109,7 +109,7 @@ class FirmwarePortalTests(unittest.TestCase):
 
     def test_lcd1602_smart_dashboard_combines_all_screens(self):
         project = next(project for project in self.load_catalog() if project["slug"] == "lcd1602-smart-dashboard")
-        self.assertEqual("3.0.1", project["version"])
+        self.assertEqual("3.0.2", project["version"])
         self.assertEqual(set(ESP_TARGETS), {target["id"] for target in project["targets"]})
         self.assertIn("nine-screen order", project["setup"]["summary"])
         self.assertNotIn("MQTT", " ".join(project["setup"]["fields"]))

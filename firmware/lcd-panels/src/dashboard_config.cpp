@@ -326,7 +326,7 @@ void dashboardHandleProvisioning() {
     DashboardConfig existing{};
     const bool has_existing = dashboardLoadConfig("active", existing);
     if (!readRequest(client, request_buffer, sizeof(request_buffer), bytes_read, header_end, content_length, method, sizeof(method), target, sizeof(target))) {
-        Serial.printf("Dashboard setup request rejected: bytes=%u header=%u body=%u\n",static_cast<unsigned>(bytes_read),static_cast<unsigned>(header_end),static_cast<unsigned>(content_length));
+        Serial.printf("Dashboard setup request rejected: bytes=%u header=%u body=%u method=%s target=%s origin=%u referer=%u length=%u\n",static_cast<unsigned>(bytes_read),static_cast<unsigned>(header_end),static_cast<unsigned>(content_length),method,target,std::strstr(request_buffer,"\r\nOrigin:")!=nullptr?1U:0U,std::strstr(request_buffer,"\r\nReferer:")!=nullptr?1U:0U,std::strstr(request_buffer,"\r\nContent-Length:")!=nullptr?1U:0U);
         send(client, 400, "Bad Request", page("Malformed or oversized request.", has_existing ? &existing : nullptr)); client.stop(); return;
     }
     if (std::strcmp(method, "GET") == 0 && std::strcmp(target, "/") == 0) {

@@ -253,11 +253,11 @@ bool panelParseHttpRequest(const char* data, std::size_t length, std::size_t max
             host_seen = true;
         } else if (equalHeaderName(cursor, colon, "origin")) {
             const std::string value(value_begin, value_end);
-            if (origin_seen || (state_changing && value != "http://192.168.4.1")) return false;
+            if (origin_seen || (state_changing && value != "http://192.168.4.1" && value != "http://192.168.4.1:80")) return false;
             origin_seen = true;
         } else if (equalHeaderName(cursor, colon, "referer")) {
             const std::string value(value_begin, value_end);
-            if (referer_seen || (state_changing && value.rfind("http://192.168.4.1/", 0U) != 0U)) return false;
+            if (referer_seen || (state_changing && value.rfind("http://192.168.4.1/", 0U) != 0U && value.rfind("http://192.168.4.1:80/", 0U) != 0U)) return false;
             referer_seen = true;
         } else if (equalHeaderName(cursor, colon, "content-length")) {
             if (has_content_length || value_begin == value_end) return false;
