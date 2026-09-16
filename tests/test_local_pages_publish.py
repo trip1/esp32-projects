@@ -136,6 +136,27 @@ class LocalPagesPublisherTests(unittest.TestCase):
         self.assertIn('[pio, "run", "-d", f"firmware/{project}", "-t", "clean"]', source)
         self.assertLess(source.index('"-t", "clean"'), source.index('run([pio, "run", "-d", f"firmware/{project}"])'))
 
+    def test_cleanup_removes_builds_but_preserves_dependency_cache(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            previous_root = getattr(publisher, "ROOT")
+            previous_projects = getattr(publisher, "PROJECTS")
+            setattr(publisher, "ROOT", root)
+            setattr(publisher, "PROJECTS", ("sample",))
+            build = root / "firmware" / "sample" / ".pio" / "build"
+            libdeps = root / "firmware" / "sample" / ".pio" / "libdeps"
+            build.mkdir(parents=True)
+            libdeps.mkdir()
+            (build / "firmware.bin").write_bytes(b"compiled")
+            (libdeps / "library").write_text("cached")
+            try:
+                publisher.cleanup_build_outputs()
+            finally:
+                setattr(publisher, "ROOT", previous_root)
+                setattr(publisher, "PROJECTS", previous_projects)
+            self.assertFalse(build.exists())
+            self.assertEqual("cached", (libdeps / "library").read_text())
+
 
 if __name__ == "__main__":
     unittest.main()

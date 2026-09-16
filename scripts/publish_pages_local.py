@@ -18,6 +18,7 @@ import urllib.request
 
 ROOT = Path(__file__).resolve().parents[1]
 SITE = ROOT / "_site"
+PROJECTS = ("ble-mqtt-scanner", "no-hardware-lab", "bme280-mqtt-sensor", "hardware-lab", "pico-lab", "esp32-diagnostics", "lcd-panels")
 
 
 def run(args: list[str], cwd: Path = ROOT, capture: bool = False, check: bool = True) -> subprocess.CompletedProcess[str]:
@@ -89,6 +90,11 @@ def compile_and_run(output_path: str, includes: list[str], sources: list[str]) -
     run([output_path])
 
 
+def cleanup_build_outputs() -> None:
+    for project in PROJECTS:
+        shutil.rmtree(ROOT / "firmware" / project / ".pio" / "build", ignore_errors=True)
+
+
 def verify_and_build(pio: str) -> None:
     run(["python3", "-m", "unittest", "discover", "-s", "tests", "-v"])
     run(["python3", "scripts/generate_wiring_diagrams.py"])
@@ -106,7 +112,7 @@ def verify_and_build(pio: str) -> None:
     compile_and_run("/tmp/lcd-panel-tests", ["firmware/common", "firmware/lcd-panels/include"], ["firmware/lcd-panels/src/panel_logic.cpp", "firmware/lcd-panels/test/native/test_main.cpp"])
     compile_and_run("/tmp/dashboard-tests", ["firmware/lcd-panels/include"], ["firmware/lcd-panels/src/dashboard_logic.cpp", "firmware/lcd-panels/test/dashboard_native/test_main.cpp"])
 
-    for project in ("ble-mqtt-scanner", "no-hardware-lab", "bme280-mqtt-sensor", "hardware-lab", "pico-lab", "esp32-diagnostics", "lcd-panels"):
+    for project in PROJECTS:
         # Keep downloaded PlatformIO packages cached, but never trust reusable
         # compiled outputs as release artifacts.
         run([pio, "run", "-d", f"firmware/{project}", "-t", "clean"])
@@ -283,16 +289,20 @@ def publish(publish_root: Path, source_commit: str, deployment_id: str, remote: 
 
 def main() -> None:
     source_commit, remote, repo = assert_clean_main()
-    verify_and_build(pio_command())
-    portal_version = output(["git", "show", f"{source_commit}:VERSION"])
-    deployment_id = secrets.token_hex(16)
-    with tempfile.TemporaryDirectory(prefix="esp32-pages-snapshot-") as temporary:
-        publish_root = Path(temporary)
-        # Snapshot generated/ignored outputs before the final source validation;
-        # all later publication and verification uses only this protected copy.
-        copy_site(publish_root, source_commit, portal_version, deployment_id)
-        revalidate_source(source_commit)
-        publish(publish_root, source_commit, deployment_id, remote, repo)
+    cleanup_build_outputs()
+    try:
+        verify_and_build(pio_command())
+        portal_version = output(["git", "show", f"{source_commit}:VERSION"])
+        deployment_id = secrets.token_hex(16)
+        with tempfile.TemporaryDirectory(prefix="esp32-pages-snapshot-") as temporary:
+            publish_root = Path(temporary)
+            # Snapshot generated/ignored outputs before the final source validation;
+            # all later publication and verification uses only this protected copy.
+            copy_site(publish_root, source_commit, portal_version, deployment_id)
+            revalidate_source(source_commit)
+            publish(publish_root, source_commit, deployment_id, remote, repo)
+    finally:
+        cleanup_build_outputs()
 
 
 if __name__ == "__main__":
