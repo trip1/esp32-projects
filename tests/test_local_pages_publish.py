@@ -104,6 +104,9 @@ class LocalPagesPublisherTests(unittest.TestCase):
             self.assertEqual("https://trip1.github.io/esp32-projects/", publisher.configure_pages("trip1/esp32-projects"))
             self.assertEqual(2, run.call_count)
             self.assertTrue(run.call_args_list[0].kwargs["check"])
+            request_payload = json.loads(run.call_args_list[0].kwargs["input"])
+            self.assertNotIn("https_enforced", request_payload)
+            self.assertEqual({"branch": "gh-pages", "path": "/"}, request_payload["source"])
             self.assertTrue(run.call_args_list[1].kwargs["check"])
 
         insecure = json.loads(pages)

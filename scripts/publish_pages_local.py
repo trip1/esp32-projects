@@ -187,7 +187,9 @@ def copy_site(destination: Path, source_commit: str, portal_version: str, deploy
 
 
 def configure_pages(repo: str) -> str:
-    payload = json.dumps({"build_type": "legacy", "source": {"branch": "gh-pages", "path": "/"}, "https_enforced": True})
+    # Setting https_enforced in the same request can return GitHub's transient
+    # "certificate does not exist yet" 404. Preserve it and verify readback.
+    payload = json.dumps({"build_type": "legacy", "source": {"branch": "gh-pages", "path": "/"}})
     subprocess.run(["gh", "api", "--method", "PUT", f"repos/{repo}/pages", "--input", "-"], input=payload, text=True, check=True, capture_output=True)
     info = json.loads(output(["gh", "api", f"repos/{repo}/pages"]))
     if (info.get("build_type") != "legacy"
