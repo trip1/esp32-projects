@@ -2,14 +2,7 @@
 
 #include <Arduino.h>
 
-#include "dashboard_logic.h"
-#include "panel_logic.h"
-
-struct DashboardConfig {
-    PanelConfig sources{};
-    char timezone[65]{};
-    DashboardSchedule schedule{};
-};
+#include "dashboard_types.h"
 
 bool dashboardConfigValid(const DashboardConfig& value);
 bool dashboardLoadConfig(const char* key, DashboardConfig& value);

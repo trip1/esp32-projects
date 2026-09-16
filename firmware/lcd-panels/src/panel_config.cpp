@@ -1,4 +1,5 @@
 #include "panel_config.h"
+#include "setup_http.h"
 
 #include <DNSServer.h>
 #include <Preferences.h>
@@ -21,7 +22,7 @@
 namespace {
 constexpr uint32_t kMagic = 0x4c434450U;
 constexpr uint16_t kVersion = 1U;
-constexpr size_t kMaxHeader = 1024U;
+constexpr size_t kMaxHeader = 2048U;
 constexpr size_t kMaxBody = 1024U;
 constexpr size_t kMaxRequest = kMaxHeader + kMaxBody;
 constexpr uint32_t kPortalTimeoutMs = 10U * 60U * 1000U;
@@ -47,6 +48,13 @@ bool provisioning = false;
 bool restart_requested = false;
 uint32_t portal_started_ms = 0U;
 char csrf_token[17]{};
+char request_buffer[kMaxRequest + 1U]{};
+
+void clearRequestBuffer() {
+    volatile char* cursor = request_buffer;
+    for (size_t index = 0U; index < sizeof(request_buffer); ++index) cursor[index] = '\0';
+}
+struct RequestBufferGuard { ~RequestBufferGuard() { clearRequestBuffer(); } };
 
 PanelKind kind() { return static_cast<PanelKind>(PANEL_KIND); }
 uint32_t checksum(const StoredConfig& value) {
@@ -143,7 +151,7 @@ String page(const char* message = nullptr) {
     output.reserve(4600U);
     output += F("<!doctype html><meta charset=utf-8><meta name=viewport content='width=device-width'><style>body{font:16px system-ui;max-width:36rem;margin:2rem auto;padding:0 1rem;background:#0b1020;color:#e8eefc}main{background:#151d33;padding:1.25rem;border-radius:16px}label{display:block;margin:.8rem 0}input{box-sizing:border-box;width:100%;padding:.7rem;background:#0b1020;color:#fff;border:1px solid #3c4a70;border-radius:8px}button{padding:.75rem 1rem;background:#62d6a7;border:0;border-radius:8px;font-weight:700}</style><main><h1>LCD1602 panel setup</h1><p>Settings are validated before replacing the active configuration.</p>");
     if (message != nullptr) { output += F("<p><strong>"); output += message; output += F("</strong></p>"); }
-    output += F("<form method=post action=/save><input type=hidden name=csrf value='"); output += csrf_token;
+    output += F("<form method=post action=/save enctype=application/x-www-form-urlencoded accept-charset=UTF-8><input type=hidden name=csrf value='"); output += csrf_token;
     output += F("'><label>Wi-Fi name<input name=wifi_ssid maxlength=32 required></label><label>Wi-Fi password<input type=password name=wifi_password maxlength=63></label>");
     if (kind() == PanelKind::Mqtt) {
         output += F("<label>MQTT broker private IPv4<input name=mqtt_host maxlength=64 inputmode=decimal placeholder='10.0.0.2' required></label><label>MQTT port<input name=mqtt_port inputmode=numeric maxlength=5 value=1883 required></label><label>MQTT username<input name=mqtt_username maxlength=64></label><label>MQTT password<input type=password name=mqtt_password maxlength=64></label><label>Exact topic<input name=mqtt_topic maxlength=128 required></label><label>Display label<input name=label maxlength=16 required></label>");
@@ -157,30 +165,28 @@ String page(const char* message = nullptr) {
 }
 
 void send(WiFiClient& client, int status, const char* reason, const String& body) {
-    client.printf("HTTP/1.1 %d %s\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: %u\r\nConnection: close\r\nCache-Control: no-store\r\nContent-Security-Policy: default-src 'none'; style-src 'unsafe-inline'; form-action 'self'\r\nX-Content-Type-Options: nosniff\r\nReferrer-Policy: no-referrer\r\n\r\n", status, reason, static_cast<unsigned>(body.length()));
+    client.printf("HTTP/1.1 %d %s\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: %u\r\nConnection: close\r\nCache-Control: no-store\r\nContent-Security-Policy: default-src 'none'; style-src 'unsafe-inline'; form-action 'self'\r\nX-Content-Type-Options: nosniff\r\nReferrer-Policy: same-origin\r\n\r\n", status, reason, static_cast<unsigned>(body.length()));
     client.print(body);
 }
 
-bool readRequest(WiFiClient& client, char* request, size_t capacity, size_t& header_end, size_t& content_length,
-                 char* method, size_t method_capacity, char* target, size_t target_capacity) {
-    size_t used = 0U; header_end = 0U; content_length = 0U;
-    const uint32_t started = millis();
-    while (client.connected() && static_cast<uint32_t>(millis() - started) < 2000U) {
+void redirectToSetup(WiFiClient& client) {
+    client.print(F("HTTP/1.1 302 Found\r\nLocation: http://192.168.4.1/\r\nContent-Length: 0\r\nConnection: close\r\nCache-Control: no-store\r\n\r\n"));
+}
+
+SetupHttpResult readRequest(WiFiClient& client, char* request, size_t capacity, size_t& bytes_read, SetupHttpRequest& parsed) {
+    size_t used = 0U; bytes_read = 0U;
+    const uint32_t started = millis(); SetupHttpResult result = SetupHttpResult::NeedMore;
+    while (static_cast<uint32_t>(millis() - started) < 5000U) {
         while (client.available()) {
-            if (used + 1U >= capacity) return false;
-            request[used++] = static_cast<char>(client.read()); request[used] = '\0';
-            if (header_end == 0U && used >= 4U && std::memcmp(request + used - 4U, "\r\n\r\n", 4U) == 0) {
-                header_end = used;
-                if (header_end > kMaxHeader) return false;
-                bool has_content_length = false;
-                if (!panelParseHttpRequest(request, header_end, kMaxBody, method, method_capacity, target, target_capacity, content_length, has_content_length)) return false;
-                if (std::strcmp(method, "POST") == 0 && !has_content_length) return false;
-            }
-            if (header_end != 0U && used >= header_end + content_length) return used == header_end + content_length;
+            if (used + 1U >= capacity) return SetupHttpResult::BodyTooLarge;
+            request[used++] = static_cast<char>(client.read()); bytes_read = used; request[used] = '\0';
         }
+        result = setupHttpParse(request, used, kMaxHeader, kMaxBody, parsed);
+        if (result != SetupHttpResult::NeedMore) return result;
+        if (!setupHttpCanRead(client.connected(), static_cast<size_t>(client.available()))) return result;
         delay(1);
     }
-    return false;
+    return result;
 }
 
 void randomHex(char* output, size_t bytes) {
@@ -317,19 +323,25 @@ void panelHandleProvisioning() {
     WiFiClient client = server.accept();
     if (!client) return;
     client.setTimeout(2U);
-    char request[kMaxRequest + 1U]{}; char method[8]{}; char target[64]{};
-    size_t header_end = 0U; size_t content_length = 0U;
-    if (!readRequest(client, request, sizeof(request), header_end, content_length, method, sizeof(method), target, sizeof(target))) {
+    clearRequestBuffer(); RequestBufferGuard request_guard; size_t bytes_read = 0U; SetupHttpRequest request{};
+    const SetupHttpResult read_result = readRequest(client, request_buffer, sizeof(request_buffer), bytes_read, request);
+    if (read_result != SetupHttpResult::Complete) {
+        const size_t body_received = bytes_read > request.header_end ? bytes_read - request.header_end : 0U;
+        Serial.printf("Panel setup request rejected: reason=%s bytes=%u header=%u body_received=%u body_expected=%u method=%s target=%s\n",
+            setupHttpResultName(read_result), static_cast<unsigned>(bytes_read), static_cast<unsigned>(request.header_end),
+            static_cast<unsigned>(body_received), static_cast<unsigned>(request.content_length), request.method, request.target);
         send(client, 400, "Bad Request", page("Malformed or oversized request.")); client.stop(); return;
     }
-    if (std::strcmp(method, "GET") == 0 && std::strcmp(target, "/") == 0) {
+    const SetupHttpRoute route = setupHttpRoute(request);
+    if (route == SetupHttpRoute::CaptiveRedirect) { redirectToSetup(client); client.stop(); return; }
+    if (route == SetupHttpRoute::SetupPage) {
         send(client, 200, "OK", page()); client.stop(); return;
     }
-    if (std::strcmp(method, "POST") != 0 || std::strcmp(target, "/save") != 0) {
+    if (route != SetupHttpRoute::Save) {
         send(client, 404, "Not Found", page("Not found.")); client.stop(); return;
     }
     Fields fields{};
-    if (!parseForm(request + header_end, content_length, fields) || std::strcmp(fields.csrf, csrf_token) != 0) {
+    if (!parseForm(request_buffer + request.header_end, request.content_length, fields) || std::strcmp(fields.csrf, csrf_token) != 0) {
         send(client, 400, "Bad Request", page("Invalid fields or state token.")); client.stop(); return;
     }
     if (!panelStoreConfig("pending", fields.value)) {

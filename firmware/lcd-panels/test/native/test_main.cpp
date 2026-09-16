@@ -1,5 +1,6 @@
 #include "panel_logic.h"
 #include "lcd1602_i2c.h"
+#include "setup_http.h"
 
 #include <cassert>
 #include <cmath>
@@ -130,33 +131,72 @@ int main() {
     static constexpr unsigned char checksum_input[] = "123456789";
     assert(panelCrc32(checksum_input, sizeof(checksum_input) - 1U) == 0xcbf43926U);
 
-    char method[8]{};
-    char target[64]{};
-    std::size_t content_length = 0U;
-    bool has_content_length = false;
-    const std::string request = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nOrigin: http://192.168.4.1\r\nContent-Length: 7\r\n\r\n";
-    assert(panelParseHttpRequest(request.data(), request.size(), 1024U, method, sizeof(method), target, sizeof(target), content_length, has_content_length));
-    assert(std::strcmp(method, "POST") == 0 && std::strcmp(target, "/save") == 0 && content_length == 7U);
-    const std::string hostile = "POST /save HTTP/1.1\r\nHost: attacker.example\r\nContent-Length: 7\r\n\r\n";
-    assert(!panelParseHttpRequest(hostile.data(), hostile.size(), 1024U, method, sizeof(method), target, sizeof(target), content_length, has_content_length));
-    const std::string missing_origin = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nContent-Length: 7\r\n\r\n";
-    assert(!panelParseHttpRequest(missing_origin.data(), missing_origin.size(), 1024U, method, sizeof(method), target, sizeof(target), content_length, has_content_length));
-    const std::string captive_referer_only = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nReferer: http://192.168.4.1/\r\nContent-Length: 7\r\n\r\n";
-    assert(panelParseHttpRequest(captive_referer_only.data(), captive_referer_only.size(), 1024U, method, sizeof(method), target, sizeof(target), content_length, has_content_length));
-    const std::string default_port_origin = "POST /save HTTP/1.1\r\nHost: 192.168.4.1:80\r\nOrigin: http://192.168.4.1:80\r\nContent-Length: 7\r\n\r\n";
-    assert(panelParseHttpRequest(default_port_origin.data(), default_port_origin.size(), 1024U, method, sizeof(method), target, sizeof(target), content_length, has_content_length));
-    const std::string default_port_referer = "POST /save HTTP/1.1\r\nHost: 192.168.4.1:80\r\nReferer: http://192.168.4.1:80/\r\nContent-Length: 7\r\n\r\n";
-    assert(panelParseHttpRequest(default_port_referer.data(), default_port_referer.size(), 1024U, method, sizeof(method), target, sizeof(target), content_length, has_content_length));
-    const std::string android_chrome = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nReferer: http://192.168.4.1/\r\nX-Android-Filler: " + std::string(1300U, 'a') + "\r\nContent-Length: 7\r\n\r\n";
-    assert(android_chrome.size() > 1024U && android_chrome.size() < 2048U);
-    assert(panelParseHttpRequest(android_chrome.data(), android_chrome.size(), 3072U, method, sizeof(method), target, sizeof(target), content_length, has_content_length));
-    const std::string foreign_referer = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nReferer: http://attacker.example/\r\nContent-Length: 7\r\n\r\n";
-    assert(!panelParseHttpRequest(foreign_referer.data(), foreign_referer.size(), 1024U, method, sizeof(method), target, sizeof(target), content_length, has_content_length));
-    const std::string authority_confusion = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nReferer: http://192.168.4.1.attacker.example/\r\nContent-Length: 7\r\n\r\n";
-    assert(!panelParseHttpRequest(authority_confusion.data(), authority_confusion.size(), 1024U, method, sizeof(method), target, sizeof(target), content_length, has_content_length));
-    const std::string duplicate_referer = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nReferer: http://192.168.4.1/\r\nReferer: http://192.168.4.1/\r\nContent-Length: 7\r\n\r\n";
-    assert(!panelParseHttpRequest(duplicate_referer.data(), duplicate_referer.size(), 1024U, method, sizeof(method), target, sizeof(target), content_length, has_content_length));
-    const std::string duplicate = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nContent-Length: 7\r\nContent-Length: 7\r\n\r\n";
-    assert(!panelParseHttpRequest(duplicate.data(), duplicate.size(), 1024U, method, sizeof(method), target, sizeof(target), content_length, has_content_length));
+    SetupHttpRequest setup_request{};
+    auto setupResult = [&](const std::string& value) {
+        return setupHttpParse(value.data(), value.size(), 2048U, 3072U, setup_request);
+    };
+    const std::string body7 = "a=12345";
+    const std::string request = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nOrigin: http://192.168.4.1\r\nContent-Length: 7\r\n\r\n" + body7;
+    assert(setupResult(request) == SetupHttpResult::Complete);
+    assert(std::strcmp(setup_request.method, "POST") == 0 && std::strcmp(setup_request.target, "/save") == 0 && setup_request.content_length == 7U);
+    const std::string hostile = "POST /save HTTP/1.1\r\nHost: attacker.example\r\nOrigin: http://192.168.4.1\r\nContent-Length: 7\r\n\r\n" + body7;
+    assert(setupResult(hostile) == SetupHttpResult::PolicyRejected);
+    const std::string missing_origin = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nContent-Length: 7\r\n\r\n" + body7;
+    assert(setupResult(missing_origin) == SetupHttpResult::PolicyRejected);
+    const std::string captive_referer_only = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nReferer: http://192.168.4.1/\r\nContent-Length: 7\r\n\r\n" + body7;
+    assert(setupResult(captive_referer_only) == SetupHttpResult::Complete);
+    const std::string default_port_origin = "POST /save HTTP/1.1\r\nHost: 192.168.4.1:80\r\nOrigin: http://192.168.4.1:80\r\nContent-Length: 7\r\n\r\n" + body7;
+    assert(setupResult(default_port_origin) == SetupHttpResult::Complete);
+    const std::string default_port_referer = "POST /save HTTP/1.1\r\nHost: 192.168.4.1:80\r\nReferer: http://192.168.4.1:80/\r\nContent-Length: 7\r\n\r\n" + body7;
+    assert(setupResult(default_port_referer) == SetupHttpResult::Complete);
+    const std::string foreign_referer = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nReferer: http://attacker.example/\r\nContent-Length: 7\r\n\r\n" + body7;
+    assert(setupResult(foreign_referer) == SetupHttpResult::PolicyRejected);
+    const std::string authority_confusion = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nReferer: http://192.168.4.1.attacker.example/\r\nContent-Length: 7\r\n\r\n" + body7;
+    assert(setupResult(authority_confusion) == SetupHttpResult::PolicyRejected);
+    const std::string duplicate_referer = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nReferer: http://192.168.4.1/\r\nReferer: http://192.168.4.1/\r\nContent-Length: 7\r\n\r\n" + body7;
+    assert(setupResult(duplicate_referer) == SetupHttpResult::PolicyRejected);
+    const std::string duplicate = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nOrigin: http://192.168.4.1\r\nContent-Length: 7\r\nContent-Length: 7\r\n\r\n" + body7;
+    assert(setupResult(duplicate) == SetupHttpResult::PolicyRejected);
+    const std::string duplicate_host = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nHost: 192.168.4.1\r\nOrigin: http://192.168.4.1\r\nContent-Length: 7\r\n\r\n" + body7;
+    assert(setupResult(duplicate_host) == SetupHttpResult::PolicyRejected);
+    const std::string foreign_origin = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nOrigin: http://192.168.4.1.attacker.example\r\nContent-Length: 7\r\n\r\n" + body7;
+    assert(setupResult(foreign_origin) == SetupHttpResult::PolicyRejected);
+    const std::string chunked = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nOrigin: http://192.168.4.1\r\nTransfer-Encoding: chunked\r\n\r\n";
+    assert(setupResult(chunked) == SetupHttpResult::PolicyRejected);
+
+    // Android may close its write side after enqueueing a split request. Any
+    // buffered body must still be drained after connected() becomes false.
+    assert(setupHttpCanRead(false, 464U));
+    assert(!setupHttpCanRead(false, 0U));
+
+    std::string split_header = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nOrigin: http://192.168.4.1\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: 464\r\nX-Android-Filler: ";
+    split_header += std::string(555U - split_header.size() - 4U, 'a');
+    split_header += "\r\n\r\n";
+    assert(split_header.size() == 555U);
+    const std::string split_body(464U, 'x');
+    assert(setupHttpParse(split_header.data(), split_header.size(), 2048U, 3072U, setup_request) == SetupHttpResult::NeedMore);
+    const std::string complete_setup_request = split_header + split_body;
+    assert(setupHttpParse(complete_setup_request.data(), complete_setup_request.size(), 2048U, 3072U, setup_request) == SetupHttpResult::Complete);
+    assert(setup_request.header_end == 555U && setup_request.content_length == 464U && setup_request.total_length == 1019U);
+    assert(setupHttpRoute(setup_request) == SetupHttpRoute::Save);
+    assert(setupResult(complete_setup_request + "x") == SetupHttpResult::Malformed);
+
+    std::string maximum_header = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nOrigin: http://192.168.4.1\r\nContent-Length: 1\r\nX-Fill: ";
+    maximum_header += std::string(2048U - maximum_header.size() - 4U, 'z');
+    maximum_header += "\r\n\r\nx";
+    assert(setupResult(maximum_header) == SetupHttpResult::Complete);
+    const std::string oversized_header(2049U, 'h');
+    assert(setupResult(oversized_header) == SetupHttpResult::HeaderTooLarge);
+    const std::string maximum_body_header = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nOrigin: http://192.168.4.1\r\nContent-Length: 3072\r\n\r\n";
+    assert(setupResult(maximum_body_header + std::string(3072U, 'x')) == SetupHttpResult::Complete);
+    const std::string oversized_body = "POST /save HTTP/1.1\r\nHost: 192.168.4.1\r\nOrigin: http://192.168.4.1\r\nContent-Length: 3073\r\n\r\n";
+    assert(setupResult(oversized_body) == SetupHttpResult::BodyTooLarge);
+
+    const std::string android_probe = "GET /generate_204 HTTP/1.1\r\nHost: connectivitycheck.gstatic.com\r\nConnection: close\r\n\r\n";
+    assert(setupHttpParse(android_probe.data(), android_probe.size(), 2048U, 3072U, setup_request) == SetupHttpResult::Complete);
+    assert(setupHttpRoute(setup_request) == SetupHttpRoute::CaptiveRedirect);
+    const std::string setup_page = "GET / HTTP/1.1\r\nHost: 192.168.4.1\r\n\r\n";
+    assert(setupResult(setup_page) == SetupHttpResult::Complete);
+    assert(setupHttpRoute(setup_request) == SetupHttpRoute::SetupPage);
     return 0;
 }

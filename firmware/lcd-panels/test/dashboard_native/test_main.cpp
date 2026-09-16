@@ -1,8 +1,11 @@
 #include "dashboard_logic.h"
+#include "dashboard_setup.h"
 
 #include <cassert>
 #include <cstdint>
+#include <cstring>
 #include <initializer_list>
+#include <string>
 
 int main() {
     static_assert(kDashboardScreenCount == 9U);
@@ -71,5 +74,23 @@ int main() {
     assert(migrated.order[3] == DashboardScreen::Launch);
     assert(migrated.duration_seconds[static_cast<std::uint8_t>(DashboardScreen::Weather)] == 23U);
     assert(!dashboardMigrateLegacySchedule(legacy_v2_order, legacy_v2_durations, 3U, migrated));
+
+    const char setup_body[] = "csrf=0123456789abcdef&wifi_ssid=HomeWiFi&wifi_password=ppppppppppppppppppppppppppppppppppp&latitude=32.5&longitude=-94.7&timezone=CST6CDT%2CM3.2.0%2CM11.1.0&order_1=clock&order_2=satellite&order_3=weather&order_4=launch&order_5=moon&order_6=solar&order_7=planet&order_8=neo&order_9=deep-space&duration_clock=15&duration_satellite=15&duration_weather=15&duration_launch=15&duration_moon=15&duration_solar=15&duration_planet=15&duration_neo=15&duration_deep-space=15";
+    static_assert(sizeof(setup_body) - 1U == 464U);
+    DashboardSetupFields setup{};
+    assert(dashboardParseSetupForm(setup_body, sizeof(setup_body) - 1U, setup));
+    assert(std::strcmp(setup.csrf, "0123456789abcdef") == 0);
+    assert(std::strcmp(setup.value.sources.wifi_ssid, "HomeWiFi") == 0);
+    assert(std::strcmp(setup.value.sources.wifi_password, "ppppppppppppppppppppppppppppppppppp") == 0);
+    assert(std::strcmp(setup.value.timezone, "CST6CDT,M3.2.0,M11.1.0") == 0);
+    assert(setup.value.schedule.order[8] == DashboardScreen::DeepSpace);
+    assert(setup.value.schedule.duration_seconds[8] == 15U);
+    std::string blank_password(setup_body);
+    const std::string password_value = "ppppppppppppppppppppppppppppppppppp";
+    blank_password.erase(blank_password.find(password_value), password_value.size());
+    assert(dashboardParseSetupForm(blank_password.data(), blank_password.size(), setup));
+    assert(setup.value.sources.wifi_password[0] == '\0');
+    const std::string duplicate_setup_field = std::string(setup_body) + "&wifi_ssid=Other";
+    assert(!dashboardParseSetupForm(duplicate_setup_field.data(), duplicate_setup_field.size(), setup));
     return 0;
 }

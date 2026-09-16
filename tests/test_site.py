@@ -109,7 +109,7 @@ class FirmwarePortalTests(unittest.TestCase):
 
     def test_lcd1602_smart_dashboard_combines_all_screens(self):
         project = next(project for project in self.load_catalog() if project["slug"] == "lcd1602-smart-dashboard")
-        self.assertEqual("3.0.2", project["version"])
+        self.assertEqual("3.1.0", project["version"])
         self.assertEqual(set(ESP_TARGETS), {target["id"] for target in project["targets"]})
         self.assertIn("nine-screen order", project["setup"]["summary"])
         self.assertNotIn("MQTT", " ".join(project["setup"]["fields"]))
@@ -118,6 +118,7 @@ class FirmwarePortalTests(unittest.TestCase):
         root = ROOT / project["project_dir"]
         source = (root / "src" / "dashboard_main.cpp").read_text()
         config_source = (root / "src" / "dashboard_config.cpp").read_text()
+        setup_source = (root / "src" / "dashboard_setup.cpp").read_text()
         logic = (root / "src" / "dashboard_logic.cpp").read_text()
         for required in ("DashboardScreen::Clock", "DashboardScreen::Satellite", "DashboardScreen::Weather", "DashboardScreen::Launch", "DashboardScreen::Moon", "DashboardScreen::Solar", "DashboardScreen::Planet", "DashboardScreen::Neo", "DashboardScreen::DeepSpace", "api.justsome.space/v1/lcd/space", "sntp_set_time_sync_notification_cb", "serviceRefresh", "Testing settings", "Setup ready"):
             self.assertIn(required, source)
@@ -125,8 +126,10 @@ class FirmwarePortalTests(unittest.TestCase):
         self.assertNotIn("BoundedMqttClient", source)
         self.assertNotIn("DashboardScreen::Unifi", source)
         self.assertNotIn("fetchUnifi", source)
-        for required in ("order_", "duration_%s", "min=5 max=3600", "Content-Security-Policy", "dashboardStoreConfig(\"pending\"", "<title>", "<html lang=en>", "Leave blank to keep current"):
+        for required in ("order_", "min=5 max=3600", "Content-Security-Policy", "dashboardStoreConfig(\"pending\"", "<title>", "<html lang=en>", "Leave blank to keep current", "dashboardParseSetupForm"):
             self.assertIn(required, config_source)
+        for required in ("duration_%s", "0xffffffULL", "count > 24U"):
+            self.assertIn(required, setup_source)
         self.assertIn("dashboardSlotExpired", logic)
         self.assertIn("dashboardDurationForSlot", logic)
         self.assertIn('if (!loadAny("backup", value) || !dashboardRemoveConfig("active")) return false;', config_source)
@@ -138,8 +141,7 @@ class FirmwarePortalTests(unittest.TestCase):
         self.assertNotIn("unifi_url", config_source)
         self.assertNotIn("UniFi bridge", config_source)
         self.assertIn("kMaxHeader = 2048U", config_source)
-        self.assertIn("0xffffffULL", config_source)
-        self.assertIn("count > 24U", config_source)
+
         self.assertIn("kVersion = 4U", config_source)
         self.assertIn("loadLegacyV2", config_source)
         self.assertIn("loadLegacyV3", config_source)
@@ -170,7 +172,7 @@ class FirmwarePortalTests(unittest.TestCase):
         self.assertTrue(expected <= projects.keys())
         for slug in expected:
             project = projects[slug]
-            self.assertEqual("1.1.1", project["version"])
+            self.assertEqual("1.2.0", project["version"])
             self.assertEqual(set(ESP_TARGETS), {target["id"] for target in project["targets"]})
             self.assertTrue(project["extra_hardware"])
             self.assertIn("LCD1602", project["hardware"])
@@ -190,6 +192,7 @@ class FirmwarePortalTests(unittest.TestCase):
         http = (root / "src" / "bounded_http.cpp").read_text()
         mqtt = (root / "src" / "bounded_mqtt.cpp").read_text()
         config = (root / "src" / "panel_config.cpp").read_text()
+        setup_http = (root / "src" / "setup_http.cpp").read_text()
         lcd = (root / "src" / "panel_lcd.cpp").read_text()
         address_scan = (ROOT / "firmware" / "common" / "lcd1602_i2c.h").read_text()
         workflow = (ROOT / ".github" / "workflows" / "pages.yml").read_text()
@@ -208,11 +211,13 @@ class FirmwarePortalTests(unittest.TestCase):
         self.assertNotIn("HTTPClient", main + http)
         self.assertNotIn("unifi_api_key", main + config)
         for required in (
-            "WiFi.softAP(ssid, password, 1, false, 1)", "panelParseHttpRequest",
+            "WiFi.softAP(ssid, password, 1, false, 1)", "setupHttpParse",
             "Content-Security-Policy", "rejected_pending_marker", "panelStoreConfig(\"pending\"",
-            "panelBeginPendingValidation",
+            "panelBeginPendingValidation", "request_buffer[kMaxRequest + 1U]", "SetupHttpRoute::CaptiveRedirect",
         ):
             self.assertIn(required, config)
+        for required in ("transfer-encoding", "canonical_host", "validOrigin", "validReferer", "SetupHttpResult::BodyTooLarge"):
+            self.assertIn(required, setup_http)
         self.assertIn("nvs_get_blob", config)
         self.assertIn("ESP_ERR_NVS_NOT_FOUND", config)
         self.assertNotIn("preferences.isKey", config)

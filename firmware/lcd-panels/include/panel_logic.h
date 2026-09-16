@@ -31,6 +31,3 @@ bool buildWeatherPath(double latitude, double longitude, char* output, std::size
 const char* weatherCondition(int code);
 bool panelConfigValid(PanelKind kind, const PanelConfig& value);
 std::uint32_t panelCrc32(const unsigned char* data, std::size_t length);
-bool panelParseHttpRequest(const char* data, std::size_t length, std::size_t maximum_body_bytes,
-                           char* method, std::size_t method_capacity, char* target, std::size_t target_capacity,
-                           std::size_t& content_length, bool& has_content_length);

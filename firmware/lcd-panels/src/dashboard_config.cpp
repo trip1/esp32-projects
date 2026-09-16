@@ -1,4 +1,6 @@
 #include "dashboard_config.h"
+#include "dashboard_setup.h"
+#include "setup_http.h"
 
 #include <DNSServer.h>
 #include <Preferences.h>
@@ -32,14 +34,6 @@ struct LegacyStoredConfigV2 { uint32_t magic; uint16_t version; uint16_t reserve
 struct LegacyScheduleV3 { uint8_t order[10]{}; uint16_t duration_seconds[10]{}; };
 struct LegacyConfigV3 { PanelConfig sources{}; char timezone[65]{}; LegacyScheduleV3 schedule{}; };
 struct LegacyStoredConfigV3 { uint32_t magic; uint16_t version; uint16_t reserved; LegacyConfigV3 value; uint32_t crc32; };
-struct Fields {
-    DashboardConfig value{};
-    char csrf[17]{};
-    char order[kDashboardScreenCount][12]{};
-    char duration[kDashboardScreenCount][5]{};
-    uint64_t seen = 0U;
-};
-
 RTC_DATA_ATTR uint32_t rejected_pending_marker = 0U;
 DNSServer dns;
 WiFiServer server(80);
@@ -57,75 +51,6 @@ void clearRequestBuffer() {
 struct RequestBufferGuard { ~RequestBufferGuard() { clearRequestBuffer(); } };
 
 uint32_t checksum(const StoredConfig& value) { return panelCrc32(reinterpret_cast<const unsigned char*>(&value), offsetof(StoredConfig, crc32)); }
-
-bool decode(const char* input, size_t length, char* output, size_t capacity) {
-    if (length >= capacity) return false;
-    size_t written = 0U;
-    auto hex = [](char c) -> int { return c >= '0' && c <= '9' ? c - '0' : c >= 'a' && c <= 'f' ? c - 'a' + 10 : c >= 'A' && c <= 'F' ? c - 'A' + 10 : -1; };
-    for (size_t index = 0U; index < length; ++index) {
-        unsigned char value = static_cast<unsigned char>(input[index]);
-        if (value == '+') value = ' ';
-        else if (value == '%') {
-            if (index + 2U >= length) return false;
-            const int high = hex(input[++index]); const int low = hex(input[++index]);
-            if (high < 0 || low < 0) return false;
-            value = static_cast<unsigned char>((high << 4) | low);
-        }
-        if (value < 0x20U || value > 0x7eU || written + 1U >= capacity) return false;
-        output[written++] = static_cast<char>(value);
-    }
-    output[written] = '\0';
-    return true;
-}
-
-bool assign(Fields& fields, const char* name, size_t name_length, const char* value, size_t value_length) {
-    struct Definition { const char* name; uint32_t bit; char* output; size_t capacity; } definitions[] = {
-        {"csrf",1U<<0,fields.csrf,sizeof(fields.csrf)}, {"wifi_ssid",1U<<1,fields.value.sources.wifi_ssid,sizeof(fields.value.sources.wifi_ssid)},
-        {"wifi_password",1U<<2,fields.value.sources.wifi_password,sizeof(fields.value.sources.wifi_password)},
-        {"latitude",1U<<3,fields.value.sources.latitude,sizeof(fields.value.sources.latitude)}, {"longitude",1U<<4,fields.value.sources.longitude,sizeof(fields.value.sources.longitude)},
-        {"timezone",1U<<5,fields.value.timezone,sizeof(fields.value.timezone)},
-    };
-    for (const auto& definition : definitions) {
-        if (std::strlen(definition.name) != name_length || std::memcmp(name, definition.name, name_length) != 0) continue;
-        if ((fields.seen & definition.bit) != 0U || !decode(value, value_length, definition.output, definition.capacity)) return false;
-        fields.seen |= definition.bit; return true;
-    }
-    for (size_t index = 0U; index < kDashboardScreenCount; ++index) {
-        char order_name[9]{}; char duration_name[24]{};
-        std::snprintf(order_name, sizeof(order_name), "order_%u", static_cast<unsigned>(index + 1U));
-        std::snprintf(duration_name, sizeof(duration_name), "duration_%s", dashboardScreenName(static_cast<DashboardScreen>(index)));
-        const uint64_t order_bit = 1ULL << (6U + index); const uint64_t duration_bit = 1ULL << (15U + index);
-        if (std::strlen(order_name) == name_length && std::memcmp(name, order_name, name_length) == 0) {
-            if ((fields.seen & order_bit) != 0U || !decode(value, value_length, fields.order[index], sizeof(fields.order[index]))) return false;
-            fields.seen |= order_bit; return true;
-        }
-        if (std::strlen(duration_name) == name_length && std::memcmp(name, duration_name, name_length) == 0) {
-            if ((fields.seen & duration_bit) != 0U || !decode(value, value_length, fields.duration[index], sizeof(fields.duration[index]))) return false;
-            fields.seen |= duration_bit; return true;
-        }
-    }
-    return false;
-}
-
-bool parseForm(const char* body, size_t length, Fields& fields) {
-    if (body == nullptr || length == 0U || length > kMaxBody) return false;
-    size_t start = 0U; unsigned count = 0U;
-    while (start < length) {
-        if (++count > 24U) return false;
-        size_t end = start; while (end < length && body[end] != '&') ++end;
-        size_t equals = start; while (equals < end && body[equals] != '=') ++equals;
-        if (equals == start || equals == end || !assign(fields, body + start, equals - start, body + equals + 1U, end - equals - 1U)) return false;
-        start = end + 1U;
-    }
-    if (fields.seen != 0xffffffULL) return false;
-    for (size_t index = 0U; index < kDashboardScreenCount; ++index) {
-        if (!dashboardParseScreen(fields.order[index], fields.value.schedule.order[index])) return false;
-        unsigned duration = 0U;
-        for (const char* digit = fields.duration[index]; *digit != '\0'; ++digit) { if (*digit < '0' || *digit > '9') return false; duration = duration * 10U + static_cast<unsigned>(*digit - '0'); }
-        fields.value.schedule.duration_seconds[index] = static_cast<uint16_t>(duration);
-    }
-    return true;
-}
 
 void appendEscaped(String& output, const char* value) {
     if (value == nullptr) return;
@@ -154,7 +79,7 @@ String page(const char* message = nullptr, const DashboardConfig* preset = nullp
     String output; output.reserve(16000U);
     output += F("<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content='width=device-width'><title>LCD1602 Smart Dashboard setup</title><style>body{font:16px system-ui;max-width:44rem;margin:2rem auto;padding:0 1rem;background:#0b1020;color:#e8eefc}main,fieldset{background:#151d33;padding:1rem;border-radius:14px;border:1px solid #354263;margin:1rem 0}label{display:block;margin:.65rem 0}input,select{box-sizing:border-box;width:100%;padding:.65rem;background:#0b1020;color:#fff;border:1px solid #52638f;border-radius:8px}.row{display:grid;grid-template-columns:2fr 1fr;gap:.75rem}button{padding:.8rem 1rem;background:#62d6a7;border:0;border-radius:8px;font-weight:700}</style></head><body><main><h1>LCD1602 Smart Dashboard</h1><p>Configure all nine screens, their order, and display duration. Space screens use your weather coordinates with the DS9 launch tracker bridge. Settings are tested before promotion.</p>");
     if (message) { output += F("<p role=alert><strong>"); appendEscaped(output, message); output += F("</strong></p>"); }
-    output += F("<form method=post action=/save><input type=hidden name=csrf value='"); output += csrf_token;
+    output += F("<form method=post action=/save enctype=application/x-www-form-urlencoded accept-charset=UTF-8><input type=hidden name=csrf value='"); output += csrf_token;
     output += F("'><fieldset><legend>Network and clock</legend>");
     addTextInput(output,"Wi-Fi name","wifi_ssid",32U,preset?preset->sources.wifi_ssid:"");
     output += F("<label>Wi-Fi password<input type=password autocomplete=new-password name=wifi_password maxlength=63 placeholder='Leave blank to keep current'></label><label>Timezone<select name=timezone required>");
@@ -175,25 +100,27 @@ String page(const char* message = nullptr, const DashboardConfig* preset = nullp
 }
 
 void send(WiFiClient& client, int status, const char* reason, const String& body) {
-    client.printf("HTTP/1.1 %d %s\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: %u\r\nConnection: close\r\nCache-Control: no-store\r\nContent-Security-Policy: default-src 'none'; style-src 'unsafe-inline'; form-action 'self'\r\nX-Content-Type-Options: nosniff\r\nReferrer-Policy: no-referrer\r\n\r\n", status, reason, static_cast<unsigned>(body.length())); client.print(body);
+    client.printf("HTTP/1.1 %d %s\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: %u\r\nConnection: close\r\nCache-Control: no-store\r\nContent-Security-Policy: default-src 'none'; style-src 'unsafe-inline'; form-action 'self'\r\nX-Content-Type-Options: nosniff\r\nReferrer-Policy: same-origin\r\n\r\n", status, reason, static_cast<unsigned>(body.length())); client.print(body);
 }
 
-bool readRequest(WiFiClient& client, char* request, size_t capacity, size_t& bytes_read, size_t& header_end, size_t& content_length, char* method, size_t method_capacity, char* target, size_t target_capacity) {
-    size_t used = 0U; bytes_read = 0U; header_end = 0U; content_length = 0U; const uint32_t started = millis();
-    while (client.connected() && static_cast<uint32_t>(millis() - started) < 2000U) {
+void redirectToSetup(WiFiClient& client) {
+    client.print(F("HTTP/1.1 302 Found\r\nLocation: http://192.168.4.1/\r\nContent-Length: 0\r\nConnection: close\r\nCache-Control: no-store\r\n\r\n"));
+}
+
+SetupHttpResult readRequest(WiFiClient& client, char* request, size_t capacity, size_t& bytes_read, SetupHttpRequest& parsed) {
+    size_t used = 0U; bytes_read = 0U; const uint32_t started = millis();
+    SetupHttpResult result = SetupHttpResult::NeedMore;
+    while (static_cast<uint32_t>(millis() - started) < 5000U) {
         while (client.available()) {
-            if (used + 1U >= capacity) return false;
+            if (used + 1U >= capacity) return SetupHttpResult::BodyTooLarge;
             request[used++] = static_cast<char>(client.read()); bytes_read = used; request[used] = '\0';
-            if (header_end == 0U && used >= 4U && std::memcmp(request + used - 4U, "\r\n\r\n", 4U) == 0) {
-                header_end = used; if (header_end > kMaxHeader) return false; bool has_length = false;
-                if (!panelParseHttpRequest(request, header_end, kMaxBody, method, method_capacity, target, target_capacity, content_length, has_length)) return false;
-                if (std::strcmp(method, "POST") == 0 && !has_length) return false;
-            }
-            if (header_end != 0U && used >= header_end + content_length) return used == header_end + content_length;
         }
+        result = setupHttpParse(request, used, kMaxHeader, kMaxBody, parsed);
+        if (result != SetupHttpResult::NeedMore) return result;
+        if (!setupHttpCanRead(client.connected(), static_cast<size_t>(client.available()))) return result;
         delay(1);
     }
-    return false;
+    return result;
 }
 
 void randomHex(char* output, size_t bytes) { static constexpr char hex[] = "0123456789abcdef"; for (size_t i=0;i<bytes;++i) { const uint8_t v=static_cast<uint8_t>(esp_random()); output[i*2U]=hex[v>>4U]; output[i*2U+1U]=hex[v&15U]; } output[bytes*2U]='\0'; }
@@ -321,22 +248,30 @@ void dashboardHandleProvisioning() {
     WiFiClient client = server.accept();
     if (!client) return;
     client.setTimeout(2U);
-    clearRequestBuffer(); RequestBufferGuard request_guard; char method[8]{}; char target[64]{};
-    size_t bytes_read = 0U; size_t header_end = 0U; size_t content_length = 0U;
+    clearRequestBuffer(); RequestBufferGuard request_guard;
+    size_t bytes_read = 0U; SetupHttpRequest request{};
     DashboardConfig existing{};
     const bool has_existing = dashboardLoadConfig("active", existing);
-    if (!readRequest(client, request_buffer, sizeof(request_buffer), bytes_read, header_end, content_length, method, sizeof(method), target, sizeof(target))) {
-        Serial.printf("Dashboard setup request rejected: bytes=%u header=%u body=%u method=%s target=%s origin=%u referer=%u length=%u\n",static_cast<unsigned>(bytes_read),static_cast<unsigned>(header_end),static_cast<unsigned>(content_length),method,target,std::strstr(request_buffer,"\r\nOrigin:")!=nullptr?1U:0U,std::strstr(request_buffer,"\r\nReferer:")!=nullptr?1U:0U,std::strstr(request_buffer,"\r\nContent-Length:")!=nullptr?1U:0U);
-        send(client, 400, "Bad Request", page("Malformed or oversized request.", has_existing ? &existing : nullptr)); client.stop(); return;
+    const SetupHttpResult read_result = readRequest(client, request_buffer, sizeof(request_buffer), bytes_read, request);
+    if (read_result != SetupHttpResult::Complete) {
+        const size_t body_received = bytes_read > request.header_end ? bytes_read - request.header_end : 0U;
+        Serial.printf("Dashboard setup request rejected: reason=%s bytes=%u header=%u body_received=%u body_expected=%u method=%s target=%s\n",
+            setupHttpResultName(read_result), static_cast<unsigned>(bytes_read), static_cast<unsigned>(request.header_end),
+            static_cast<unsigned>(body_received), static_cast<unsigned>(request.content_length), request.method, request.target);
+        send(client, 400, "Bad Request", page("The browser sent an incomplete or invalid request. Reload setup and try again.", has_existing ? &existing : nullptr)); client.stop(); return;
     }
-    if (std::strcmp(method, "GET") == 0 && std::strcmp(target, "/") == 0) {
+    const SetupHttpRoute route = setupHttpRoute(request);
+    if (route == SetupHttpRoute::CaptiveRedirect) {
+        redirectToSetup(client); client.stop(); return;
+    }
+    if (route == SetupHttpRoute::SetupPage) {
         send(client, 200, "OK", page(nullptr, has_existing ? &existing : nullptr)); client.stop(); return;
     }
-    if (std::strcmp(method, "POST") != 0 || std::strcmp(target, "/save") != 0) {
+    if (route != SetupHttpRoute::Save) {
         send(client, 404, "Not Found", page("Not found.", has_existing ? &existing : nullptr)); client.stop(); return;
     }
-    Fields fields{};
-    const bool parsed = parseForm(request_buffer + header_end, content_length, fields);
+    DashboardSetupFields fields{};
+    const bool parsed = dashboardParseSetupForm(request_buffer + request.header_end, request.content_length, fields);
     if (parsed && has_existing) {
         if (fields.value.sources.wifi_password[0] == '\0') std::memcpy(fields.value.sources.wifi_password, existing.sources.wifi_password, sizeof(fields.value.sources.wifi_password));
     }

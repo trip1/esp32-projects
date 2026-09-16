@@ -1887,7 +1887,7 @@
   {
     "slug": "mqtt-home-status-panel",
     "name": "MQTT Home Status Panel",
-    "version": "1.1.1",
+    "version": "1.2.0",
     "category": "Practical",
     "description": "Subscribes to one exact MQTT topic and shows a configured label with bounded text or common temperature and humidity JSON values on an LCD1602.",
     "hardware": "Inland KS0061 LCD1602 or compatible HD44780 16x2 LCD with common PCF8574 mapping at configured address 0x27, powered through a bidirectional I2C level shifter",
@@ -2145,7 +2145,7 @@
   {
     "slug": "unifi-network-panel",
     "name": "UniFi Network Panel",
-    "version": "1.1.1",
+    "version": "1.2.0",
     "category": "Practical",
     "description": "Shows WAN state, latency, connected clients, and access-point count from a sanitized read-only UniFi metrics bridge without storing a controller API key on the display.",
     "hardware": "Inland KS0061 LCD1602 or compatible HD44780 16x2 LCD with common PCF8574 mapping at configured address 0x27, powered through a bidirectional I2C level shifter",
@@ -2401,7 +2401,7 @@
   {
     "slug": "space-satellite-tracker",
     "name": "Space and Satellite Tracker",
-    "version": "1.1.1",
+    "version": "1.2.0",
     "category": "Fun",
     "description": "Polls the public Where the ISS at API over validated HTTPS and displays the ISS latitude, longitude, and altitude on an LCD1602.",
     "hardware": "Inland KS0061 LCD1602 or compatible HD44780 16x2 LCD with common PCF8574 mapping at configured address 0x27, powered through a bidirectional I2C level shifter",
@@ -2656,7 +2656,7 @@
   {
     "slug": "wifi-weather-station",
     "name": "Wi-Fi Weather Desk Station",
-    "version": "1.1.1",
+    "version": "1.2.0",
     "category": "Practical",
     "description": "Fetches current Open-Meteo temperature, humidity, and WMO condition data for configured coordinates and presents it on an LCD1602.",
     "hardware": "Inland KS0061 LCD1602 or compatible HD44780 16x2 LCD with common PCF8574 mapping at configured address 0x27, powered through a bidirectional I2C level shifter",
@@ -2913,7 +2913,7 @@
   {
     "slug": "lcd1602-smart-dashboard",
     "name": "LCD1602 Smart Dashboard",
-    "version": "3.0.2",
+    "version": "3.1.0",
     "category": "Practical",
     "description": "Rotates clock, ISS, weather, next launch, Moon, solar activity, planet visibility, near-Earth object, and deep-space mission screens on one LCD1602.",
     "hardware": "Inland KS0061 LCD1602 or compatible HD44780 16x2 LCD with common PCF8574 mapping at configured address 0x27, powered through a bidirectional I2C level shifter",

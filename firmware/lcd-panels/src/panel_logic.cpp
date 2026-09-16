@@ -5,7 +5,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <string>
 
 namespace {
 void fitLine(const char* value, char output[17]) {
@@ -88,21 +87,6 @@ bool validUnifiUrl(const char* value) {
     return (port == 80U || port == 8080U || port == 8090U) && privateIpv4(authority, host_end);
 }
 
-const char* findCrlf(const char* begin, const char* end) {
-    for (const char* cursor = begin; cursor + 1 < end; ++cursor) {
-        if (cursor[0] == '\r' && cursor[1] == '\n') return cursor;
-    }
-    return nullptr;
-}
-
-bool equalHeaderName(const char* begin, const char* end, const char* expected) {
-    const std::size_t length = static_cast<std::size_t>(end - begin);
-    if (length != std::strlen(expected)) return false;
-    for (std::size_t index = 0U; index < length; ++index) {
-        if (std::tolower(static_cast<unsigned char>(begin[index])) != std::tolower(static_cast<unsigned char>(expected[index]))) return false;
-    }
-    return true;
-}
 }
 
 void formatMqttText(const char* label, const char* value, char top[17], char bottom[17]) {
@@ -204,74 +188,4 @@ std::uint32_t panelCrc32(const unsigned char* data, std::size_t length) {
         for (unsigned bit = 0U; bit < 8U; ++bit) crc = (crc >> 1U) ^ (0xedb88320U & (0U - (crc & 1U)));
     }
     return ~crc;
-}
-
-bool panelParseHttpRequest(const char* data, std::size_t length, std::size_t maximum_body_bytes,
-                           char* method, std::size_t method_capacity, char* target, std::size_t target_capacity,
-                           std::size_t& content_length, bool& has_content_length) {
-    content_length = 0U;
-    has_content_length = false;
-    if (data == nullptr || method == nullptr || target == nullptr || method_capacity == 0U || target_capacity == 0U || length < 4U
-        || std::memchr(data, '\0', length) != nullptr || std::memcmp(data + length - 4U, "\r\n\r\n", 4U) != 0) return false;
-    const char* end = data + length;
-    const char* request_end = findCrlf(data, end);
-    if (request_end == nullptr) return false;
-    const char* first_space = static_cast<const char*>(std::memchr(data, ' ', static_cast<std::size_t>(request_end - data)));
-    const char* second_space = first_space == nullptr ? nullptr : static_cast<const char*>(std::memchr(first_space + 1, ' ', static_cast<std::size_t>(request_end - first_space - 1)));
-    if (first_space == nullptr || second_space == nullptr || std::memchr(second_space + 1, ' ', static_cast<std::size_t>(request_end - second_space - 1)) != nullptr) return false;
-    const std::size_t method_length = static_cast<std::size_t>(first_space - data);
-    const std::size_t target_length = static_cast<std::size_t>(second_space - first_space - 1);
-    const std::string protocol(second_space + 1, request_end);
-    if (method_length == 0U || method_length >= method_capacity || target_length == 0U || target_length >= target_capacity
-        || (protocol != "HTTP/1.1" && protocol != "HTTP/1.0") || first_space[1] != '/') return false;
-    for (const char* cursor = first_space + 1; cursor < second_space; ++cursor) {
-        const unsigned char character = static_cast<unsigned char>(*cursor);
-        if (character <= 0x20U || character == 0x7fU) return false;
-    }
-    std::memcpy(method, data, method_length); method[method_length] = '\0';
-    std::memcpy(target, first_space + 1, target_length); target[target_length] = '\0';
-    if (std::strcmp(method, "GET") != 0 && std::strcmp(method, "POST") != 0) return false;
-    const bool state_changing = std::strcmp(method, "POST") == 0;
-    bool host_seen = false; bool origin_seen = false; bool referer_seen = false;
-    const char* cursor = request_end + 2;
-    while (cursor < end) {
-        const char* line_end = findCrlf(cursor, end);
-        if (line_end == nullptr) return false;
-        if (line_end == cursor) return line_end + 2 == end && host_seen && (!state_changing || origin_seen || referer_seen);
-        const char* colon = static_cast<const char*>(std::memchr(cursor, ':', static_cast<std::size_t>(line_end - cursor)));
-        if (colon == nullptr || colon == cursor) return false;
-        for (const char* name = cursor; name < colon; ++name) if (!std::isalnum(static_cast<unsigned char>(*name)) && *name != '-') return false;
-        const char* value_begin = colon + 1;
-        while (value_begin < line_end && (*value_begin == ' ' || *value_begin == '\t')) ++value_begin;
-        const char* value_end = line_end;
-        while (value_end > value_begin && (value_end[-1] == ' ' || value_end[-1] == '\t')) --value_end;
-        for (const char* value = value_begin; value < value_end; ++value) if (static_cast<unsigned char>(*value) < 0x20U && *value != '\t') return false;
-        if (equalHeaderName(cursor, colon, "transfer-encoding")) return false;
-        if (equalHeaderName(cursor, colon, "host")) {
-            const std::string value(value_begin, value_end);
-            if (host_seen || (value != "192.168.4.1" && value != "192.168.4.1:80")) return false;
-            host_seen = true;
-        } else if (equalHeaderName(cursor, colon, "origin")) {
-            const std::string value(value_begin, value_end);
-            if (origin_seen || (state_changing && value != "http://192.168.4.1" && value != "http://192.168.4.1:80")) return false;
-            origin_seen = true;
-        } else if (equalHeaderName(cursor, colon, "referer")) {
-            const std::string value(value_begin, value_end);
-            if (referer_seen || (state_changing && value.rfind("http://192.168.4.1/", 0U) != 0U && value.rfind("http://192.168.4.1:80/", 0U) != 0U)) return false;
-            referer_seen = true;
-        } else if (equalHeaderName(cursor, colon, "content-length")) {
-            if (has_content_length || value_begin == value_end) return false;
-            std::size_t parsed = 0U;
-            for (const char* digit = value_begin; digit < value_end; ++digit) {
-                if (*digit < '0' || *digit > '9') return false;
-                const std::size_t next = parsed * 10U + static_cast<std::size_t>(*digit - '0');
-                if (next < parsed || next > maximum_body_bytes) return false;
-                parsed = next;
-            }
-            content_length = parsed;
-            has_content_length = true;
-        }
-        cursor = line_end + 2;
-    }
-    return false;
 }
