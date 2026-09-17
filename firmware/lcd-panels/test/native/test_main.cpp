@@ -1,5 +1,6 @@
 #include "panel_logic.h"
 #include "lcd1602_i2c.h"
+#include "bounded_http_logic.h"
 #include "setup_http.h"
 
 #include <cassert>
@@ -198,5 +199,22 @@ int main() {
     const std::string setup_page = "GET / HTTP/1.1\r\nHost: 192.168.4.1\r\n\r\n";
     assert(setupResult(setup_page) == SetupHttpResult::Complete);
     assert(setupHttpRoute(setup_request) == SetupHttpRoute::SetupPage);
+
+    // Cloudflare's irrelevant Report-To value varies beyond 254 bytes. It
+    // must fit under the aggregate header budget without blocking framing.
+    const std::string cloudflare_headers = "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nReport-To: "
+        + std::string(300U, 'r') + "\r\n\r\n";
+    HttpResponseFraming response_framing{};
+    assert(panelParseResponseHeaders(cloudflare_headers.data(), cloudflare_headers.size(), 2048U, 2048U, response_framing));
+    assert(response_framing.chunked && !response_framing.has_content_length);
+    const std::string content_length_response = "HTTP/1.1 200 OK\r\nContent-Length: 640\r\n\r\n";
+    assert(panelParseResponseHeaders(content_length_response.data(), content_length_response.size(), 2048U, 2048U, response_framing));
+    assert(response_framing.has_content_length && response_framing.content_length == 640U && !response_framing.chunked);
+    const std::string ambiguous_response = "HTTP/1.1 200 OK\r\nContent-Length: 7\r\nTransfer-Encoding: chunked\r\n\r\n";
+    assert(!panelParseResponseHeaders(ambiguous_response.data(), ambiguous_response.size(), 2048U, 2048U, response_framing));
+    const std::string duplicate_response_length = "HTTP/1.1 200 OK\r\nContent-Length: 7\r\nContent-Length: 7\r\n\r\n";
+    assert(!panelParseResponseHeaders(duplicate_response_length.data(), duplicate_response_length.size(), 2048U, 2048U, response_framing));
+    const std::string oversized_response_body = "HTTP/1.1 200 OK\r\nContent-Length: 2049\r\n\r\n";
+    assert(!panelParseResponseHeaders(oversized_response_body.data(), oversized_response_body.size(), 2048U, 2048U, response_framing));
     return 0;
 }

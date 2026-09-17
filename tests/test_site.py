@@ -109,7 +109,7 @@ class FirmwarePortalTests(unittest.TestCase):
 
     def test_lcd1602_smart_dashboard_combines_all_screens(self):
         project = next(project for project in self.load_catalog() if project["slug"] == "lcd1602-smart-dashboard")
-        self.assertEqual("3.1.0", project["version"])
+        self.assertEqual("3.1.1", project["version"])
         self.assertEqual(set(ESP_TARGETS), {target["id"] for target in project["targets"]})
         self.assertIn("nine-screen order", project["setup"]["summary"])
         self.assertNotIn("MQTT", " ".join(project["setup"]["fields"]))
@@ -172,7 +172,7 @@ class FirmwarePortalTests(unittest.TestCase):
         self.assertTrue(expected <= projects.keys())
         for slug in expected:
             project = projects[slug]
-            self.assertEqual("1.2.0", project["version"])
+            self.assertEqual("1.2.1", project["version"])
             self.assertEqual(set(ESP_TARGETS), {target["id"] for target in project["targets"]})
             self.assertTrue(project["extra_hardware"])
             self.assertIn("LCD1602", project["hardware"])
@@ -190,6 +190,7 @@ class FirmwarePortalTests(unittest.TestCase):
         main = (root / "src" / "main.cpp").read_text()
         logic = (root / "src" / "panel_logic.cpp").read_text()
         http = (root / "src" / "bounded_http.cpp").read_text()
+        http_logic = (root / "src" / "bounded_http_logic.cpp").read_text()
         mqtt = (root / "src" / "bounded_mqtt.cpp").read_text()
         config = (root / "src" / "panel_config.cpp").read_text()
         setup_http = (root / "src" / "setup_http.cpp").read_text()
@@ -201,8 +202,10 @@ class FirmwarePortalTests(unittest.TestCase):
             "length > 256U",
         ):
             self.assertIn(required, main)
-        for required in ("total_header > 2048U", "readChunked", "capacity > 2049U", "setCACert(ca_certificate)"):
+        for required in ("total_header > 2048U", "readChunked", "capacity > 2049U", "setCACert(ca_certificate)", "response_headers[2049]", "panelParseResponseHeaders"):
             self.assertIn(required, http)
+        for required in ("length > maximum_header_bytes", "transfer-encoding", "content-length", "maximum_body_bytes"):
+            self.assertIn(required, http_logic)
         for required in ("remaining_length_ > sizeof(body_)", "response_type != 0x90U", "network_.startDeadline(6000U)", "MSG_DONTWAIT", "packet_active_", "packet_type_ == 0xd0U"):
             self.assertIn(required, mqtt)
         self.assertIn("validExactMqttTopic", logic)

@@ -6,7 +6,7 @@ Five browser-flashable LCD1602 projects share bounded drivers and four exact ESP
 - **UniFi Network Panel** reads a normalized metrics bridge. The bridge keeps the powerful UniFi API key off the display and returns only WAN state, latency, client count, AP count, and a freshness timestamp.
 - **Space and Satellite Tracker** polls the public Where the ISS at endpoint for NORAD 25544 every ten seconds.
 - **Wi-Fi Weather Desk Station** polls Open-Meteo current temperature, humidity, and WMO condition data every ten minutes for configured coordinates.
-- **LCD1602 Smart Dashboard** combines nine screen types: Clock, ISS, Weather, Next Launch, Moon, Solar Activity, Planet Visibility, Near-Earth Object, and Deep-Space Mission. MQTT setup and the MQTT screen are intentionally absent; the standalone MQTT Home Status Panel remains available. Protected setup orders every screen exactly once and assigns each screen its own 5-3600 second duration. The six space-summary screens refresh through `https://api.justsome.space/v1/lcd/space`; the request rounds configured coordinates to one decimal degree for planet visibility. Version 3.1.0 uses configuration schema v4 and migrates verified schema-v2/v3 settings while dropping the old MQTT screen. Setup now uses one shared bounded HTTP state machine: it drains buffered POST bodies even after the browser closes its write side, accepts the measured 555-byte-header/464-byte-body Android request, and redirects captive checks such as `/generate_204` to the canonical setup origin. POST still requires the exact local Host, a same-origin Origin or Referer, one bounded Content-Length, and the per-boot CSRF token. The LCD shows startup, setup, validation, connection, and rejection states, while serial rejection diagnostics report a bounded reason code and received/expected byte counts without headers or credentials.
+- **LCD1602 Smart Dashboard** combines nine screen types: Clock, ISS, Weather, Next Launch, Moon, Solar Activity, Planet Visibility, Near-Earth Object, and Deep-Space Mission. MQTT setup and the MQTT screen are intentionally absent; the standalone MQTT Home Status Panel remains available. Protected setup orders every screen exactly once and assigns each screen its own 5-3600 second duration. The six space-summary screens refresh through `https://api.justsome.space/v1/lcd/space`; the request rounds configured coordinates to one decimal degree for planet visibility. Version 3.1.1 uses configuration schema v4 and migrates verified schema-v2/v3 settings while dropping the old MQTT screen. Setup now uses one shared bounded HTTP state machine: it drains buffered POST bodies even after the browser closes its write side, accepts the measured 555-byte-header/464-byte-body Android request, and redirects captive checks such as `/generate_204` to the canonical setup origin. POST still requires the exact local Host, a same-origin Origin or Referer, one bounded Content-Length, and the per-boot CSRF token. The LCD shows startup, setup, validation, connection, and rejection states, while serial rejection diagnostics report a bounded reason code and received/expected byte counts without headers or credentials.
 
 ## Hardware and wiring
 
@@ -45,9 +45,9 @@ The local Network Integration API base is normally `https://<console>/proxy/netw
 
 ## Network behavior
 
-- HTTPS validates against bundled ISRG Root X1; `setInsecure()` is never used.
+- HTTPS validates against bundled ISRG Root X1 and GTS Root R4 certificates; `setInsecure()` is never used.
 - Weather and ISS data require SNTP time before TLS and reject stale timestamps.
-- HTTP operations use fixed buffers with 2048-byte aggregate headers, 256-byte header/chunk lines, a 2048-byte body cap, strict content-length/chunked framing, and a disposable task with an eight-second outer deadline. A deadline overrun restarts the device to reset transport state.
+- HTTP operations use a fixed 2048-byte aggregate response-header buffer, parse framing independently of irrelevant header-line length, retain a 24-byte chunk-framing line cap, enforce a 2048-byte body cap and strict content-length/chunked framing, and run in a disposable task with an eight-second outer deadline. This accepts Cloudflare's variable 254–266-byte `Report-To` response header without relaxing the aggregate bound. A deadline overrun restarts the device to reset transport state.
 - MQTT accepts only a numeric RFC1918 broker address and one exact topic. Its local protocol client requires successful CONNACK and SUBACK, rejects oversized remaining lengths before draining them, caps packets and payloads, applies a six-second connect/subscribe deadline, disconnects two-second drip-fed packets, and uses ten-second reconnect backoff. Plain MQTT is suitable only on a trusted LAN.
 - API errors retain no unbounded response and render an explicit unavailable state.
 - Smart Dashboard runs at most one HTTP refresh worker at a time. LCD rotation continues while ISS, weather, or the five-minute DS9 space summary is in flight; snapshots cross tasks through a critical-section-protected fixed frame. Public feed failures affect only their cached/unavailable screens and do not block configuration promotion.
@@ -55,7 +55,7 @@ The local Network Integration API base is normally `https://<console>/proxy/netw
 ## Build and test
 
 ```bash
-g++ -std=c++17 -Wall -Wextra -Werror -I ../common -I include src/panel_logic.cpp src/setup_http.cpp test/native/test_main.cpp -o /tmp/lcd-panel-tests
+g++ -std=c++17 -Wall -Wextra -Werror -I ../common -I include src/bounded_http_logic.cpp src/panel_logic.cpp src/setup_http.cpp test/native/test_main.cpp -o /tmp/lcd-panel-tests
 g++ -std=c++17 -Wall -Wextra -Werror -I include src/dashboard_logic.cpp src/dashboard_setup.cpp test/dashboard_native/test_main.cpp -o /tmp/dashboard-tests
 /tmp/lcd-panel-tests
 /tmp/dashboard-tests

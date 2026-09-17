@@ -109,7 +109,7 @@ def verify_and_build(pio: str) -> None:
     compile_and_run("/tmp/ntp-clock-display-tests", ["firmware/common", "firmware/hardware-lab/include"], ["firmware/hardware-lab/src/ntp_clock_display.cpp", "firmware/hardware-lab/test/clock_native/test_main.cpp"])
     compile_and_run("/tmp/pico-lab-tests", ["firmware/pico-lab/include"], ["firmware/pico-lab/src/pico_logic.cpp", "firmware/pico-lab/test/native/test_main.cpp"])
     compile_and_run("/tmp/esp32-diagnostics-tests", ["firmware/esp32-diagnostics/include"], ["firmware/esp32-diagnostics/src/diagnostics_logic.cpp", "firmware/esp32-diagnostics/test/native/test_main.cpp"])
-    compile_and_run("/tmp/lcd-panel-tests", ["firmware/common", "firmware/lcd-panels/include"], ["firmware/lcd-panels/src/panel_logic.cpp", "firmware/lcd-panels/src/setup_http.cpp", "firmware/lcd-panels/test/native/test_main.cpp"])
+    compile_and_run("/tmp/lcd-panel-tests", ["firmware/common", "firmware/lcd-panels/include"], ["firmware/lcd-panels/src/bounded_http_logic.cpp", "firmware/lcd-panels/src/panel_logic.cpp", "firmware/lcd-panels/src/setup_http.cpp", "firmware/lcd-panels/test/native/test_main.cpp"])
     compile_and_run("/tmp/dashboard-tests", ["firmware/lcd-panels/include"], ["firmware/lcd-panels/src/dashboard_logic.cpp", "firmware/lcd-panels/src/dashboard_setup.cpp", "firmware/lcd-panels/test/dashboard_native/test_main.cpp"])
 
     for project in PROJECTS:

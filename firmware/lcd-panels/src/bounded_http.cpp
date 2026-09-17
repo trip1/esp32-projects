@@ -1,10 +1,10 @@
 #include "bounded_http.h"
+#include "bounded_http_logic.h"
 
 #include <Arduino.h>
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 
-#include <cctype>
 #include <cmath>
 #include <cstdio>
 #include <cstring>
@@ -73,37 +73,18 @@ bool readLine(Client& client, char* output, size_t capacity, size_t& total_heade
     return false;
 }
 
-bool nameEquals(const char* begin, const char* end, const char* expected) {
-    const size_t length = static_cast<size_t>(end - begin);
-    if (length != std::strlen(expected)) return false;
-    for (size_t index = 0U; index < length; ++index) {
-        if (std::tolower(static_cast<unsigned char>(begin[index])) != std::tolower(static_cast<unsigned char>(expected[index]))) return false;
+bool readHeaders(Client& client, char* output, size_t capacity, size_t& length, uint32_t started) {
+    length = 0U;
+    while (length + 1U < capacity) {
+        uint8_t value = 0U;
+        if (!readByte(client, value, started, 7000U) || value == '\0') return false;
+        output[length++] = static_cast<char>(value);
+        output[length] = '\0';
+        if (length >= 4U && std::memcmp(output + length - 4U, "\r\n\r\n", 4U) == 0) return true;
     }
-    return true;
+    return false;
 }
 
-bool valueEquals(const char* value, const char* expected) {
-    while (*value == ' ' || *value == '\t') ++value;
-    const char* end = value + std::strlen(value);
-    while (end > value && (end[-1] == ' ' || end[-1] == '\t')) --end;
-    return nameEquals(value, end, expected);
-}
-
-bool parseLength(const char* value, size_t maximum, size_t& output) {
-    while (*value == ' ' || *value == '\t') ++value;
-    if (*value == '\0') return false;
-    size_t parsed = 0U;
-    for (; *value != '\0' && *value != ' ' && *value != '\t'; ++value) {
-        if (*value < '0' || *value > '9') return false;
-        const size_t next = parsed * 10U + static_cast<size_t>(*value - '0');
-        if (next < parsed || next > maximum) return false;
-        parsed = next;
-    }
-    while (*value == ' ' || *value == '\t') ++value;
-    if (*value != '\0') return false;
-    output = parsed;
-    return true;
-}
 
 bool readContentLength(Client& client, char* output, size_t capacity, size_t length, uint32_t started) {
     for (size_t index = 0U; index < length; ++index) {
@@ -160,27 +141,13 @@ bool exchange(Client& client, const ParsedUrl& parsed, const char* coordinate_he
     if (request_length <= 0 || static_cast<size_t>(request_length) >= sizeof(request)
         || client.write(reinterpret_cast<const uint8_t*>(request), static_cast<size_t>(request_length)) != static_cast<size_t>(request_length)) return false;
     const uint32_t started = millis();
+    char response_headers[2049]{};
     size_t header_bytes = 0U;
-    char line[256]{};
-    if (!readLine(client, line, sizeof(line), header_bytes, started, 7000U)
-        || (std::strcmp(line, "HTTP/1.1 200 OK") != 0 && std::strcmp(line, "HTTP/1.0 200 OK") != 0)) return false;
-    bool content_length_seen = false; bool chunked_seen = false; size_t content_length = 0U;
-    while (true) {
-        if (!readLine(client, line, sizeof(line), header_bytes, started, 7000U)) return false;
-        if (line[0] == '\0') break;
-        char* colon = std::strchr(line, ':');
-        if (colon == nullptr || colon == line) return false;
-        if (nameEquals(line, colon, "content-length")) {
-            if (content_length_seen || !parseLength(colon + 1, capacity - 1U, content_length)) return false;
-            content_length_seen = true;
-        } else if (nameEquals(line, colon, "transfer-encoding")) {
-            if (chunked_seen || !valueEquals(colon + 1, "chunked")) return false;
-            chunked_seen = true;
-        }
-    }
-    if (content_length_seen == chunked_seen) return false;
-    return chunked_seen ? readChunked(client, output, capacity, started)
-                        : content_length != 0U && readContentLength(client, output, capacity, content_length, started);
+    HttpResponseFraming framing{};
+    if (!readHeaders(client, response_headers, sizeof(response_headers), header_bytes, started)
+        || !panelParseResponseHeaders(response_headers, header_bytes, sizeof(response_headers) - 1U, capacity - 1U, framing)) return false;
+    return framing.chunked ? readChunked(client, output, capacity, started)
+                           : readContentLength(client, output, capacity, framing.content_length, started);
 }
 
 bool get(const char* url, const char* ca_certificate, const char* coordinate_headers, char* output, std::size_t capacity) {
