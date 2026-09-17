@@ -115,7 +115,8 @@ bool fetchWeather(const PanelConfig& value, char top[17], char bottom[17]) {
     const int humidity = current["relative_humidity_2m"] | -1;
     const int code = current["weather_code"] | -1;
     const long long timestamp = current["time"] | 0LL;
-    if (!std::isfinite(temperature) || humidity < 0 || humidity > 100 || code < 0 || !timestampFresh(timestamp, 3600LL)) return false;
+    if (!std::isfinite(temperature) || temperature < -148.0F || temperature > 212.0F
+        || humidity < 0 || humidity > 100 || code < 0 || !timestampFresh(timestamp, 3600LL)) return false;
     formatWeather(temperature, humidity, weatherCondition(code), top, bottom);
     return true;
 }

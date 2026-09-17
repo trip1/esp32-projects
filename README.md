@@ -88,7 +88,7 @@ g++ -std=c++17 \
 ~/.venvs/platformio/bin/pio run -d firmware/bme280-mqtt-sensor
 ~/.venvs/platformio/bin/pio run -d firmware/pico-lab
 ~/.venvs/platformio/bin/pio run -d firmware/esp32-diagnostics
-g++ -std=c++17 -Wall -Wextra -Werror -I firmware/common -I firmware/lcd-panels/include firmware/lcd-panels/src/bounded_http_logic.cpp firmware/lcd-panels/src/panel_logic.cpp firmware/lcd-panels/src/setup_http.cpp firmware/lcd-panels/test/native/test_main.cpp -o /tmp/lcd-panel-tests && /tmp/lcd-panel-tests
+g++ -std=c++17 -Wall -Wextra -Werror -I firmware/common -I firmware/lcd-panels/include firmware/lcd-panels/src/bounded_http_logic.cpp firmware/lcd-panels/src/panel_lcd_logic.cpp firmware/lcd-panels/src/panel_logic.cpp firmware/lcd-panels/src/setup_http.cpp firmware/lcd-panels/test/native/test_main.cpp -o /tmp/lcd-panel-tests && /tmp/lcd-panel-tests
 g++ -std=c++17 -Wall -Wextra -Werror -I firmware/lcd-panels/include firmware/lcd-panels/src/dashboard_logic.cpp firmware/lcd-panels/src/dashboard_setup.cpp firmware/lcd-panels/test/dashboard_native/test_main.cpp -o /tmp/dashboard-tests && /tmp/dashboard-tests
 ~/.venvs/platformio/bin/pio run -d firmware/lcd-panels
 python3 scripts/build_site.py --output _site

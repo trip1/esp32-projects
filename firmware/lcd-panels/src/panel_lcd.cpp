@@ -1,8 +1,11 @@
 #include "panel_lcd.h"
 #include "lcd1602_i2c.h"
+#include "panel_lcd_logic.h"
 
 #include <Arduino.h>
 #include <Wire.h>
+
+#include <cstring>
 
 #ifndef PANEL_SDA_PIN
 #error "PANEL_SDA_PIN is required"
@@ -21,6 +24,7 @@ constexpr unsigned char kBacklight = 0x08U;
 }
 
 bool PanelLcd1602::begin() {
+    has_frame_ = false;
     if (!Wire.begin(PANEL_SDA_PIN, PANEL_SCL_PIN)) return false;
     Wire.setTimeOut(10U);
     const unsigned long scan_started = millis();
@@ -64,9 +68,16 @@ bool PanelLcd1602::begin() {
 }
 
 bool PanelLcd1602::show(const char top[17], const char bottom[17]) {
+    const PanelLcdUpdatePlan update = panelLcdUpdatePlan(has_frame_, previous_top_, previous_bottom_, top, bottom);
+    if (!update.top && !update.bottom) return true;
     const unsigned long started = millis();
-    return command(0x80U, started, 150U) && writeText(top, started, 150U)
-        && command(0xC0U, started, 150U) && writeText(bottom, started, 150U);
+    const bool written = (!update.top || (command(0x80U, started, 150U) && writeText(top, started, 150U)))
+        && (!update.bottom || (command(0xC0U, started, 150U) && writeText(bottom, started, 150U)));
+    if (!written) { has_frame_ = false; return false; }
+    std::memcpy(previous_top_, top, sizeof(previous_top_));
+    std::memcpy(previous_bottom_, bottom, sizeof(previous_bottom_));
+    has_frame_ = true;
+    return true;
 }
 
 bool PanelLcd1602::transmit(unsigned char value, unsigned long started, unsigned long timeout_ms) {

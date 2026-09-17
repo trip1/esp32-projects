@@ -82,6 +82,7 @@ jobs:
           g++ -std=c++17 -Wall -Wextra -Werror
           -I firmware/common -I firmware/lcd-panels/include
           firmware/lcd-panels/src/bounded_http_logic.cpp
+          firmware/lcd-panels/src/panel_lcd_logic.cpp
           firmware/lcd-panels/src/panel_logic.cpp
           firmware/lcd-panels/src/setup_http.cpp
           firmware/lcd-panels/test/native/test_main.cpp

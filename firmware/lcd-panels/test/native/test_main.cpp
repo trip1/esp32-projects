@@ -1,4 +1,5 @@
 #include "panel_logic.h"
+#include "panel_lcd_logic.h"
 #include "lcd1602_i2c.h"
 #include "bounded_http_logic.h"
 #include "setup_http.h"
@@ -16,6 +17,16 @@ void expectLine(const char actual[17], const char* expected) {
 }
 
 int main() {
+    const char frame_a_top[17] = "Weather 77.5 F  ";
+    const char frame_a_bottom[17] = "Hum 82% Clear   ";
+    const char frame_b_bottom[17] = "Hum 81% Clear   ";
+    auto update = panelLcdUpdatePlan(false, frame_a_top, frame_a_bottom, frame_a_top, frame_a_bottom);
+    assert(update.top && update.bottom);
+    update = panelLcdUpdatePlan(true, frame_a_top, frame_a_bottom, frame_a_top, frame_a_bottom);
+    assert(!update.top && !update.bottom);
+    update = panelLcdUpdatePlan(true, frame_a_top, frame_a_bottom, frame_a_top, frame_b_bottom);
+    assert(!update.top && update.bottom);
+
     assert(lcd1602::kCandidateAddressCount == 16U);
     assert(lcd1602::candidateAddress(0U) == 0x20U);
     assert(lcd1602::candidateAddress(7U) == 0x27U);
@@ -40,8 +51,8 @@ int main() {
     expectLine(top, "Bad Label       ");
     expectLine(bottom, "ok value        ");
 
-    formatWeather(23.4F, 45, "Clear", top, bottom);
-    expectLine(top, "Weather 23.4 C  ");
+    formatWeather(74.1F, 45, "Clear", top, bottom);
+    expectLine(top, "Weather 74.1 F  ");
     expectLine(bottom, "Hum 45% Clear   ");
     formatWeather(NAN, -1, "Unavailable", top, bottom);
     expectLine(top, "Weather offline ");
@@ -83,7 +94,7 @@ int main() {
 
     char path[192]{};
     assert(buildWeatherPath(32.5, -94.74, path, sizeof(path)));
-    assert(std::strcmp(path, "/v1/forecast?latitude=32.5000&longitude=-94.7400&current=temperature_2m,relative_humidity_2m,weather_code&temperature_unit=celsius&timeformat=unixtime") == 0);
+    assert(std::strcmp(path, "/v1/forecast?latitude=32.5000&longitude=-94.7400&current=temperature_2m,relative_humidity_2m,weather_code&temperature_unit=fahrenheit&timeformat=unixtime") == 0);
     assert(std::strcmp(weatherCondition(0), "Clear") == 0);
     assert(std::strcmp(weatherCondition(3), "Cloudy") == 0);
     assert(std::strcmp(weatherCondition(61), "Rain") == 0);

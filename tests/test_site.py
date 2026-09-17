@@ -109,7 +109,7 @@ class FirmwarePortalTests(unittest.TestCase):
 
     def test_lcd1602_smart_dashboard_combines_all_screens(self):
         project = next(project for project in self.load_catalog() if project["slug"] == "lcd1602-smart-dashboard")
-        self.assertEqual("3.1.1", project["version"])
+        self.assertEqual("3.2.0", project["version"])
         self.assertEqual(set(ESP_TARGETS), {target["id"] for target in project["targets"]})
         self.assertIn("nine-screen order", project["setup"]["summary"])
         self.assertNotIn("MQTT", " ".join(project["setup"]["fields"]))
@@ -164,15 +164,15 @@ class FirmwarePortalTests(unittest.TestCase):
     def test_lcd1602_network_panels_cover_all_esp_boards(self):
         projects = {project["slug"]: project for project in self.load_catalog()}
         expected = {
-            "mqtt-home-status-panel",
-            "unifi-network-panel",
-            "space-satellite-tracker",
-            "wifi-weather-station",
+            "mqtt-home-status-panel": "1.3.0",
+            "unifi-network-panel": "1.3.0",
+            "space-satellite-tracker": "1.3.0",
+            "wifi-weather-station": "1.3.0",
         }
-        self.assertTrue(expected <= projects.keys())
+        self.assertTrue(expected.keys() <= projects.keys())
         for slug in expected:
             project = projects[slug]
-            self.assertEqual("1.2.1", project["version"])
+            self.assertEqual(expected[slug], project["version"])
             self.assertEqual(set(ESP_TARGETS), {target["id"] for target in project["targets"]})
             self.assertTrue(project["extra_hardware"])
             self.assertIn("LCD1602", project["hardware"])
@@ -195,6 +195,7 @@ class FirmwarePortalTests(unittest.TestCase):
         config = (root / "src" / "panel_config.cpp").read_text()
         setup_http = (root / "src" / "setup_http.cpp").read_text()
         lcd = (root / "src" / "panel_lcd.cpp").read_text()
+        lcd_logic = (root / "src" / "panel_lcd_logic.cpp").read_text()
         address_scan = (ROOT / "firmware" / "common" / "lcd1602_i2c.h").read_text()
         workflow = (ROOT / ".github" / "workflows" / "pages.yml").read_text()
         for required in (
@@ -227,6 +228,8 @@ class FirmwarePortalTests(unittest.TestCase):
         self.assertIn("Wire.setTimeOut", lcd)
         self.assertIn("Wire.endTransmission(true) == 0U", lcd)
         self.assertIn("lcd1602::scanAddresses", lcd)
+        self.assertIn("panelLcdUpdatePlan", lcd)
+        self.assertIn("std::memcmp(previous_top, next_top, 16U)", lcd_logic)
         self.assertIn("kCandidateAddressCount = 16U", address_scan)
         self.assertIn("0x20U + index", address_scan)
         self.assertIn("0x38U + (index - 8U)", address_scan)

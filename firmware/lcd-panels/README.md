@@ -5,8 +5,8 @@ Five browser-flashable LCD1602 projects share bounded drivers and four exact ESP
 - **MQTT Home Status Panel** subscribes to one exact trusted-LAN topic. It recognizes `temperature_c` plus `humidity_percent`, recognizes a string `value`, and otherwise displays sanitized payload text. Payloads over 256 bytes are ignored; data is marked stale after two minutes.
 - **UniFi Network Panel** reads a normalized metrics bridge. The bridge keeps the powerful UniFi API key off the display and returns only WAN state, latency, client count, AP count, and a freshness timestamp.
 - **Space and Satellite Tracker** polls the public Where the ISS at endpoint for NORAD 25544 every ten seconds.
-- **Wi-Fi Weather Desk Station** polls Open-Meteo current temperature, humidity, and WMO condition data every ten minutes for configured coordinates.
-- **LCD1602 Smart Dashboard** combines nine screen types: Clock, ISS, Weather, Next Launch, Moon, Solar Activity, Planet Visibility, Near-Earth Object, and Deep-Space Mission. MQTT setup and the MQTT screen are intentionally absent; the standalone MQTT Home Status Panel remains available. Protected setup orders every screen exactly once and assigns each screen its own 5-3600 second duration. The six space-summary screens refresh through `https://api.justsome.space/v1/lcd/space`; the request rounds configured coordinates to one decimal degree for planet visibility. Version 3.1.1 uses configuration schema v4 and migrates verified schema-v2/v3 settings while dropping the old MQTT screen. Setup now uses one shared bounded HTTP state machine: it drains buffered POST bodies even after the browser closes its write side, accepts the measured 555-byte-header/464-byte-body Android request, and redirects captive checks such as `/generate_204` to the canonical setup origin. POST still requires the exact local Host, a same-origin Origin or Referer, one bounded Content-Length, and the per-boot CSRF token. The LCD shows startup, setup, validation, connection, and rejection states, while serial rejection diagnostics report a bounded reason code and received/expected byte counts without headers or credentials.
+- **Wi-Fi Weather Desk Station** polls Open-Meteo current temperature in Fahrenheit, humidity, and WMO condition data every ten minutes for configured coordinates.
+- **LCD1602 Smart Dashboard** combines nine screen types: Clock, ISS, Weather, Next Launch, Moon, Solar Activity, Planet Visibility, Near-Earth Object, and Deep-Space Mission. MQTT setup and the MQTT screen are intentionally absent; the standalone MQTT Home Status Panel remains available. Protected setup orders every screen exactly once and assigns each screen its own 5-3600 second duration. The weather screen requests Fahrenheit directly from Open-Meteo. The six space-summary screens refresh through `https://api.justsome.space/v1/lcd/space`; the request rounds configured coordinates to one decimal degree for planet visibility. Version 3.2.0 uses configuration schema v4 and migrates verified schema-v2/v3 settings while dropping the old MQTT screen. The LCD driver caches both rendered rows and writes only rows whose 16 characters changed, preventing static screens from being rewritten four times per second. Setup uses one shared bounded HTTP state machine: it drains buffered POST bodies even after the browser closes its write side, accepts the measured 555-byte-header/464-byte-body Android request, and redirects captive checks such as `/generate_204` to the canonical setup origin. POST still requires the exact local Host, a same-origin Origin or Referer, one bounded Content-Length, and the per-boot CSRF token. The LCD shows startup, setup, validation, connection, and rejection states, while serial rejection diagnostics report a bounded reason code and received/expected byte counts without headers or credentials.
 
 ## Hardware and wiring
 
@@ -20,6 +20,8 @@ All builds support the Inland 1602 I²C module (SKU 221861 / KS0061) and HD44780
 | ESP32-C6-DevKitC-1 | GPIO6 | GPIO7 | BOOT / GPIO9 |
 
 The Inland KS0061 is wired as a 5 V module. Power it from 5 V and use the required bidirectional I²C level shifter shown in each diagram: LV at 3.3 V, HV at 5 V, and common ground. Never expose an ESP32 GPIO to a 5 V pull-up. The responder scan clamps each transaction to its remaining 250 ms aggregate budget and 10 ms maximum. The checked display driver caps each write transaction at 25 ms, initialization at 250 ms, and each refresh at 150 ms, aborting on the first failed write.
+
+Each physical LCD row is exactly 16 characters. Longer source labels are intentionally shortened or clipped to fit; this is separate from missing characters caused by an interrupted I²C row write.
 
 ## First boot
 
@@ -55,7 +57,7 @@ The local Network Integration API base is normally `https://<console>/proxy/netw
 ## Build and test
 
 ```bash
-g++ -std=c++17 -Wall -Wextra -Werror -I ../common -I include src/bounded_http_logic.cpp src/panel_logic.cpp src/setup_http.cpp test/native/test_main.cpp -o /tmp/lcd-panel-tests
+g++ -std=c++17 -Wall -Wextra -Werror -I ../common -I include src/bounded_http_logic.cpp src/panel_lcd_logic.cpp src/panel_logic.cpp src/setup_http.cpp test/native/test_main.cpp -o /tmp/lcd-panel-tests
 g++ -std=c++17 -Wall -Wextra -Werror -I include src/dashboard_logic.cpp src/dashboard_setup.cpp test/dashboard_native/test_main.cpp -o /tmp/dashboard-tests
 /tmp/lcd-panel-tests
 /tmp/dashboard-tests

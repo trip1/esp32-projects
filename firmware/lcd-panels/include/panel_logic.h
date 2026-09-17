@@ -20,7 +20,7 @@ struct PanelConfig {
 };
 
 void formatMqttText(const char* label, const char* value, char top[17], char bottom[17]);
-void formatWeather(float temperature_c, int humidity_percent, const char* condition, char top[17], char bottom[17]);
+void formatWeather(float temperature_f, int humidity_percent, const char* condition, char top[17], char bottom[17]);
 void formatUnifi(bool wan_up, int latency_ms, int clients, int access_points, char top[17], char bottom[17]);
 void formatSatellite(double latitude, double longitude, int altitude_km, char top[17], char bottom[17]);
 bool validExactMqttTopic(const char* value);

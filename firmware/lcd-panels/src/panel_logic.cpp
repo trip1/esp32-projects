@@ -94,14 +94,15 @@ void formatMqttText(const char* label, const char* value, char top[17], char bot
     fitLine(value, bottom);
 }
 
-void formatWeather(float temperature_c, int humidity_percent, const char* condition, char top[17], char bottom[17]) {
-    if (!std::isfinite(temperature_c) || humidity_percent < 0 || humidity_percent > 100 || condition == nullptr) {
+void formatWeather(float temperature_f, int humidity_percent, const char* condition, char top[17], char bottom[17]) {
+    if (!std::isfinite(temperature_f) || temperature_f < -148.0F || temperature_f > 212.0F
+        || humidity_percent < 0 || humidity_percent > 100 || condition == nullptr) {
         fitLine("Weather offline", top);
         fitLine("No current data", bottom);
         return;
     }
     char text[48]{};
-    std::snprintf(text, sizeof(text), "Weather %.1f C", static_cast<double>(temperature_c));
+    std::snprintf(text, sizeof(text), "Weather %.1f F", static_cast<double>(temperature_f));
     fitLine(text, top);
     std::snprintf(text, sizeof(text), "Hum %d%% %s", humidity_percent, condition);
     fitLine(text, bottom);
@@ -150,7 +151,7 @@ bool mqttMessageStale(std::uint32_t now, std::uint32_t last_message_ms, bool mes
 
 bool buildWeatherPath(double latitude, double longitude, char* output, std::size_t capacity) {
     if (output == nullptr || capacity == 0U || !std::isfinite(latitude) || !std::isfinite(longitude) || latitude < -90.0 || latitude > 90.0 || longitude < -180.0 || longitude > 180.0) return false;
-    const int written = std::snprintf(output, capacity, "/v1/forecast?latitude=%.4f&longitude=%.4f&current=temperature_2m,relative_humidity_2m,weather_code&temperature_unit=celsius&timeformat=unixtime", latitude, longitude);
+    const int written = std::snprintf(output, capacity, "/v1/forecast?latitude=%.4f&longitude=%.4f&current=temperature_2m,relative_humidity_2m,weather_code&temperature_unit=fahrenheit&timeformat=unixtime", latitude, longitude);
     return written > 0 && static_cast<std::size_t>(written) < capacity;
 }
 
