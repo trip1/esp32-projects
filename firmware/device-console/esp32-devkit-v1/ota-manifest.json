@@ -1,0 +1,9 @@
+{
+  "product": "device-console",
+  "target": "esp32-devkit-v1",
+  "chip": "ESP32",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 959120,
+  "sha256": "cf9e80c916e438c59e667ba70a17dd1a607ae87d7381e6fe12d50b9bab862c8e"
+}

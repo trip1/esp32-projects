@@ -1,0 +1,9 @@
+{
+  "product": "cpu-benchmark",
+  "target": "esp32-devkit-v1",
+  "chip": "ESP32",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 958320,
+  "sha256": "a8cbdb91e2012b98b237c43f150ba2d2be776c26dde25b56bc4a67b982f0360d"
+}

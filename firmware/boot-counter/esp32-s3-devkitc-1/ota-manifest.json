@@ -1,0 +1,9 @@
+{
+  "product": "boot-counter",
+  "target": "esp32-s3-devkitc-1",
+  "chip": "ESP32-S3",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 923584,
+  "sha256": "0ab64e1cc309c995b0c30b1ae9fa72ac5a2e55ee18c116ade9e215b81e3ea262"
+}

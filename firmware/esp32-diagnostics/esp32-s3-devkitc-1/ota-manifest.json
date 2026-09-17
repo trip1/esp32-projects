@@ -1,0 +1,9 @@
+{
+  "product": "esp32-diagnostics",
+  "target": "esp32-s3-devkitc-1",
+  "chip": "ESP32-S3",
+  "version": "1.0.0",
+  "firmware": "firmware.bin",
+  "size": 977136,
+  "sha256": "982899eb3ea689e2ffa0a475edcb30ca39feaa6524dff953a8fbfcd958804f06"
+}

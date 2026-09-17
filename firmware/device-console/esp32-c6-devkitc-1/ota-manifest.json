@@ -1,0 +1,9 @@
+{
+  "product": "device-console",
+  "target": "esp32-c6-devkitc-1",
+  "chip": "ESP32-C6",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 1052352,
+  "sha256": "ac86e04c39dfa8372e045c646e22a3c2dd1dd27f99fd7559e545c85011c6a532"
+}

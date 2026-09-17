@@ -1,0 +1,9 @@
+{
+  "product": "esp32-diagnostics",
+  "target": "esp32-c6-devkitc-1",
+  "chip": "ESP32-C6",
+  "version": "1.0.0",
+  "firmware": "firmware.bin",
+  "size": 1109392,
+  "sha256": "c99061a9dd440edce8a3aa67087429dcd920d645dca6443f0979506b9929857c"
+}

@@ -1,0 +1,9 @@
+{
+  "product": "pico-morse-beacon",
+  "target": "raspberry-pi-pico-w",
+  "chip": "RP2040",
+  "version": "1.0.0",
+  "firmware": "firmware.uf2",
+  "size": 613376,
+  "sha256": "63de4361ad21e498579bd10e6d5619d8f0ac2e111034b7e300c8c9400826f52d"
+}

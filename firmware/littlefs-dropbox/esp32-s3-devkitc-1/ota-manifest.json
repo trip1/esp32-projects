@@ -1,0 +1,9 @@
+{
+  "product": "littlefs-dropbox",
+  "target": "esp32-s3-devkitc-1",
+  "chip": "ESP32-S3",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 970032,
+  "sha256": "e2358d3ce9eaf1f055969c38979188ebe1cffc99b1350b88af17cac09baa112f"
+}

@@ -1,0 +1,9 @@
+{
+  "product": "space-satellite-tracker",
+  "target": "esp32-c6-devkitc-1",
+  "chip": "ESP32-C6",
+  "version": "1.3.0",
+  "firmware": "firmware.bin",
+  "size": 1210288,
+  "sha256": "9291f8b0ba4d9734abcb1ea50de20e2f10bfab323c7e8d00863c4baa7eba3292"
+}

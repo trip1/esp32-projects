@@ -1,0 +1,2370 @@
+{
+  "deployment_id": "8f6ea41dc244f590ef08f1fe3f2e166f",
+  "file_count": 472,
+  "files": [
+    {
+      "path": ".nojekyll",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "DEPLOYMENT_ID",
+      "sha256": "5bea26537069fa94accd17b40e889cd3dfd6e6e832d0ea75c2898566d208439c",
+      "size": 33
+    },
+    {
+      "path": "SOURCE_COMMIT",
+      "sha256": "966ae65fcd8f991e438a867d32808e4f579ab987152d600abfd240bfb200b349",
+      "size": 41
+    },
+    {
+      "path": "app.js",
+      "sha256": "0a8d14c2f5651556288402cc153c181a1a5af45f513b9bd4f92b8d50ea998ff5",
+      "size": 10535
+    },
+    {
+      "path": "favicon.svg",
+      "sha256": "1800e8a078cfbd6135ea2bf6262382493a5458fc19bd0248c1e1afca9c7fe9c2",
+      "size": 328
+    },
+    {
+      "path": "firmware/ble-alias-shuffler/esp32-c3-devkitm-1/firmware.bin",
+      "sha256": "a86d78518e25b3b887b71ea0c8d71586aa1263146096317b60f9f0316db99117",
+      "size": 571072
+    },
+    {
+      "path": "firmware/ble-alias-shuffler/esp32-c3-devkitm-1/firmware.factory.bin",
+      "sha256": "71ab5d0dc7a2ffdcd539f42066f4bb8d7a929d31700dae26cc53d89b7a824219",
+      "size": 636608
+    },
+    {
+      "path": "firmware/ble-alias-shuffler/esp32-c3-devkitm-1/manifest.json",
+      "sha256": "a1126c4b269c78b286ab797f146f7850dee2dc4fc5d0da2d0e53316fe977904b",
+      "size": 351
+    },
+    {
+      "path": "firmware/ble-alias-shuffler/esp32-c3-devkitm-1/ota-manifest.json",
+      "sha256": "62477d4ac98fa205f4163c5973b950ebc35657ecb4750bb88fa96b08682a7b24",
+      "size": 244
+    },
+    {
+      "path": "firmware/ble-alias-shuffler/esp32-c6-devkitc-1/firmware.bin",
+      "sha256": "01d9a6c038ba5ec0146bb38a374f4d8f0a1681fa4c7f898b8eac03401958d4de",
+      "size": 681104
+    },
+    {
+      "path": "firmware/ble-alias-shuffler/esp32-c6-devkitc-1/firmware.factory.bin",
+      "sha256": "647e37d35e4ed3054006f06f2fbc9bb1bd3ba23fa7b56c9dfe98ed118cc2f6d2",
+      "size": 746640
+    },
+    {
+      "path": "firmware/ble-alias-shuffler/esp32-c6-devkitc-1/manifest.json",
+      "sha256": "fa1f3a7eb616ab3c3d7c68e550fb421a14c4c2696fb0ef3b47437ab63b458b23",
+      "size": 351
+    },
+    {
+      "path": "firmware/ble-alias-shuffler/esp32-c6-devkitc-1/ota-manifest.json",
+      "sha256": "45de40ed0fe006bbc076f0807fd9dd9b40043f9d88d2d6121bfb949417fa6b10",
+      "size": 244
+    },
+    {
+      "path": "firmware/ble-alias-shuffler/esp32-devkit-v1/firmware.bin",
+      "sha256": "771208b7ee77bb0004c95c50b1145c2c0a8bab3e49ab46818c92e8e6ffaa0b12",
+      "size": 592384
+    },
+    {
+      "path": "firmware/ble-alias-shuffler/esp32-devkit-v1/firmware.factory.bin",
+      "sha256": "59876ff4f177744235e6b9136b222dc2619e09fe0dbef1902d16bd381ee57697",
+      "size": 657920
+    },
+    {
+      "path": "firmware/ble-alias-shuffler/esp32-devkit-v1/manifest.json",
+      "sha256": "21ae120477da72721bed64544fa84fca1c6575e75300e28877e767382807f2d8",
+      "size": 345
+    },
+    {
+      "path": "firmware/ble-alias-shuffler/esp32-devkit-v1/ota-manifest.json",
+      "sha256": "20db2f1a36bde19309f3e900f9a5b64eb16d7c96a574cc4fced60004d0f7636f",
+      "size": 238
+    },
+    {
+      "path": "firmware/ble-alias-shuffler/esp32-s3-devkitc-1/firmware.bin",
+      "sha256": "d74dfc6fec7a7b90b54545e7c396b6d40792c982a0fdb01c34d0b77b615999d9",
+      "size": 532704
+    },
+    {
+      "path": "firmware/ble-alias-shuffler/esp32-s3-devkitc-1/firmware.factory.bin",
+      "sha256": "66c9f2b4d92d3c283b38b6c654ed5a55e560e251348430cb5525a465f713618d",
+      "size": 598240
+    },
+    {
+      "path": "firmware/ble-alias-shuffler/esp32-s3-devkitc-1/manifest.json",
+      "sha256": "ba854fbb42ce321b57d960f504fbdbc7f09cdbbf1adcdfaa6d387986c4233e97",
+      "size": 356
+    },
+    {
+      "path": "firmware/ble-alias-shuffler/esp32-s3-devkitc-1/ota-manifest.json",
+      "sha256": "615bd93d5c7e20409c1b5ab6bfaefb8c5aad86a816e6a3f9902770385564ed3f",
+      "size": 244
+    },
+    {
+      "path": "firmware/ble-mqtt-scanner/esp32-c3-devkitm-1/firmware.bin",
+      "sha256": "c81c1d1f0c9b49462232e3d20afb0ed3485ea0907d85f1002b24d59063bbe1d4",
+      "size": 1323632
+    },
+    {
+      "path": "firmware/ble-mqtt-scanner/esp32-c3-devkitm-1/firmware.factory.bin",
+      "sha256": "56c58d941a7e4260ceab8623b8cd6670c4dff5617959c982b909bcb1f07541d8",
+      "size": 1389168
+    },
+    {
+      "path": "firmware/ble-mqtt-scanner/esp32-c3-devkitm-1/manifest.json",
+      "sha256": "cb92eed028c855e5aee55f3182f7718e13a482bb10799faf5d65eea4b13af09d",
+      "size": 354
+    },
+    {
+      "path": "firmware/ble-mqtt-scanner/esp32-c3-devkitm-1/ota-manifest.json",
+      "sha256": "3ed31f2c9ee129e4d7e33bb0e4468883e46a8e06e63ea07d3530e1a93a3e479c",
+      "size": 243
+    },
+    {
+      "path": "firmware/ble-mqtt-scanner/esp32-c6-devkitc-1/firmware.bin",
+      "sha256": "6205bb9d9839f9db3b004a8d5faf7c37e86d8b9cc526c2c352cfbbac696f64e6",
+      "size": 1476624
+    },
+    {
+      "path": "firmware/ble-mqtt-scanner/esp32-c6-devkitc-1/firmware.factory.bin",
+      "sha256": "4502328c0339590031d8aafdde868abd7b0eca3dbfa6cc90fc1d6494195da1fa",
+      "size": 1542160
+    },
+    {
+      "path": "firmware/ble-mqtt-scanner/esp32-c6-devkitc-1/manifest.json",
+      "sha256": "e6d397ef059155aafa08156fa400ccd932b0546d82180e1b97cbeef1ebfd464e",
+      "size": 354
+    },
+    {
+      "path": "firmware/ble-mqtt-scanner/esp32-c6-devkitc-1/ota-manifest.json",
+      "sha256": "5ca19da337bee23c4503f2df803a6315bf8705e342c120404977116d6b6c19a6",
+      "size": 243
+    },
+    {
+      "path": "firmware/ble-mqtt-scanner/esp32-devkit-v1/firmware.bin",
+      "sha256": "4a0cf7e72b66260266907caf324190462ef0ad09c2f1373e49d7b1a9067fc60a",
+      "size": 1272368
+    },
+    {
+      "path": "firmware/ble-mqtt-scanner/esp32-devkit-v1/firmware.factory.bin",
+      "sha256": "c77333db0200876fc3ecd084c2d8c396c34cbbd159956cd72d1347f6b4882cd4",
+      "size": 1337904
+    },
+    {
+      "path": "firmware/ble-mqtt-scanner/esp32-devkit-v1/manifest.json",
+      "sha256": "6c8de25b254cfd6d67df78efac295a1c12f1a3f315d837502b4cc3c6af806a45",
+      "size": 348
+    },
+    {
+      "path": "firmware/ble-mqtt-scanner/esp32-devkit-v1/ota-manifest.json",
+      "sha256": "f19300057be3cbe953d6fccee9bd1dd4fda1a7c36c0d304e37d8d542f8875a24",
+      "size": 237
+    },
+    {
+      "path": "firmware/ble-mqtt-scanner/esp32-s3-devkitc-1/firmware.bin",
+      "sha256": "d0fb95e4eaf6c631497fced5bea2255edd503345a5df658eddb38e96291d49b4",
+      "size": 1181792
+    },
+    {
+      "path": "firmware/ble-mqtt-scanner/esp32-s3-devkitc-1/firmware.factory.bin",
+      "sha256": "df7d96d6408999eb9db913a9591325fa502639a9959c65ffcc0f0eecf64ac4ed",
+      "size": 1247328
+    },
+    {
+      "path": "firmware/ble-mqtt-scanner/esp32-s3-devkitc-1/manifest.json",
+      "sha256": "2a60080ef431ded134be89ba6aff9b82961773886cba44ea5da07abb6df3c1e1",
+      "size": 359
+    },
+    {
+      "path": "firmware/ble-mqtt-scanner/esp32-s3-devkitc-1/ota-manifest.json",
+      "sha256": "b0b0a7e216d50b013848d6765047685b003acce65e20e91fcc79608e7fde6f81",
+      "size": 243
+    },
+    {
+      "path": "firmware/ble-presence-beacon/esp32-c3-devkitm-1/firmware.bin",
+      "sha256": "3f4601a0b0549c449893b8dbb310e0140eadb38621d98cf76cc5800d5a6c0017",
+      "size": 570224
+    },
+    {
+      "path": "firmware/ble-presence-beacon/esp32-c3-devkitm-1/firmware.factory.bin",
+      "sha256": "726ac46b6dc0f979d38de5c9f0a169c7af21d72593c1da3a23448929813f3f02",
+      "size": 635760
+    },
+    {
+      "path": "firmware/ble-presence-beacon/esp32-c3-devkitm-1/manifest.json",
+      "sha256": "9a653428525497ad2159647cde7ce0932d28975a8293ce818fe27bef8a9a74d4",
+      "size": 352
+    },
+    {
+      "path": "firmware/ble-presence-beacon/esp32-c3-devkitm-1/ota-manifest.json",
+      "sha256": "ff608efc2ccef711603519da9b95070144938f059194a3c2cdeebdf2ed7af315",
+      "size": 245
+    },
+    {
+      "path": "firmware/ble-presence-beacon/esp32-c6-devkitc-1/firmware.bin",
+      "sha256": "c5bc872911bc28a74ea53e16a8fcf9c776a6271302e5b4fa52864886bd751bb3",
+      "size": 680240
+    },
+    {
+      "path": "firmware/ble-presence-beacon/esp32-c6-devkitc-1/firmware.factory.bin",
+      "sha256": "a52ed99a931aadfa9ed939807e824dd9b743208890f91e84f2dcaf116660600d",
+      "size": 745776
+    },
+    {
+      "path": "firmware/ble-presence-beacon/esp32-c6-devkitc-1/manifest.json",
+      "sha256": "5459f9f159b6ff4f4a5f6e8f108cd74bc4110c008c551c7830a8a4bacde67609",
+      "size": 352
+    },
+    {
+      "path": "firmware/ble-presence-beacon/esp32-c6-devkitc-1/ota-manifest.json",
+      "sha256": "c6db3213a0a8c8146912d42f56e8ed7cd89335988d28c6c8a9c103d8593b7655",
+      "size": 245
+    },
+    {
+      "path": "firmware/ble-presence-beacon/esp32-devkit-v1/firmware.bin",
+      "sha256": "cc4c98b8079ea434223f2041bda5d55be7a1e1189b27f5fb1467ad62188c11e5",
+      "size": 591760
+    },
+    {
+      "path": "firmware/ble-presence-beacon/esp32-devkit-v1/firmware.factory.bin",
+      "sha256": "d58fccc99cdf7df2b8926da801f75ea33bf2d1f30d7086451bf81804a20fc075",
+      "size": 657296
+    },
+    {
+      "path": "firmware/ble-presence-beacon/esp32-devkit-v1/manifest.json",
+      "sha256": "199c6a013e99246dc34b2bd3e0f73bcbe798c273d2e33dba6b7821cb370b769e",
+      "size": 346
+    },
+    {
+      "path": "firmware/ble-presence-beacon/esp32-devkit-v1/ota-manifest.json",
+      "sha256": "d4b72a02d27df068c5f9dc7bfd12063ead8fe9c945e2407e9132756df711a0f6",
+      "size": 239
+    },
+    {
+      "path": "firmware/ble-presence-beacon/esp32-s3-devkitc-1/firmware.bin",
+      "sha256": "a87e210ae4e3c6b80ab7082a8fd2cf16aa135b31570253d27cf2f93993392dd8",
+      "size": 532112
+    },
+    {
+      "path": "firmware/ble-presence-beacon/esp32-s3-devkitc-1/firmware.factory.bin",
+      "sha256": "1b881cc2cbf65a38464909cd7d00c7bcf44c4a1ef9c79e191d18887cbeb5ae04",
+      "size": 597648
+    },
+    {
+      "path": "firmware/ble-presence-beacon/esp32-s3-devkitc-1/manifest.json",
+      "sha256": "c72f64cb170303a5ff0e11778cbd996b8866895cc6ed7b662c2226bdc19cc789",
+      "size": 357
+    },
+    {
+      "path": "firmware/ble-presence-beacon/esp32-s3-devkitc-1/ota-manifest.json",
+      "sha256": "6d21be3a50e358b4daffffb9df823453d96d5ed8c7ce9aa22ff8aa0d987d1503",
+      "size": 245
+    },
+    {
+      "path": "firmware/ble-uart-console/esp32-c3-devkitm-1/firmware.bin",
+      "sha256": "a521f7d6e0c55b5baa750f9e4b9cb87455684dcefbd9ef9d6bf9e67f36bc9e10",
+      "size": 577648
+    },
+    {
+      "path": "firmware/ble-uart-console/esp32-c3-devkitm-1/firmware.factory.bin",
+      "sha256": "46529c6ed6ff112658de0629161ef8a033f9a9f5798cab44b1dfcc210b8da922",
+      "size": 643184
+    },
+    {
+      "path": "firmware/ble-uart-console/esp32-c3-devkitm-1/manifest.json",
+      "sha256": "cd7da598aa6c9ec97e351754b05f7425edc781cfc7aaf8504ca8cd0b684b6cb7",
+      "size": 349
+    },
+    {
+      "path": "firmware/ble-uart-console/esp32-c3-devkitm-1/ota-manifest.json",
+      "sha256": "37c442f351f46058946d515b3fc89cf025f95f62b0aed3a2c5336a5650bbceb2",
+      "size": 242
+    },
+    {
+      "path": "firmware/ble-uart-console/esp32-c6-devkitc-1/firmware.bin",
+      "sha256": "f504fc5401c5d1b4ee1dd7ef697ebfeccd1c40cc10a7917fa3307aead14a597a",
+      "size": 687904
+    },
+    {
+      "path": "firmware/ble-uart-console/esp32-c6-devkitc-1/firmware.factory.bin",
+      "sha256": "d14f195fdf0080a0bcb3ff070ce262a173beb9d85345057853117afe79799b10",
+      "size": 753440
+    },
+    {
+      "path": "firmware/ble-uart-console/esp32-c6-devkitc-1/manifest.json",
+      "sha256": "449572ddb444b53384a18039bf471e9327c4363afbfdf9a760e5c4c9dabfb6ea",
+      "size": 349
+    },
+    {
+      "path": "firmware/ble-uart-console/esp32-c6-devkitc-1/ota-manifest.json",
+      "sha256": "60d3cb9f7fd26d7f96043db84b0bf98c5f9b37f0c5525fb35a4d5c133f9c9088",
+      "size": 242
+    },
+    {
+      "path": "firmware/ble-uart-console/esp32-devkit-v1/firmware.bin",
+      "sha256": "b91f3ae6bc23514d9cd059ae0753ce0df8b7dd7aec950797aa7a1d79716de1eb",
+      "size": 597840
+    },
+    {
+      "path": "firmware/ble-uart-console/esp32-devkit-v1/firmware.factory.bin",
+      "sha256": "ca71809a1bd5aba650d3acbd0ec98a1233685f5aa8d95ea643f4ace4e2de84a6",
+      "size": 663376
+    },
+    {
+      "path": "firmware/ble-uart-console/esp32-devkit-v1/manifest.json",
+      "sha256": "fdaa591c41f2fa39287c62dd48848486cc3768bc644392a6331e32d7418c45b5",
+      "size": 343
+    },
+    {
+      "path": "firmware/ble-uart-console/esp32-devkit-v1/ota-manifest.json",
+      "sha256": "656a57e88d45a3115f67fb50dffff2d18abd4b5109b7290cfb788b97d1016d8e",
+      "size": 236
+    },
+    {
+      "path": "firmware/ble-uart-console/esp32-s3-devkitc-1/firmware.bin",
+      "sha256": "a95d444684007d8d582dd936a3380f7816734102754341f02a8402e80a30706e",
+      "size": 537936
+    },
+    {
+      "path": "firmware/ble-uart-console/esp32-s3-devkitc-1/firmware.factory.bin",
+      "sha256": "4737b5a41226cd13a3277c376fbd6728fbec9fc03af238fca7455ef615cddbdf",
+      "size": 603472
+    },
+    {
+      "path": "firmware/ble-uart-console/esp32-s3-devkitc-1/manifest.json",
+      "sha256": "a8f076a53f49c476a79bb6696abd1ea0a9f71f43a4de1ca8965d29802abe77d3",
+      "size": 354
+    },
+    {
+      "path": "firmware/ble-uart-console/esp32-s3-devkitc-1/ota-manifest.json",
+      "sha256": "5eca220a486301fe2c51fbb33989c3bcda8c075700aba061b3baa0ca99cef487",
+      "size": 242
+    },
+    {
+      "path": "firmware/bme280-mqtt-sensor/esp32-c3-devkitm-1/firmware.bin",
+      "sha256": "2aadf3be80ea0f85aeea6777d9fd88c2a7ba9258c396d7aef56cb7db1edeef7d",
+      "size": 1111296
+    },
+    {
+      "path": "firmware/bme280-mqtt-sensor/esp32-c3-devkitm-1/firmware.factory.bin",
+      "sha256": "acffa7d72de7308834096ba1cf9655cdfb2fe627b571fa4532efb1d830b12079",
+      "size": 1176832
+    },
+    {
+      "path": "firmware/bme280-mqtt-sensor/esp32-c3-devkitm-1/manifest.json",
+      "sha256": "b2f95d0230ffb5b2edcc9691bc55df8a3e6be6eafcb70a7673a9ba7973939944",
+      "size": 357
+    },
+    {
+      "path": "firmware/bme280-mqtt-sensor/esp32-c3-devkitm-1/ota-manifest.json",
+      "sha256": "dc8e25bdba32d878e42ff16f253d17548bc5041f61ae2865acd222f7dd1edfb2",
+      "size": 245
+    },
+    {
+      "path": "firmware/bme280-mqtt-sensor/esp32-c6-devkitc-1/firmware.bin",
+      "sha256": "ef632c74403a3cc751095d767dfa53fc9a64ba5486d24d2610e4b8062590377e",
+      "size": 1139696
+    },
+    {
+      "path": "firmware/bme280-mqtt-sensor/esp32-c6-devkitc-1/firmware.factory.bin",
+      "sha256": "baaee78db5aaa56f3aaed3ea5b9885b322976ce4b2dd28fa76fa223ec74e2fc7",
+      "size": 1205232
+    },
+    {
+      "path": "firmware/bme280-mqtt-sensor/esp32-c6-devkitc-1/manifest.json",
+      "sha256": "9c3acf2d4d97ce8e8646c84e02851275460e2e3e6e2ce0d25d4f98037f362ca6",
+      "size": 357
+    },
+    {
+      "path": "firmware/bme280-mqtt-sensor/esp32-c6-devkitc-1/ota-manifest.json",
+      "sha256": "ce9f31f287297c80740b0bb32e2a157d095c942424ca164af0d60fb9569f893e",
+      "size": 245
+    },
+    {
+      "path": "firmware/bme280-mqtt-sensor/esp32-devkit-v1/firmware.bin",
+      "sha256": "0cc13ae30af9b7a07caae74228fb7909605e9958765147c93b35ea26ae304562",
+      "size": 1019872
+    },
+    {
+      "path": "firmware/bme280-mqtt-sensor/esp32-devkit-v1/firmware.factory.bin",
+      "sha256": "351417998367d71b5b0c9fef121376ad4e5ad7dc65c0e4616bc0f3ac93425bb7",
+      "size": 1085408
+    },
+    {
+      "path": "firmware/bme280-mqtt-sensor/esp32-devkit-v1/manifest.json",
+      "sha256": "722c6d10e0d75f137e50d5c9175877fbce68aa0fe43f83e5a62a5793f6074bd7",
+      "size": 351
+    },
+    {
+      "path": "firmware/bme280-mqtt-sensor/esp32-devkit-v1/ota-manifest.json",
+      "sha256": "2851407f1da44ebb85bcd1e45439f16988601a62cfcfaccea358ee82a75390bb",
+      "size": 239
+    },
+    {
+      "path": "firmware/bme280-mqtt-sensor/esp32-s3-devkitc-1/firmware.bin",
+      "sha256": "d9bd4269e07c850cda23013e78717d369e78c8530ac67ffdaa0db3441505e0cc",
+      "size": 1008272
+    },
+    {
+      "path": "firmware/bme280-mqtt-sensor/esp32-s3-devkitc-1/firmware.factory.bin",
+      "sha256": "8c1110ba2c75e1763936887dad29a0167fa1e0bc41995b50cc859b6dea0b0a5e",
+      "size": 1073808
+    },
+    {
+      "path": "firmware/bme280-mqtt-sensor/esp32-s3-devkitc-1/manifest.json",
+      "sha256": "0a796687ca23eb58056bc2c1eae27efdfdad26379a540668f23ac792e359c05e",
+      "size": 362
+    },
+    {
+      "path": "firmware/bme280-mqtt-sensor/esp32-s3-devkitc-1/ota-manifest.json",
+      "sha256": "d6f71cf0368a694833d5b8db9c440f03bf983c756f2dc9ebe70cff7219a7b497",
+      "size": 245
+    },
+    {
+      "path": "firmware/boot-counter/esp32-c3-devkitm-1/firmware.bin",
+      "sha256": "c7407595dd4f3bd096c9e451538ccb728563f55ffb37eb32eb5660451dd32ddd",
+      "size": 1028672
+    },
+    {
+      "path": "firmware/boot-counter/esp32-c3-devkitm-1/firmware.factory.bin",
+      "sha256": "3e91ef5d2267416557a8d74b4752dfd6478f0989cc129226677fcc2ad1bbf927",
+      "size": 1094208
+    },
+    {
+      "path": "firmware/boot-counter/esp32-c3-devkitm-1/manifest.json",
+      "sha256": "41299915cf036092df6cf366bf3524b036f0e9df5df65ac2923329d253cf0a3d",
+      "size": 346
+    },
+    {
+      "path": "firmware/boot-counter/esp32-c3-devkitm-1/ota-manifest.json",
+      "sha256": "2681fd0a22fd916da6cb3769f54380a2942d4faa19e56c371f56571829e891b5",
+      "size": 239
+    },
+    {
+      "path": "firmware/boot-counter/esp32-c6-devkitc-1/firmware.bin",
+      "sha256": "92f4973944c44dd9909c79442aa355800b93a589b84d44dee83acb452ec1a71f",
+      "size": 1054096
+    },
+    {
+      "path": "firmware/boot-counter/esp32-c6-devkitc-1/firmware.factory.bin",
+      "sha256": "d6e31833eaa70e7b903116ab6a8e87eaff4c145c7feba7f48dc5c054adf8397d",
+      "size": 1119632
+    },
+    {
+      "path": "firmware/boot-counter/esp32-c6-devkitc-1/manifest.json",
+      "sha256": "04199901cef5e59a457e631bded06c648ed27446aab28d073002cda0cc1410b7",
+      "size": 346
+    },
+    {
+      "path": "firmware/boot-counter/esp32-c6-devkitc-1/ota-manifest.json",
+      "sha256": "c395b9ac5252f58e5d3d4b890ed045b57546e413ef14168bf0e00e4448f109e0",
+      "size": 239
+    },
+    {
+      "path": "firmware/boot-counter/esp32-devkit-v1/firmware.bin",
+      "sha256": "6fb4ce6e9c2136d2d19add62555dc6f633008687e9604b109cf10bdb66ce8c81",
+      "size": 960672
+    },
+    {
+      "path": "firmware/boot-counter/esp32-devkit-v1/firmware.factory.bin",
+      "sha256": "e85be068fe7222cf7b04e3fa64a3f94408a72b11faa739b46c71941c160b60de",
+      "size": 1026208
+    },
+    {
+      "path": "firmware/boot-counter/esp32-devkit-v1/manifest.json",
+      "sha256": "0600ccb2e58d4cf7d679900841f319ca56b519722fbbe579e2910004e52747f2",
+      "size": 340
+    },
+    {
+      "path": "firmware/boot-counter/esp32-devkit-v1/ota-manifest.json",
+      "sha256": "39f971440da3eacceb651cd08b7b78978bfa56bfc2c7502de374c0c3443e730f",
+      "size": 232
+    },
+    {
+      "path": "firmware/boot-counter/esp32-s3-devkitc-1/firmware.bin",
+      "sha256": "0ab64e1cc309c995b0c30b1ae9fa72ac5a2e55ee18c116ade9e215b81e3ea262",
+      "size": 923584
+    },
+    {
+      "path": "firmware/boot-counter/esp32-s3-devkitc-1/firmware.factory.bin",
+      "sha256": "9e86e99b983b1badfb4bc211610e21244fbd3d6190302497e9082d72265003f7",
+      "size": 989120
+    },
+    {
+      "path": "firmware/boot-counter/esp32-s3-devkitc-1/manifest.json",
+      "sha256": "aae09bc52ffba444916555fa803dc6d21b35096a66f7b3aaa4fa80eeabfeeaa6",
+      "size": 351
+    },
+    {
+      "path": "firmware/boot-counter/esp32-s3-devkitc-1/ota-manifest.json",
+      "sha256": "c352ff68f1e2738c58b595d52ae1be636015289315ce87e039c48cf87892c94c",
+      "size": 238
+    },
+    {
+      "path": "firmware/cpu-benchmark/esp32-c3-devkitm-1/firmware.bin",
+      "sha256": "323174e2f58c7fe3005c859ff19907e19417068ef78c3747fb6e132fb93d8084",
+      "size": 1026000
+    },
+    {
+      "path": "firmware/cpu-benchmark/esp32-c3-devkitm-1/firmware.factory.bin",
+      "sha256": "a9052bf713c3340771f68e73038bb5e08faaf20f42f4f6945299b6aac0cec685",
+      "size": 1091536
+    },
+    {
+      "path": "firmware/cpu-benchmark/esp32-c3-devkitm-1/manifest.json",
+      "sha256": "534ac41c63d2a2b3b211e4541b4af468452ed094fd14154a835a47b48ca6b68e",
+      "size": 351
+    },
+    {
+      "path": "firmware/cpu-benchmark/esp32-c3-devkitm-1/ota-manifest.json",
+      "sha256": "7b66e6770571ea92011a4307c4d53c22f1ca6258b4db526773ce57d4ca762d16",
+      "size": 240
+    },
+    {
+      "path": "firmware/cpu-benchmark/esp32-c6-devkitc-1/firmware.bin",
+      "sha256": "3d82c9e8685b051a2327e70af1fc3cbd580a84aed506b5dca04724c1b32bcafc",
+      "size": 1051408
+    },
+    {
+      "path": "firmware/cpu-benchmark/esp32-c6-devkitc-1/firmware.factory.bin",
+      "sha256": "72c1a528e652b20dbe130bf270243a00bd2dc8359aab719155ed5de63e8faca8",
+      "size": 1116944
+    },
+    {
+      "path": "firmware/cpu-benchmark/esp32-c6-devkitc-1/manifest.json",
+      "sha256": "445413b80125f5f27e66f3f0a5d82bee128168aaca1b4d24791085f6c22f2266",
+      "size": 351
+    },
+    {
+      "path": "firmware/cpu-benchmark/esp32-c6-devkitc-1/ota-manifest.json",
+      "sha256": "6cabef2eeea8bed534e58cb5718f1ec35f903bc733d8528300f21dbcf94e71ec",
+      "size": 240
+    },
+    {
+      "path": "firmware/cpu-benchmark/esp32-devkit-v1/firmware.bin",
+      "sha256": "a8cbdb91e2012b98b237c43f150ba2d2be776c26dde25b56bc4a67b982f0360d",
+      "size": 958320
+    },
+    {
+      "path": "firmware/cpu-benchmark/esp32-devkit-v1/firmware.factory.bin",
+      "sha256": "e2e2e616a44bc74379014c78ccf33b9171a433cd43753ebea107c6f39d927725",
+      "size": 1023856
+    },
+    {
+      "path": "firmware/cpu-benchmark/esp32-devkit-v1/manifest.json",
+      "sha256": "b0e0f4cccb9c8f9a3b9cf8d6d1a15378eca6185d2af3bd2207cbe7e1ed6e080d",
+      "size": 345
+    },
+    {
+      "path": "firmware/cpu-benchmark/esp32-devkit-v1/ota-manifest.json",
+      "sha256": "436c4a9ddf8d07880b6a693fe06cb3aa442ed7f2afdfec6c508a601e15715e79",
+      "size": 233
+    },
+    {
+      "path": "firmware/cpu-benchmark/esp32-s3-devkitc-1/firmware.bin",
+      "sha256": "7293fbbddc87f587d799fb8215043590c9f4aeb7aeae6ee0a3145f7a5167aa81",
+      "size": 921296
+    },
+    {
+      "path": "firmware/cpu-benchmark/esp32-s3-devkitc-1/firmware.factory.bin",
+      "sha256": "c00b27600d00c0af076aa1999cf4e2579fb57666f48867ddf9e0cdcbef6d5351",
+      "size": 986832
+    },
+    {
+      "path": "firmware/cpu-benchmark/esp32-s3-devkitc-1/manifest.json",
+      "sha256": "d924763f05157dab60b92460d4249a627fdec8b137c18f27118dd52aa901d02d",
+      "size": 356
+    },
+    {
+      "path": "firmware/cpu-benchmark/esp32-s3-devkitc-1/ota-manifest.json",
+      "sha256": "84bfe89db753e16b53006d6368b6d7e4a9ee003e78f537d6af293034922ff127",
+      "size": 239
+    },
+    {
+      "path": "firmware/decision-oracle/esp32-c3-devkitm-1/firmware.bin",
+      "sha256": "28017858de9b527cefcea589a081b4bb01e605dbf97e08e931953f46acb0c667",
+      "size": 1025744
+    },
+    {
+      "path": "firmware/decision-oracle/esp32-c3-devkitm-1/firmware.factory.bin",
+      "sha256": "afc639b4607b68d2bef19c95c756253f94a5b4cd736291138cf7db6a735a4fb7",
+      "size": 1091280
+    },
+    {
+      "path": "firmware/decision-oracle/esp32-c3-devkitm-1/manifest.json",
+      "sha256": "7ac1056f3332ef45552a7fe7cfdd3ed5432b355120b797769faa1f1f9cc18d5b",
+      "size": 348
+    },
+    {
+      "path": "firmware/decision-oracle/esp32-c3-devkitm-1/ota-manifest.json",
+      "sha256": "490ace1a1842dbeb80694aa879e8f3288ed39945123e81fade9366a9c7dce065",
+      "size": 242
+    },
+    {
+      "path": "firmware/decision-oracle/esp32-c6-devkitc-1/firmware.bin",
+      "sha256": "21c7125ef26745dba4838188a4f3f10356fac2631b073314f2572c5194e0ba2d",
+      "size": 1051152
+    },
+    {
+      "path": "firmware/decision-oracle/esp32-c6-devkitc-1/firmware.factory.bin",
+      "sha256": "3ca18800761be6500370a8c1c7b960980ca400e1befa155f6019b1f6a53c074b",
+      "size": 1116688
+    },
+    {
+      "path": "firmware/decision-oracle/esp32-c6-devkitc-1/manifest.json",
+      "sha256": "c4d771077a5ea189dac44ab80ea17080c2872288992cb85d756f0427fb90909d",
+      "size": 348
+    },
+    {
+      "path": "firmware/decision-oracle/esp32-c6-devkitc-1/ota-manifest.json",
+      "sha256": "ea83fcf941b1ee8e49ea63ed7a0ff23711e33377f7b98031cf69fdc851a3a194",
+      "size": 242
+    },
+    {
+      "path": "firmware/decision-oracle/esp32-devkit-v1/firmware.bin",
+      "sha256": "2a2c33bb7337198ee6fb2fa7e121862cb8c7cb2c7074dda6ee8c787b56294ad9",
+      "size": 958080
+    },
+    {
+      "path": "firmware/decision-oracle/esp32-devkit-v1/firmware.factory.bin",
+      "sha256": "f53dc9875619bbcac846254fcd8bf61b76afaaf524c20948c4abe954aa5f24ee",
+      "size": 1023616
+    },
+    {
+      "path": "firmware/decision-oracle/esp32-devkit-v1/manifest.json",
+      "sha256": "6eb860c2599f99bee5e6fc89351c840a1c2511a76c310227fad793b83a737784",
+      "size": 342
+    },
+    {
+      "path": "firmware/decision-oracle/esp32-devkit-v1/ota-manifest.json",
+      "sha256": "01b0d751a5178f660895e8363cfee782532f9599b688e15bcdc76825f6e00605",
+      "size": 235
+    },
+    {
+      "path": "firmware/decision-oracle/esp32-s3-devkitc-1/firmware.bin",
+      "sha256": "1ce397fdf395ec7ea5542265f8fafc948bf0a60d1a9e3862301e9f416a33c41f",
+      "size": 921072
+    },
+    {
+      "path": "firmware/decision-oracle/esp32-s3-devkitc-1/firmware.factory.bin",
+      "sha256": "c3842db042b17e77d5e47afa227710adffecea43460174d984b832698dbc39e3",
+      "size": 986608
+    },
+    {
+      "path": "firmware/decision-oracle/esp32-s3-devkitc-1/manifest.json",
+      "sha256": "78ee6451de57d2b32a7d14321701b6070945e3f3e73a0b52260f5fd806ddb2b6",
+      "size": 353
+    },
+    {
+      "path": "firmware/decision-oracle/esp32-s3-devkitc-1/ota-manifest.json",
+      "sha256": "31a460f12f00028e974248118b7fbfdddf7f601b65adbb28262b18977c6b8c9c",
+      "size": 241
+    },
+    {
+      "path": "firmware/device-console/esp32-c3-devkitm-1/firmware.bin",
+      "sha256": "bca536f31365b37eb168469a73cdeefd98e2634814fe51940c167bbfa92c21dc",
+      "size": 1026944
+    },
+    {
+      "path": "firmware/device-console/esp32-c3-devkitm-1/firmware.factory.bin",
+      "sha256": "4f99a674d250e1ad5da549ba4853c3f06e2ab66f00e327801d9f143cd943eeda",
+      "size": 1092480
+    },
+    {
+      "path": "firmware/device-console/esp32-c3-devkitm-1/manifest.json",
+      "sha256": "bb04123be026cb2c075e18749a90f55c3ee1713c8829bc283351d4e6822b8f3a",
+      "size": 347
+    },
+    {
+      "path": "firmware/device-console/esp32-c3-devkitm-1/ota-manifest.json",
+      "sha256": "039598af667d818339118b5a78d052bdd24e90441284dbbabd6a9a75d59028be",
+      "size": 241
+    },
+    {
+      "path": "firmware/device-console/esp32-c6-devkitc-1/firmware.bin",
+      "sha256": "ac86e04c39dfa8372e045c646e22a3c2dd1dd27f99fd7559e545c85011c6a532",
+      "size": 1052352
+    },
+    {
+      "path": "firmware/device-console/esp32-c6-devkitc-1/firmware.factory.bin",
+      "sha256": "323f8853e9bcd2aeb0f34905cfecda42382595c8e96e64bd485905398059f6c7",
+      "size": 1117888
+    },
+    {
+      "path": "firmware/device-console/esp32-c6-devkitc-1/manifest.json",
+      "sha256": "706fbc4579b8e704ad471f8979908d561792c17fe1e8d17c956b641ca2a345d6",
+      "size": 347
+    },
+    {
+      "path": "firmware/device-console/esp32-c6-devkitc-1/ota-manifest.json",
+      "sha256": "b9be42a5f814072681b721894fe3ec29a7e8bc2c09aaf7f00754e22b3d2547bb",
+      "size": 241
+    },
+    {
+      "path": "firmware/device-console/esp32-devkit-v1/firmware.bin",
+      "sha256": "cf9e80c916e438c59e667ba70a17dd1a607ae87d7381e6fe12d50b9bab862c8e",
+      "size": 959120
+    },
+    {
+      "path": "firmware/device-console/esp32-devkit-v1/firmware.factory.bin",
+      "sha256": "8711882270707abe6453c17da2fcbce3aec2f6ffcc94b1cc8f96eb66e6e8b2a4",
+      "size": 1024656
+    },
+    {
+      "path": "firmware/device-console/esp32-devkit-v1/manifest.json",
+      "sha256": "eba2f1085fbb09f7fd507e9547bdc30b9a410cebc8b71356080700bee4a39a66",
+      "size": 341
+    },
+    {
+      "path": "firmware/device-console/esp32-devkit-v1/ota-manifest.json",
+      "sha256": "eebee2e9e9a10236e46fde7677dc12be204eb643fe33f146847e4fea84f970e0",
+      "size": 234
+    },
+    {
+      "path": "firmware/device-console/esp32-s3-devkitc-1/firmware.bin",
+      "sha256": "41b93e1694ce72e7ef046df9a534f6a569b1b0160a4ac3faa45777695890c712",
+      "size": 922080
+    },
+    {
+      "path": "firmware/device-console/esp32-s3-devkitc-1/firmware.factory.bin",
+      "sha256": "ee6a1d780d2aa389e588e1c1a1fcf335d3f1036fef9060592e2cafbbd6c31cf2",
+      "size": 987616
+    },
+    {
+      "path": "firmware/device-console/esp32-s3-devkitc-1/manifest.json",
+      "sha256": "fc3d372c8a4106d92a8aec88c9a60895aa023e779ffd669e2a9a6c0b6c919107",
+      "size": 352
+    },
+    {
+      "path": "firmware/device-console/esp32-s3-devkitc-1/ota-manifest.json",
+      "sha256": "80196fc8f90a276b6f545b0206cf1807072a93cb9da1de9458a607a7f176d890",
+      "size": 240
+    },
+    {
+      "path": "firmware/esp32-diagnostics/esp32-c3-devkitm-1/firmware.bin",
+      "sha256": "73b238a85c3749b6ea8f66db1361c262487349aa4b642588ce67285c6340ed2e",
+      "size": 1082704
+    },
+    {
+      "path": "firmware/esp32-diagnostics/esp32-c3-devkitm-1/firmware.factory.bin",
+      "sha256": "60e26c7ae1f2b33807c8d7e97e3b11bb985ec71fc41e2d1a2032c75dba9842b2",
+      "size": 1148240
+    },
+    {
+      "path": "firmware/esp32-diagnostics/esp32-c3-devkitm-1/manifest.json",
+      "sha256": "d81a311cb0b29a524e6ec33409842d9ca7af143ad7a2d38585edde4fe3e634c3",
+      "size": 357
+    },
+    {
+      "path": "firmware/esp32-diagnostics/esp32-c3-devkitm-1/ota-manifest.json",
+      "sha256": "c7bcb727dcadc3833d0b2cf705fe93158b9d09000c686fb93009fdc41409573b",
+      "size": 244
+    },
+    {
+      "path": "firmware/esp32-diagnostics/esp32-c6-devkitc-1/firmware.bin",
+      "sha256": "c99061a9dd440edce8a3aa67087429dcd920d645dca6443f0979506b9929857c",
+      "size": 1109392
+    },
+    {
+      "path": "firmware/esp32-diagnostics/esp32-c6-devkitc-1/firmware.factory.bin",
+      "sha256": "5c6aea7faf8ddef97edadbd2df725f99ac5a0a0784d59bb3ad018d264e453eae",
+      "size": 1174928
+    },
+    {
+      "path": "firmware/esp32-diagnostics/esp32-c6-devkitc-1/manifest.json",
+      "sha256": "0110fdba57066cc79fbb53b20fb8f0f6753d0d8a4f074ff61800c88d47deba1e",
+      "size": 357
+    },
+    {
+      "path": "firmware/esp32-diagnostics/esp32-c6-devkitc-1/ota-manifest.json",
+      "sha256": "a58cb7bbd16f18c173ad0b38ed26c42c48ee9050263896eaca5c111ac4a35a8a",
+      "size": 244
+    },
+    {
+      "path": "firmware/esp32-diagnostics/esp32-devkit-v1/firmware.bin",
+      "sha256": "e3d8c15da31966ec2de3bae23aee5460c95187d4ccbc0cda879d00aa47bd5d87",
+      "size": 1009616
+    },
+    {
+      "path": "firmware/esp32-diagnostics/esp32-devkit-v1/firmware.factory.bin",
+      "sha256": "3694d95cb7b87d7980bbe810e7b148ca6ba6b3fdd1c6f7b4d67a5c607a469d37",
+      "size": 1075152
+    },
+    {
+      "path": "firmware/esp32-diagnostics/esp32-devkit-v1/manifest.json",
+      "sha256": "631a44e693e8f827b4e20003bfe843c53909053c2d1937600dac3e44f9234b04",
+      "size": 351
+    },
+    {
+      "path": "firmware/esp32-diagnostics/esp32-devkit-v1/ota-manifest.json",
+      "sha256": "a222d120d842a5fa2bee6a48daad3919a728e1baa50de2dacd01d8587b15a2a2",
+      "size": 238
+    },
+    {
+      "path": "firmware/esp32-diagnostics/esp32-s3-devkitc-1/firmware.bin",
+      "sha256": "982899eb3ea689e2ffa0a475edcb30ca39feaa6524dff953a8fbfcd958804f06",
+      "size": 977136
+    },
+    {
+      "path": "firmware/esp32-diagnostics/esp32-s3-devkitc-1/firmware.factory.bin",
+      "sha256": "fbcb79fedfd51ad263d23d95fa6daf13d06a99d5d4992525b08d4b89a1473e7c",
+      "size": 1042672
+    },
+    {
+      "path": "firmware/esp32-diagnostics/esp32-s3-devkitc-1/manifest.json",
+      "sha256": "52246f082860493690950d99462d31afc8f37c549df5473629637504beddb051",
+      "size": 362
+    },
+    {
+      "path": "firmware/esp32-diagnostics/esp32-s3-devkitc-1/ota-manifest.json",
+      "sha256": "70cbd055dc176df8be5f4fc42bc0593967988b561da560a41339c66353ed9f3f",
+      "size": 243
+    },
+    {
+      "path": "firmware/hc-sr04-parking/esp32-c3-devkitm-1/firmware.bin",
+      "sha256": "86c96e53d8e1096ab192f5e9429616f3a0e7b8a3df8f406dec1e7337ee475373",
+      "size": 1051776
+    },
+    {
+      "path": "firmware/hc-sr04-parking/esp32-c3-devkitm-1/firmware.factory.bin",
+      "sha256": "ec6bece9fbaa04d114e7fe289590d06c8b699b259b5ef021280624bd3633669a",
+      "size": 1117312
+    },
+    {
+      "path": "firmware/hc-sr04-parking/esp32-c3-devkitm-1/manifest.json",
+      "sha256": "7ff631f2bef6de2a34a29e3ada79d728cc0646ef5696623c56b857b5242a0f98",
+      "size": 361
+    },
+    {
+      "path": "firmware/hc-sr04-parking/esp32-c3-devkitm-1/ota-manifest.json",
+      "sha256": "3f9d91d7e7761af838f2792cef7700ac7297f64c5bcaf16edf9d54ed27f228b1",
+      "size": 242
+    },
+    {
+      "path": "firmware/hc-sr04-parking/esp32-c6-devkitc-1/firmware.bin",
+      "sha256": "d19b49ea537d2a2528304579cf23cc984ac3275534ff177bf92792da33ba7548",
+      "size": 1076912
+    },
+    {
+      "path": "firmware/hc-sr04-parking/esp32-c6-devkitc-1/firmware.factory.bin",
+      "sha256": "500ae986cf1d42550e73d8b965644c46784f33a5fc22a97b8730704a8effa7c7",
+      "size": 1142448
+    },
+    {
+      "path": "firmware/hc-sr04-parking/esp32-c6-devkitc-1/manifest.json",
+      "sha256": "70e09419a6cb16e47ec7be3bdec4e96f0d6b68c00e4b2fc022c98820a6ed8149",
+      "size": 361
+    },
+    {
+      "path": "firmware/hc-sr04-parking/esp32-c6-devkitc-1/ota-manifest.json",
+      "sha256": "abdf0b265094454c06093bb086d930746f5b41d57ab637f1f9dec0d88a08b369",
+      "size": 242
+    },
+    {
+      "path": "firmware/hc-sr04-parking/esp32-devkit-v1/firmware.bin",
+      "sha256": "fbab483e4962b7a0993dc10d02e04a034680eeb24dff845823e798f2aa326168",
+      "size": 963408
+    },
+    {
+      "path": "firmware/hc-sr04-parking/esp32-devkit-v1/firmware.factory.bin",
+      "sha256": "c2cbd0c72fa0a54bbd95314e00cce06d12229b07baf9a8ad31cc6860223e2302",
+      "size": 1028944
+    },
+    {
+      "path": "firmware/hc-sr04-parking/esp32-devkit-v1/manifest.json",
+      "sha256": "cc6e2248883c2af87168d7d47652dd9086334902793e50134819904b0cfbf51c",
+      "size": 355
+    },
+    {
+      "path": "firmware/hc-sr04-parking/esp32-devkit-v1/ota-manifest.json",
+      "sha256": "419ee6db27011a62f9ef272f049777bd7da78fc13a304c117de39f253902e1ec",
+      "size": 235
+    },
+    {
+      "path": "firmware/hc-sr04-parking/esp32-s3-devkitc-1/firmware.bin",
+      "sha256": "3b5970e66929d8a0a04eea62506b559d7c626448416de84f732e8cebabb62a69",
+      "size": 950656
+    },
+    {
+      "path": "firmware/hc-sr04-parking/esp32-s3-devkitc-1/firmware.factory.bin",
+      "sha256": "3eff21275b6f19226436e586e4ec80bae9ad9b93a7a6f7a03653ec80548bfe92",
+      "size": 1016192
+    },
+    {
+      "path": "firmware/hc-sr04-parking/esp32-s3-devkitc-1/manifest.json",
+      "sha256": "323b291964a5e9650dad8ccdb70ea8572e88918860081c18dfc410fe5b8648ba",
+      "size": 366
+    },
+    {
+      "path": "firmware/hc-sr04-parking/esp32-s3-devkitc-1/ota-manifest.json",
+      "sha256": "1b63f2fdf0ca8f324b33a43bf1047229b9f91dc5c836a8cfe5f36c61938f2971",
+      "size": 241
+    },
+    {
+      "path": "firmware/ibeacon-lab/esp32-c3-devkitm-1/firmware.bin",
+      "sha256": "405984379dfab9b8123ac46b364ac6061e274d20ded5899adafeb563e821e4b0",
+      "size": 571488
+    },
+    {
+      "path": "firmware/ibeacon-lab/esp32-c3-devkitm-1/firmware.factory.bin",
+      "sha256": "7357e2ffb496eeea1983ef8c4f3854611222d2e72c760aee7f3a0d1571c8693d",
+      "size": 637024
+    },
+    {
+      "path": "firmware/ibeacon-lab/esp32-c3-devkitm-1/manifest.json",
+      "sha256": "ef9e4e0f9dab6122b8c40d213ca94106cc313f6e277a31312f203cf93b4cfd11",
+      "size": 344
+    },
+    {
+      "path": "firmware/ibeacon-lab/esp32-c3-devkitm-1/ota-manifest.json",
+      "sha256": "a24c462b3eaa8d25f7eff351ff07df2fe68d6105889dff56fe0ab87725ef4214",
+      "size": 237
+    },
+    {
+      "path": "firmware/ibeacon-lab/esp32-c6-devkitc-1/firmware.bin",
+      "sha256": "b8c67976e438cc9503e7a92960935dde513eec9efd76ae4d56ee7ca53de34a81",
+      "size": 681792
+    },
+    {
+      "path": "firmware/ibeacon-lab/esp32-c6-devkitc-1/firmware.factory.bin",
+      "sha256": "2ef9c460392128be06b6a1e9f5b79af86e766354e50cc994a33325cca15aaf98",
+      "size": 747328
+    },
+    {
+      "path": "firmware/ibeacon-lab/esp32-c6-devkitc-1/manifest.json",
+      "sha256": "134eab47688bb0e90bfd8739abcb393003ed7d6e2a07611a24b8fefd8345cfe1",
+      "size": 344
+    },
+    {
+      "path": "firmware/ibeacon-lab/esp32-c6-devkitc-1/ota-manifest.json",
+      "sha256": "08868a567c4daccdd9073d14542a23548bd76b70657b9db8208931f5cf2ad68a",
+      "size": 237
+    },
+    {
+      "path": "firmware/ibeacon-lab/esp32-devkit-v1/firmware.bin",
+      "sha256": "5983f10b36cd8ff8236b2e25fc3d7cebf769f54a072e38f8ad6d864e4d8c1945",
+      "size": 592672
+    },
+    {
+      "path": "firmware/ibeacon-lab/esp32-devkit-v1/firmware.factory.bin",
+      "sha256": "1da50a3a7d159e587fb9024c46883abd8b288e58bdb086bd015513961e8fd09e",
+      "size": 658208
+    },
+    {
+      "path": "firmware/ibeacon-lab/esp32-devkit-v1/manifest.json",
+      "sha256": "3c46366033dc165a8e9903158d6ffb3abafb8d62906a4e95274737eb983e2b99",
+      "size": 338
+    },
+    {
+      "path": "firmware/ibeacon-lab/esp32-devkit-v1/ota-manifest.json",
+      "sha256": "49a225940f91780127ee8c46a285f85c3f293f89788a888fb62fce931ba4712b",
+      "size": 231
+    },
+    {
+      "path": "firmware/ibeacon-lab/esp32-s3-devkitc-1/firmware.bin",
+      "sha256": "6dbc94fa870b4aa5a83c328401abeebb6abfb2428d4c1822decbdd93021c921c",
+      "size": 532992
+    },
+    {
+      "path": "firmware/ibeacon-lab/esp32-s3-devkitc-1/firmware.factory.bin",
+      "sha256": "26d83e26f37d8876c4fa9ff62419a1b222bedd633e025231095eea81f80c3f46",
+      "size": 598528
+    },
+    {
+      "path": "firmware/ibeacon-lab/esp32-s3-devkitc-1/manifest.json",
+      "sha256": "46980f4b84c8b66e8db4e8056a28f1a522502a98e78df5159a648037ad86c4f4",
+      "size": 349
+    },
+    {
+      "path": "firmware/ibeacon-lab/esp32-s3-devkitc-1/ota-manifest.json",
+      "sha256": "46c9978be01b75375054c6d2a8f78551ed8973859150bea2837f213abaf65cd1",
+      "size": 237
+    },
+    {
+      "path": "firmware/lcd1602-smart-dashboard/esp32-c3-devkitm-1/firmware.bin",
+      "sha256": "71493abb83d517940dec8c62be9ea49b6f06315dee16a0186fa52301ccc84832",
+      "size": 1209104
+    },
+    {
+      "path": "firmware/lcd1602-smart-dashboard/esp32-c3-devkitm-1/firmware.factory.bin",
+      "sha256": "eaa319610e3e730fc1f4a2f3c4393dfb7ce25b431ee305a486d76d9f0de3128f",
+      "size": 1274640
+    },
+    {
+      "path": "firmware/lcd1602-smart-dashboard/esp32-c3-devkitm-1/manifest.json",
+      "sha256": "6661b837e48af4ab24cdfcb280124a9e0f18e511e4d3d55ef027c665fbf6c5a6",
+      "size": 356
+    },
+    {
+      "path": "firmware/lcd1602-smart-dashboard/esp32-c3-devkitm-1/ota-manifest.json",
+      "sha256": "ced5e03500c0b52fea39af0f00b74fc25e8801bd366a1c035db63de4c7659337",
+      "size": 250
+    },
+    {
+      "path": "firmware/lcd1602-smart-dashboard/esp32-c6-devkitc-1/firmware.bin",
+      "sha256": "9675ccf96c14b0047e1780a53157088b46e2f85611df1be5ab52e74da68606c1",
+      "size": 1229248
+    },
+    {
+      "path": "firmware/lcd1602-smart-dashboard/esp32-c6-devkitc-1/firmware.factory.bin",
+      "sha256": "954fb47aa24dfdc85ddb3cb8f88853161da3cc064efd98aa9260a92a39ddd2f4",
+      "size": 1294784
+    },
+    {
+      "path": "firmware/lcd1602-smart-dashboard/esp32-c6-devkitc-1/manifest.json",
+      "sha256": "60805cdc17630a9e3a50c41f6c04514841bb1da56c433200d4a16151eff90e88",
+      "size": 356
+    },
+    {
+      "path": "firmware/lcd1602-smart-dashboard/esp32-c6-devkitc-1/ota-manifest.json",
+      "sha256": "f1330502caf4d347db13c56e2d91895c272fa1dc72f78fbd4648ed9793bfcbf3",
+      "size": 250
+    },
+    {
+      "path": "firmware/lcd1602-smart-dashboard/esp32-devkit-v1/firmware.bin",
+      "sha256": "45f919daf53dad1e1a85202d0f5c21d10d9a5a969d8bf874419bf38c62bf2e49",
+      "size": 1124384
+    },
+    {
+      "path": "firmware/lcd1602-smart-dashboard/esp32-devkit-v1/firmware.factory.bin",
+      "sha256": "99fd814fb87d746dcbf2cc4c0211a2c2451cb0102cd2ca6222da51eea4d9884a",
+      "size": 1189920
+    },
+    {
+      "path": "firmware/lcd1602-smart-dashboard/esp32-devkit-v1/manifest.json",
+      "sha256": "701cf26e58969672a6f152bbfa4af2f70833f64158c40c856fcc47f7d876aa08",
+      "size": 350
+    },
+    {
+      "path": "firmware/lcd1602-smart-dashboard/esp32-devkit-v1/ota-manifest.json",
+      "sha256": "523c3eb6c2a4f8c85f2c14aaa9ce1d7b156cf41b9a657ae37566694cd9c87511",
+      "size": 244
+    },
+    {
+      "path": "firmware/lcd1602-smart-dashboard/esp32-s3-devkitc-1/firmware.bin",
+      "sha256": "1394efb319041dd762e4c0b171a156004df9cf82d7a8237e66a7c33a46c9d38d",
+      "size": 1087168
+    },
+    {
+      "path": "firmware/lcd1602-smart-dashboard/esp32-s3-devkitc-1/firmware.factory.bin",
+      "sha256": "9d15a3165de51f9d626c2611aa324e02728ca81d91a2cde0f3a339f63df8cecd",
+      "size": 1152704
+    },
+    {
+      "path": "firmware/lcd1602-smart-dashboard/esp32-s3-devkitc-1/manifest.json",
+      "sha256": "b46207c88b0681b62db31be6737ee35c0ba99f0c9c4474a869cf8ed56a9bf8c1",
+      "size": 361
+    },
+    {
+      "path": "firmware/lcd1602-smart-dashboard/esp32-s3-devkitc-1/ota-manifest.json",
+      "sha256": "1e2026e324a457dac754a9eaa1a55f8768061f999e6e4b1a6524649b7d627542",
+      "size": 250
+    },
+    {
+      "path": "firmware/littlefs-dropbox/esp32-c3-devkitm-1/firmware.bin",
+      "sha256": "3f040e8de45113c48426f0f009af7735a36b250ee414bd5b47c2d2588c3298e4",
+      "size": 1082864
+    },
+    {
+      "path": "firmware/littlefs-dropbox/esp32-c3-devkitm-1/firmware.factory.bin",
+      "sha256": "5fdd00b75bfdae32d06c6b6b99270e2da55ede93ec166f1475d2a4f3272cab3d",
+      "size": 1148400
+    },
+    {
+      "path": "firmware/littlefs-dropbox/esp32-c3-devkitm-1/manifest.json",
+      "sha256": "fa5bb3dc2b366a3008f9a01cbb20b64c6f7ad8c0c4f10db7d8874f814202c9d8",
+      "size": 349
+    },
+    {
+      "path": "firmware/littlefs-dropbox/esp32-c3-devkitm-1/ota-manifest.json",
+      "sha256": "3399702fed3746442a3b3c88f240b22f05530592bea50f218f82d4ae21bd4270",
+      "size": 243
+    },
+    {
+      "path": "firmware/littlefs-dropbox/esp32-c6-devkitc-1/firmware.bin",
+      "sha256": "9b6d6c2790cec4a6fbe28261be8a12943e76410a8303b22bf0e32fce5af049c4",
+      "size": 1108240
+    },
+    {
+      "path": "firmware/littlefs-dropbox/esp32-c6-devkitc-1/firmware.factory.bin",
+      "sha256": "a998e205d4b9e70d32fb88ffc1114bc2d4c74074a7bed6df8aa2eae9a8fb578c",
+      "size": 1173776
+    },
+    {
+      "path": "firmware/littlefs-dropbox/esp32-c6-devkitc-1/manifest.json",
+      "sha256": "7963ecf5af5d45423238400d28043c4d79d98403c6986a3ebbeb3219f8857063",
+      "size": 349
+    },
+    {
+      "path": "firmware/littlefs-dropbox/esp32-c6-devkitc-1/ota-manifest.json",
+      "sha256": "f6064f6355ed5b471a9c80e03fe88ad153f50453f8113f2379fff9d279cd5827",
+      "size": 243
+    },
+    {
+      "path": "firmware/littlefs-dropbox/esp32-devkit-v1/firmware.bin",
+      "sha256": "e1cba96536e6bc6eaff9d5e1ca7cc6e7bd8e4f7bc05f47940599a812aafa04f6",
+      "size": 1007888
+    },
+    {
+      "path": "firmware/littlefs-dropbox/esp32-devkit-v1/firmware.factory.bin",
+      "sha256": "2a80e2f4a432c50012d034362b2687ff76ba5a5c3f25efba13b7963cc09c3c8c",
+      "size": 1073424
+    },
+    {
+      "path": "firmware/littlefs-dropbox/esp32-devkit-v1/manifest.json",
+      "sha256": "ee2a3fc0962c27dc1aaf61d7829de0bd67daa8c9dd5bc612943d82a6321f37c4",
+      "size": 343
+    },
+    {
+      "path": "firmware/littlefs-dropbox/esp32-devkit-v1/ota-manifest.json",
+      "sha256": "d383bf747035eeb453b12d1dc2cf141ff9d4a70e5b812909c89f55983e5a01fd",
+      "size": 237
+    },
+    {
+      "path": "firmware/littlefs-dropbox/esp32-s3-devkitc-1/firmware.bin",
+      "sha256": "e2358d3ce9eaf1f055969c38979188ebe1cffc99b1350b88af17cac09baa112f",
+      "size": 970032
+    },
+    {
+      "path": "firmware/littlefs-dropbox/esp32-s3-devkitc-1/firmware.factory.bin",
+      "sha256": "c4f212d740c1c621a7b07ea15db51b41682ad5cf5f5077cad98fb2e4f9672c77",
+      "size": 1035568
+    },
+    {
+      "path": "firmware/littlefs-dropbox/esp32-s3-devkitc-1/manifest.json",
+      "sha256": "68aa2b3c25a6f3416af202a919c1460edaa8ee87c03b2bfb1fe0dc35ebf98600",
+      "size": 354
+    },
+    {
+      "path": "firmware/littlefs-dropbox/esp32-s3-devkitc-1/ota-manifest.json",
+      "sha256": "e4b6c7a97c336373698391dd4d09d04a4a4631f2816f353045db06d823f3b169",
+      "size": 242
+    },
+    {
+      "path": "firmware/local-chat-room/esp32-c3-devkitm-1/firmware.bin",
+      "sha256": "92a27c67fa411bc0bb4c3c57cb7b1d0b5a86624ab3b20a63b79b1f1711160cc6",
+      "size": 1051872
+    },
+    {
+      "path": "firmware/local-chat-room/esp32-c3-devkitm-1/firmware.factory.bin",
+      "sha256": "ffee52ef292969ddb839bf86c572eb81c6ce89099d517448940b2b50ad65078b",
+      "size": 1117408
+    },
+    {
+      "path": "firmware/local-chat-room/esp32-c3-devkitm-1/manifest.json",
+      "sha256": "03cda491d3b4e142c3e7c29614ecb516ffd7782b25d9e9506f1d234c2c54d63b",
+      "size": 349
+    },
+    {
+      "path": "firmware/local-chat-room/esp32-c3-devkitm-1/ota-manifest.json",
+      "sha256": "b0cf818a61ab786051969e77bc16bcd7aaf325be50ee2fd14bc7dd0b1b4e73b5",
+      "size": 242
+    },
+    {
+      "path": "firmware/local-chat-room/esp32-c6-devkitc-1/firmware.bin",
+      "sha256": "815ec92e7c57a6cf6c8c001eeb2348cdecde41c7d36c53c6cf0231eefa9c2251",
+      "size": 1077312
+    },
+    {
+      "path": "firmware/local-chat-room/esp32-c6-devkitc-1/firmware.factory.bin",
+      "sha256": "3a5e1b1471bed4bdf24f69d1a2488c706292270577b3a7e03ed3282edd6d065f",
+      "size": 1142848
+    },
+    {
+      "path": "firmware/local-chat-room/esp32-c6-devkitc-1/manifest.json",
+      "sha256": "c72abea194e0dbc3d5d907c214d174bc6c19385ccdbe6b2367e886f36d03f384",
+      "size": 349
+    },
+    {
+      "path": "firmware/local-chat-room/esp32-c6-devkitc-1/ota-manifest.json",
+      "sha256": "0e19f919e796b95c8fa6085e25d806db34fec06e240d64b260c1e01b142d0e35",
+      "size": 242
+    },
+    {
+      "path": "firmware/local-chat-room/esp32-devkit-v1/firmware.bin",
+      "sha256": "42b7e7013f8444150d3e07a48776425fdff7e195956a22fe81e9b155d2c342ac",
+      "size": 982944
+    },
+    {
+      "path": "firmware/local-chat-room/esp32-devkit-v1/firmware.factory.bin",
+      "sha256": "eb4ec65f6876a74b5a67f80450e5ae1353b5a1ea139e324fcf1ec633bddf9884",
+      "size": 1048480
+    },
+    {
+      "path": "firmware/local-chat-room/esp32-devkit-v1/manifest.json",
+      "sha256": "66e57e180c19c2671a7dd3295dbc52913ce17bbe42880145447ec944a94822db",
+      "size": 343
+    },
+    {
+      "path": "firmware/local-chat-room/esp32-devkit-v1/ota-manifest.json",
+      "sha256": "b1b2db3abded4bb387ae9c0a695180bd643acfdeccb4454c6a4762ade6263479",
+      "size": 235
+    },
+    {
+      "path": "firmware/local-chat-room/esp32-s3-devkitc-1/firmware.bin",
+      "sha256": "96544dd6faafe913797d249e9eee60b6340a412325f675452e4f9b81ada59f98",
+      "size": 945424
+    },
+    {
+      "path": "firmware/local-chat-room/esp32-s3-devkitc-1/firmware.factory.bin",
+      "sha256": "0b3aa8d4f1fedb598f543733ee93b84ec723c9ad579fec627241ea2605090d47",
+      "size": 1010960
+    },
+    {
+      "path": "firmware/local-chat-room/esp32-s3-devkitc-1/manifest.json",
+      "sha256": "fb278fe4e725abf652fff394f01307a9036a6688fd60f5245caa524c3207b74e",
+      "size": 354
+    },
+    {
+      "path": "firmware/local-chat-room/esp32-s3-devkitc-1/ota-manifest.json",
+      "sha256": "c6251649d95c42c7d8ff8bffcde83ec6e5a43b8dae48124c408ef8f172f76bd6",
+      "size": 241
+    },
+    {
+      "path": "firmware/morse-beacon/esp32-c3-devkitm-1/firmware.bin",
+      "sha256": "da73bfca37f6f8971e227d6f255c4ca927d8ef3d4c61e49f3513b14153b9454a",
+      "size": 315408
+    },
+    {
+      "path": "firmware/morse-beacon/esp32-c3-devkitm-1/firmware.factory.bin",
+      "sha256": "f170bd1273a79737682da6b87f22e9fce8e67830842bac03866c055b68bd4e49",
+      "size": 380944
+    },
+    {
+      "path": "firmware/morse-beacon/esp32-c3-devkitm-1/manifest.json",
+      "sha256": "646ba77fe4064e3dbec7e52983ff79a4c474b92f7fa89ed079b01974b23bdf9c",
+      "size": 345
+    },
+    {
+      "path": "firmware/morse-beacon/esp32-c3-devkitm-1/ota-manifest.json",
+      "sha256": "61fd3a87a207875555fc5da28108f0131e8c44af2327beeab4f539d5e30c7968",
+      "size": 238
+    },
+    {
+      "path": "firmware/morse-beacon/esp32-c6-devkitc-1/firmware.bin",
+      "sha256": "20095c87a40035b704b649e4cf59b8aa3b25e610adac3a331ff455a703a9e408",
+      "size": 293744
+    },
+    {
+      "path": "firmware/morse-beacon/esp32-c6-devkitc-1/firmware.factory.bin",
+      "sha256": "c472c5acb42ff7c9f2e49fe0da4a73d8849287a6e7d106d4716b3ed88fc6292b",
+      "size": 359280
+    },
+    {
+      "path": "firmware/morse-beacon/esp32-c6-devkitc-1/manifest.json",
+      "sha256": "844e0cc90eb44ac3468a0e8bb62121df78fd8e19b5b8865b4c9a4dc7ce025f6d",
+      "size": 345
+    },
+    {
+      "path": "firmware/morse-beacon/esp32-c6-devkitc-1/ota-manifest.json",
+      "sha256": "71f625913bb6a1b4abd868d75a7c533d2c6b0598eca7edb710f6e85865823578",
+      "size": 238
+    },
+    {
+      "path": "firmware/morse-beacon/esp32-s3-devkitc-1/firmware.bin",
+      "sha256": "85020b179f6da6f31aa1fa90e791998bd9bc969fe24edd47430273ccc784750a",
+      "size": 312528
+    },
+    {
+      "path": "firmware/morse-beacon/esp32-s3-devkitc-1/firmware.factory.bin",
+      "sha256": "ef1b1f1dd79013bf3060bc8867223fc52341542259ee2d9f984573e5f1e71bd0",
+      "size": 378064
+    },
+    {
+      "path": "firmware/morse-beacon/esp32-s3-devkitc-1/manifest.json",
+      "sha256": "107165519c193729867cbc7e1c66622c4179d6c422ae3b5f9fcec9aa60f367bd",
+      "size": 350
+    },
+    {
+      "path": "firmware/morse-beacon/esp32-s3-devkitc-1/ota-manifest.json",
+      "sha256": "96a075a589d060bd62ba6fea477141ebd35703bb7dd981d77ca3b66421f90b59",
+      "size": 238
+    },
+    {
+      "path": "firmware/mqtt-home-status-panel/esp32-c3-devkitm-1/firmware.bin",
+      "sha256": "3158974f8fa51deffbc1efd9dc0a559fc55c555deca076978625b94ae0e36df5",
+      "size": 1068736
+    },
+    {
+      "path": "firmware/mqtt-home-status-panel/esp32-c3-devkitm-1/firmware.factory.bin",
+      "sha256": "fe65e49b2e721d88ba782c56aacbdb563d7ae92e1b46c5eba75eebde5ae7d037",
+      "size": 1134272
+    },
+    {
+      "path": "firmware/mqtt-home-status-panel/esp32-c3-devkitm-1/manifest.json",
+      "sha256": "fd6dbb3782c0d5dbd74e18265064e2706129c08a6ff56b93028312c376d6520d",
+      "size": 355
+    },
+    {
+      "path": "firmware/mqtt-home-status-panel/esp32-c3-devkitm-1/ota-manifest.json",
+      "sha256": "a304f584655dc5548b2d49baebbc0d7c434dca51e2a8d4e2e8fd393bb1bbca8c",
+      "size": 249
+    },
+    {
+      "path": "firmware/mqtt-home-status-panel/esp32-c6-devkitc-1/firmware.bin",
+      "sha256": "06af4ff8011d5e7947c8ed2b33e1c2995869357a3cb7438003f94304c318b305",
+      "size": 1098256
+    },
+    {
+      "path": "firmware/mqtt-home-status-panel/esp32-c6-devkitc-1/firmware.factory.bin",
+      "sha256": "24c65a160c93c6e2a96839a27e2b443d63ef84b7c2ce40d0ff6b8436484dfaba",
+      "size": 1163792
+    },
+    {
+      "path": "firmware/mqtt-home-status-panel/esp32-c6-devkitc-1/manifest.json",
+      "sha256": "4af88511935886a6fe3d6dcd7e39975d8406f111db57fa2ffc1128f332d354e8",
+      "size": 355
+    },
+    {
+      "path": "firmware/mqtt-home-status-panel/esp32-c6-devkitc-1/ota-manifest.json",
+      "sha256": "1c339b018820f771de5e3f8f8b3680d772910a856d0dc0acb3f2f85fe6e34f83",
+      "size": 249
+    },
+    {
+      "path": "firmware/mqtt-home-status-panel/esp32-devkit-v1/firmware.bin",
+      "sha256": "111284da8ddd823b18ecf2f24f41371702d7225b59d4c5c902b824bb174422a5",
+      "size": 996000
+    },
+    {
+      "path": "firmware/mqtt-home-status-panel/esp32-devkit-v1/firmware.factory.bin",
+      "sha256": "b6eeda1f3a7fa87316acf267d9974ebc958ba0a4d800b398c851df2ec3312c33",
+      "size": 1061536
+    },
+    {
+      "path": "firmware/mqtt-home-status-panel/esp32-devkit-v1/manifest.json",
+      "sha256": "41398474f3790a2e4f508e903573775086e0f0fec51e17035fe38e6997eb5034",
+      "size": 349
+    },
+    {
+      "path": "firmware/mqtt-home-status-panel/esp32-devkit-v1/ota-manifest.json",
+      "sha256": "2c4f9a7651c5083bdc042b59766b27ac55b8e503bef79eb718eb48808df786bf",
+      "size": 242
+    },
+    {
+      "path": "firmware/mqtt-home-status-panel/esp32-s3-devkitc-1/firmware.bin",
+      "sha256": "b0c8241f3a4ddffede1ad6f81db9ff495f367a653135c0e9d3bf9dca917979a0",
+      "size": 960608
+    },
+    {
+      "path": "firmware/mqtt-home-status-panel/esp32-s3-devkitc-1/firmware.factory.bin",
+      "sha256": "588ce2ec7e1d598e784d6e911e1f9dfcef39d92a699cdec5f71193a255fcefe8",
+      "size": 1026144
+    },
+    {
+      "path": "firmware/mqtt-home-status-panel/esp32-s3-devkitc-1/manifest.json",
+      "sha256": "fb099801ab2b5ce6925d1806ae7476006c28c87824e85350a722cc50599d4e00",
+      "size": 360
+    },
+    {
+      "path": "firmware/mqtt-home-status-panel/esp32-s3-devkitc-1/ota-manifest.json",
+      "sha256": "a9eaf8b55e6f48edae1738cc88cbf01cd24bcb5182aee47a6764a74ef9c87876",
+      "size": 248
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-c3-devkitm-1/firmware.bin",
+      "sha256": "e184a6712989ddecf0b730b182b38848695cc19db6165c9e3b4ef0c2ea059ca1",
+      "size": 1082320
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-c3-devkitm-1/firmware.factory.bin",
+      "sha256": "f8b9f057360b709f4ef2a52f9e6dc8fdf0bd12c22e467727bd0fc46a1aa08148",
+      "size": 1147856
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-c3-devkitm-1/lcd1602-i2c/firmware.bin",
+      "sha256": "734b8914b061d43c5adc5b790cfca12d58b8f3de0cd84c02db4247af790e896a",
+      "size": 1063536
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-c3-devkitm-1/lcd1602-i2c/firmware.factory.bin",
+      "sha256": "97a974d73f473b70c6311bb759fc2d2cc5bfaee2d79af83f403749ccae10e82a",
+      "size": 1129072
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-c3-devkitm-1/lcd1602-i2c/manifest.json",
+      "sha256": "c0ad0d2906bd632047b14a273561ef7504430ea1af83086bba58cdc9fcd7a456",
+      "size": 388
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-c3-devkitm-1/lcd1602-i2c/ota-manifest.json",
+      "sha256": "370308585798d0c2a6fb097c13403f3d6a554f74c0fef09dc91923ccbff868b1",
+      "size": 269
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-c3-devkitm-1/manifest.json",
+      "sha256": "82b1362b0c81345f446f3f7ae12625ec6f6903eab28bd8ad9983f91be47c55d1",
+      "size": 347
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-c3-devkitm-1/ota-manifest.json",
+      "sha256": "93ac2d3bc31b9feb04ef80349b1873515f47be15e3c3d31504c7ec278a68b06c",
+      "size": 241
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-c6-devkitc-1/firmware.bin",
+      "sha256": "17604cc9fd756e0fa1c6893f8b661541a594e6b4796e58afd91e402c1b2fb66d",
+      "size": 1098896
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-c6-devkitc-1/firmware.factory.bin",
+      "sha256": "76f46cf42ca0334b0839d8f7938297d2313e1fa464633735c1b67939848e335e",
+      "size": 1164432
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-c6-devkitc-1/lcd1602-i2c/firmware.bin",
+      "sha256": "5435d7d45febf9315293e6611476ccd5dd6627c7bf395a76559b50ef8cb9342e",
+      "size": 1080448
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-c6-devkitc-1/lcd1602-i2c/firmware.factory.bin",
+      "sha256": "63cd718bc6460da956b58c36d426a5c5aa386bcb62cb7b64012603d92d820d35",
+      "size": 1145984
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-c6-devkitc-1/lcd1602-i2c/manifest.json",
+      "sha256": "e01d42daeb6922cf48209dbc6eae27cb2e97387ab5abf1a08278e1a4d42ac126",
+      "size": 388
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-c6-devkitc-1/lcd1602-i2c/ota-manifest.json",
+      "sha256": "09297473ed85faa41f5dba0b88818e37f6bf160cf16a24f1dd5ee6cbc063e1d3",
+      "size": 269
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-c6-devkitc-1/manifest.json",
+      "sha256": "066308a6f341e67a8087ca726373151ed73c8c34def571a2ce59e47406f69e2c",
+      "size": 347
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-c6-devkitc-1/ota-manifest.json",
+      "sha256": "fb4ade435563ef411ded73767261d52ca26303887bda1dffa9780df76c72e152",
+      "size": 241
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-devkit-v1/firmware.bin",
+      "sha256": "a0e5ae5122b5291b1b7db136cde1ce2e974f579d2a51bfe0a7b45dc11b0a902b",
+      "size": 993312
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-devkit-v1/firmware.factory.bin",
+      "sha256": "5f412faf8d5e670cae8fea41509a45435bc90f13c6db2e5368d7b12b31811ae8",
+      "size": 1058848
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-devkit-v1/lcd1602-i2c/firmware.bin",
+      "sha256": "b92975a209040d63afbe69a54e60314bdc8a87dd8a127c9fdfc6a60f8d2b1699",
+      "size": 993904
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-devkit-v1/lcd1602-i2c/firmware.factory.bin",
+      "sha256": "824ed8fa1cfa407bce2ab02bcebb87493fcd570861eaae39356ee51ac2424304",
+      "size": 1059440
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-devkit-v1/lcd1602-i2c/manifest.json",
+      "sha256": "ded8a14afe96a1d473c2398324fb06eca98df3bbc26a0a32c709b1d3fb71a0c6",
+      "size": 382
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-devkit-v1/lcd1602-i2c/ota-manifest.json",
+      "sha256": "fc32fe714cb7f2845b6863b90704d1354c386580c40680012018dfa070a3cbfa",
+      "size": 262
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-devkit-v1/manifest.json",
+      "sha256": "4af40bb515594f6d644b562ec87a74a50260589020d2a4eb6e1605d7d6827ed4",
+      "size": 341
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-devkit-v1/ota-manifest.json",
+      "sha256": "54fecb4c30b65146a7c5ef99aae9a63fd3bd02e3c7614d761a1f1892ce2ab868",
+      "size": 234
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-s3-devkitc-1/firmware.bin",
+      "sha256": "6f12be233ad5dd27ca02f486bcbf4959dea85e8bd410c9dad3a664a372b042ff",
+      "size": 981920
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-s3-devkitc-1/firmware.factory.bin",
+      "sha256": "634bdcb9be67e90c32a38f0677c7b540ed2dde5d395351f5d490b6c895473290",
+      "size": 1047456
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-s3-devkitc-1/lcd1602-i2c/firmware.bin",
+      "sha256": "23fbdf256c460098fa3ebdb0da9bd724eaba10997fad8e6d2647eba96205932e",
+      "size": 959136
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-s3-devkitc-1/lcd1602-i2c/firmware.factory.bin",
+      "sha256": "b84be443a4f22b379984a1ef265a1a5e80e8d08e3c8fe9efac0bb9345533f1b0",
+      "size": 1024672
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-s3-devkitc-1/lcd1602-i2c/manifest.json",
+      "sha256": "7d5b868233353e60b5a9ed52dde310a70c56aeb9fade7890da79751f2263a108",
+      "size": 393
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-s3-devkitc-1/lcd1602-i2c/ota-manifest.json",
+      "sha256": "c2e9885a8a6a57c909030be3c098ad6db81190d52f941f1267826f61196892e7",
+      "size": 268
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-s3-devkitc-1/manifest.json",
+      "sha256": "dddd24a7cdcb8ecce938ed2f27e01a4b67ee76706002d7c8a6352b49b754eefb",
+      "size": 352
+    },
+    {
+      "path": "firmware/ntp-desk-clock/esp32-s3-devkitc-1/ota-manifest.json",
+      "sha256": "69f9c41c13db8b73f053a2476be9ad316fa52c89f2c8cf3a245683ca766695ed",
+      "size": 240
+    },
+    {
+      "path": "firmware/pico-board-check/raspberry-pi-pico/firmware.uf2",
+      "sha256": "7a0e309ee42eadde519a736ecaa3749ca69e93dcc327e51fb9a51a75c5a55e6a",
+      "size": 93184
+    },
+    {
+      "path": "firmware/pico-board-check/raspberry-pi-pico/uf2-manifest.json",
+      "sha256": "c8b622c9147ce92d1d050c067c81e37ca227ac90e23d91d6321622e246aa777e",
+      "size": 238
+    },
+    {
+      "path": "firmware/pico-board-check/raspberry-pi-pico-2/firmware.uf2",
+      "sha256": "390b3b7fa92592dd7b945c3f819143288e8fe3420322d3358d689e7904a47c81",
+      "size": 92160
+    },
+    {
+      "path": "firmware/pico-board-check/raspberry-pi-pico-2/uf2-manifest.json",
+      "sha256": "a4753af5819132c735d3aa9f9faeb65af72598c2a531f9deb2c07066ba94eaab",
+      "size": 240
+    },
+    {
+      "path": "firmware/pico-board-check/raspberry-pi-pico-2-w/firmware.uf2",
+      "sha256": "2fff88aa249842944d6be19e3ef340eab9b50d98ebcc118d3181aedbf4c061e7",
+      "size": 609792
+    },
+    {
+      "path": "firmware/pico-board-check/raspberry-pi-pico-2-w/uf2-manifest.json",
+      "sha256": "f35a16c39752faa63a4e8613082ef254b1b861ad8c51b58d6b30a58b2a3a9264",
+      "size": 243
+    },
+    {
+      "path": "firmware/pico-board-check/raspberry-pi-pico-w/firmware.uf2",
+      "sha256": "e5bec0d23bf86e2068d6d09049c89c3aeb7700e33751463195ef4ba980a5374b",
+      "size": 612352
+    },
+    {
+      "path": "firmware/pico-board-check/raspberry-pi-pico-w/uf2-manifest.json",
+      "sha256": "60b718d7ccac5ca611f967589211c24c26c36894d7110800c648a2f47c9e8416",
+      "size": 241
+    },
+    {
+      "path": "firmware/pico-morse-beacon/raspberry-pi-pico/firmware.uf2",
+      "sha256": "96aa3b26edaaf6a353b3547dede62dcb7815c51e780d528ae10c1219fedb8d28",
+      "size": 94208
+    },
+    {
+      "path": "firmware/pico-morse-beacon/raspberry-pi-pico/uf2-manifest.json",
+      "sha256": "04b80324ac8ca4412dcfb80e0c3a571749ec636198c4c3d7e2fb1587c4ccb541",
+      "size": 239
+    },
+    {
+      "path": "firmware/pico-morse-beacon/raspberry-pi-pico-2/firmware.uf2",
+      "sha256": "3d35679c2cbc04c716c4ec871975109ef379120004ecf3b14376da5359e49408",
+      "size": 92672
+    },
+    {
+      "path": "firmware/pico-morse-beacon/raspberry-pi-pico-2/uf2-manifest.json",
+      "sha256": "6626558167d6984385313dd45853f29dc11548bd6b53c48a9558362aa8c76e47",
+      "size": 241
+    },
+    {
+      "path": "firmware/pico-morse-beacon/raspberry-pi-pico-2-w/firmware.uf2",
+      "sha256": "500a6ce177c1943871c43ac1b61fa8f49422c58681f07eeb6157478a7bf74e3d",
+      "size": 610816
+    },
+    {
+      "path": "firmware/pico-morse-beacon/raspberry-pi-pico-2-w/uf2-manifest.json",
+      "sha256": "dfee7619c53b6f1cba363f5337b9ca4b4f665e3277a35a15389f1e772c24e6e5",
+      "size": 244
+    },
+    {
+      "path": "firmware/pico-morse-beacon/raspberry-pi-pico-w/firmware.uf2",
+      "sha256": "63de4361ad21e498579bd10e6d5619d8f0ac2e111034b7e300c8c9400826f52d",
+      "size": 613376
+    },
+    {
+      "path": "firmware/pico-morse-beacon/raspberry-pi-pico-w/uf2-manifest.json",
+      "sha256": "d52c9bb0fa8308456df75b4a39888d770d4b5ab9824af8cde1f4a314da9c2a61",
+      "size": 242
+    },
+    {
+      "path": "firmware/pico-wifi-surveyor/raspberry-pi-pico-2-w/firmware.uf2",
+      "sha256": "6ed894a56374dbdbb2a6f43a4900a94a90838da69f3c4785e006e8b5305b10df",
+      "size": 695296
+    },
+    {
+      "path": "firmware/pico-wifi-surveyor/raspberry-pi-pico-2-w/uf2-manifest.json",
+      "sha256": "9352db32ecee8010f5c9935de17d255ef54d220361d27411bf246b1bdee095a3",
+      "size": 245
+    },
+    {
+      "path": "firmware/pico-wifi-surveyor/raspberry-pi-pico-w/firmware.uf2",
+      "sha256": "d5fb026ea6f97218623950b22f6bf6d07175d3e1730d88d85dd26f87fb7c0a25",
+      "size": 701952
+    },
+    {
+      "path": "firmware/pico-wifi-surveyor/raspberry-pi-pico-w/uf2-manifest.json",
+      "sha256": "f20bb5b9096c74288de6659751f3ff6a7f7f4d421d14e3e9bad17c23f2a8e2e1",
+      "size": 243
+    },
+    {
+      "path": "firmware/pir-occupancy-timer/esp32-c3-devkitm-1/firmware.bin",
+      "sha256": "98067595d978101469063821ffa21c3cbb9454b4ed883d1fe259d9569971d53c",
+      "size": 1030960
+    },
+    {
+      "path": "firmware/pir-occupancy-timer/esp32-c3-devkitm-1/firmware.factory.bin",
+      "sha256": "363a8a3242c9c20f27c25231e9326484cbc370f3d0e3fcb79e10e0de0eb1cabd",
+      "size": 1096496
+    },
+    {
+      "path": "firmware/pir-occupancy-timer/esp32-c3-devkitm-1/manifest.json",
+      "sha256": "d55ae1d0827bc112f162eeb06489c4644b9b2670627b5c2e7937b8d70b7a479f",
+      "size": 352
+    },
+    {
+      "path": "firmware/pir-occupancy-timer/esp32-c3-devkitm-1/ota-manifest.json",
+      "sha256": "cc2ab6b261d8a9754900dea1bc04f74d51cbc9da504011de1e67fce1e62bb8da",
+      "size": 246
+    },
+    {
+      "path": "firmware/pir-occupancy-timer/esp32-c6-devkitc-1/firmware.bin",
+      "sha256": "c32b930328cf482943337e2eccc29c6ba55dbe8227522e7b85ef1a41dbd0dc82",
+      "size": 1056624
+    },
+    {
+      "path": "firmware/pir-occupancy-timer/esp32-c6-devkitc-1/firmware.factory.bin",
+      "sha256": "0f45f8beb931bf70e096788aa24e9e404d44116a115a0177a90762cdbaf9c212",
+      "size": 1122160
+    },
+    {
+      "path": "firmware/pir-occupancy-timer/esp32-c6-devkitc-1/manifest.json",
+      "sha256": "75855e64eda8bea0400e6368b91828e155df5bebc219c1afa8b06e4af1d8f3fa",
+      "size": 352
+    },
+    {
+      "path": "firmware/pir-occupancy-timer/esp32-c6-devkitc-1/ota-manifest.json",
+      "sha256": "01ec5798e9eb2ea72a26f5e45c18ff9dd3260adbfd53f1462e8ed4a2d166dba4",
+      "size": 246
+    },
+    {
+      "path": "firmware/pir-occupancy-timer/esp32-devkit-v1/firmware.bin",
+      "sha256": "02b45474b1bb480dc84d2fd07f1ebe4d45650108d5633165f6e3708c78b663d8",
+      "size": 963856
+    },
+    {
+      "path": "firmware/pir-occupancy-timer/esp32-devkit-v1/firmware.factory.bin",
+      "sha256": "d9d0ffb956bf70124723cf6be0aa8f962d8f842ecfced1ed724719b2c63012b6",
+      "size": 1029392
+    },
+    {
+      "path": "firmware/pir-occupancy-timer/esp32-devkit-v1/manifest.json",
+      "sha256": "3b928d0943163a4a62d18f9b0139495d97fc80c29b712fb47dd1603c352d65f5",
+      "size": 346
+    },
+    {
+      "path": "firmware/pir-occupancy-timer/esp32-devkit-v1/ota-manifest.json",
+      "sha256": "e8736b1ee70229b128a4dda25e94304109e9cc86ea83847d021e9b1d3ff8e537",
+      "size": 239
+    },
+    {
+      "path": "firmware/pir-occupancy-timer/esp32-s3-devkitc-1/firmware.bin",
+      "sha256": "dba01b4900ed10e1001007bd089c79d3980a6fed821bfd6138c845530bed0f33",
+      "size": 927536
+    },
+    {
+      "path": "firmware/pir-occupancy-timer/esp32-s3-devkitc-1/firmware.factory.bin",
+      "sha256": "2a912bd7e3f139c8cfba2e93d3b1e4d233b145e7ac78a98347597255bdec576e",
+      "size": 993072
+    },
+    {
+      "path": "firmware/pir-occupancy-timer/esp32-s3-devkitc-1/manifest.json",
+      "sha256": "cedeb43235898b29e055cb7adc0b245242586323bcf7a64320993ada930fd4cb",
+      "size": 357
+    },
+    {
+      "path": "firmware/pir-occupancy-timer/esp32-s3-devkitc-1/ota-manifest.json",
+      "sha256": "567ebadfb513b0a645cfe6aa5402eaf51f850ee14f2cdb97b45d4480ea41890c",
+      "size": 245
+    },
+    {
+      "path": "firmware/pomodoro-light/esp32-c3-devkitm-1/firmware.bin",
+      "sha256": "1e487beec351a8b796231858eca727dcf000c1a24aedf805a660c6a1ec07cb96",
+      "size": 313744
+    },
+    {
+      "path": "firmware/pomodoro-light/esp32-c3-devkitm-1/firmware.factory.bin",
+      "sha256": "7523568d26e0e2b221e0af20446a3e3a076adb02ba4689ab175174ec30bf313a",
+      "size": 379280
+    },
+    {
+      "path": "firmware/pomodoro-light/esp32-c3-devkitm-1/manifest.json",
+      "sha256": "53448c9c6828608b309b4be997f86e56dc9f77e80363d453b14897441baa2d5a",
+      "size": 347
+    },
+    {
+      "path": "firmware/pomodoro-light/esp32-c3-devkitm-1/ota-manifest.json",
+      "sha256": "3adba328977ef917074a2c0e4635b11ed3bfffe66caf23b2141c121973fe9a8f",
+      "size": 240
+    },
+    {
+      "path": "firmware/pomodoro-light/esp32-c6-devkitc-1/firmware.bin",
+      "sha256": "af9d8b36cf63a12fc345d9d05b52d05e3e7123f99b6cb56c58cc82f1398cffe4",
+      "size": 292080
+    },
+    {
+      "path": "firmware/pomodoro-light/esp32-c6-devkitc-1/firmware.factory.bin",
+      "sha256": "020adf21dac8fded598e09b12741945822ec1d6d3c2b0a05883f90d190c799e2",
+      "size": 357616
+    },
+    {
+      "path": "firmware/pomodoro-light/esp32-c6-devkitc-1/manifest.json",
+      "sha256": "acb62c7305e01d2f7bcbf9bbb3c6acd46d2950b3bc5f28b6f73924d4ca0e29c2",
+      "size": 347
+    },
+    {
+      "path": "firmware/pomodoro-light/esp32-c6-devkitc-1/ota-manifest.json",
+      "sha256": "be56726a1f621ef07e4b69c4509543ab301c0b178bf320737371c9f14b9c0f3c",
+      "size": 240
+    },
+    {
+      "path": "firmware/pomodoro-light/esp32-s3-devkitc-1/firmware.bin",
+      "sha256": "82e12bdcc9036a514c7d076398d473ad52cb23fe6f6f6cdbee89483ad184782b",
+      "size": 311408
+    },
+    {
+      "path": "firmware/pomodoro-light/esp32-s3-devkitc-1/firmware.factory.bin",
+      "sha256": "44162bd2c791d59f56199c9468d0d5b35fffc415654a642580fdae16e2926560",
+      "size": 376944
+    },
+    {
+      "path": "firmware/pomodoro-light/esp32-s3-devkitc-1/manifest.json",
+      "sha256": "f941139b8a8200d5b26931ae67f1891ac7445792d74dc96299dee17c7df47e01",
+      "size": 352
+    },
+    {
+      "path": "firmware/pomodoro-light/esp32-s3-devkitc-1/ota-manifest.json",
+      "sha256": "09c45115d1fa35a1fa1dba5e5a0efd98808c78173a37a1a7bf9c5602c0cf86d0",
+      "size": 240
+    },
+    {
+      "path": "firmware/rgb-lamp/esp32-c3-devkitm-1/firmware.bin",
+      "sha256": "fbb6838562dd9cf59c64cd4ccecb6c1d643279c0afe3d358ed814c333b80ec36",
+      "size": 1046688
+    },
+    {
+      "path": "firmware/rgb-lamp/esp32-c3-devkitm-1/firmware.factory.bin",
+      "sha256": "0ba399830ad390cff0fd744e9b56eba5e681d358d7dc95d83838aae17915f54b",
+      "size": 1112224
+    },
+    {
+      "path": "firmware/rgb-lamp/esp32-c3-devkitm-1/manifest.json",
+      "sha256": "c712b07cefb4bcf87c390f0d4d691d3740bbef68290225d8adbbae2525c827d6",
+      "size": 348
+    },
+    {
+      "path": "firmware/rgb-lamp/esp32-c3-devkitm-1/ota-manifest.json",
+      "sha256": "ee2936e9352fa124a6ed8d099ff0bcbc51c6eaf387a3fb3972e6e8433ccc31b8",
+      "size": 235
+    },
+    {
+      "path": "firmware/rgb-lamp/esp32-c6-devkitc-1/firmware.bin",
+      "sha256": "7ce2b2187b64daa5a12c2b4a4c77529f474cfaf0ca1f2b3d9d17287f145d0e3b",
+      "size": 1071776
+    },
+    {
+      "path": "firmware/rgb-lamp/esp32-c6-devkitc-1/firmware.factory.bin",
+      "sha256": "d38669bbb2e4685363a4212d6c2419b744dc617447a830de68909052289f99b2",
+      "size": 1137312
+    },
+    {
+      "path": "firmware/rgb-lamp/esp32-c6-devkitc-1/manifest.json",
+      "sha256": "e127ef45c464f40b23728a5ba39221516c36e2594bae7e85321eac5251fa7b4c",
+      "size": 348
+    },
+    {
+      "path": "firmware/rgb-lamp/esp32-c6-devkitc-1/ota-manifest.json",
+      "sha256": "2705c2dfc4ca48a96d8320d3adfad974087b7e4ec8cfafe7cfd48eb5f7ee76d0",
+      "size": 235
+    },
+    {
+      "path": "firmware/rgb-lamp/esp32-s3-devkitc-1/firmware.bin",
+      "sha256": "dbdd2cc92834c3083c31ea22cdd637bc68ef9b025a77753a6e18bab297053443",
+      "size": 945504
+    },
+    {
+      "path": "firmware/rgb-lamp/esp32-s3-devkitc-1/firmware.factory.bin",
+      "sha256": "748a2fecfda87ccf53c09bc8fd33c6bfbbd0dd44c08dbbc60594d9f21c8c2c69",
+      "size": 1011040
+    },
+    {
+      "path": "firmware/rgb-lamp/esp32-s3-devkitc-1/manifest.json",
+      "sha256": "5905ebe2df72d9decf473f959c3662a0a93cb69a0302af87afcfda3a49ba21c0",
+      "size": 353
+    },
+    {
+      "path": "firmware/rgb-lamp/esp32-s3-devkitc-1/ota-manifest.json",
+      "sha256": "029edc7f57467478848104b45b3a0b004914f76db5f0fdb7e8075701470dfbc3",
+      "size": 234
+    },
+    {
+      "path": "firmware/space-satellite-tracker/esp32-c3-devkitm-1/firmware.bin",
+      "sha256": "1302201ace17cd5d215b1ef261766622cece5d7047629bc98974181eafeb8785",
+      "size": 1190208
+    },
+    {
+      "path": "firmware/space-satellite-tracker/esp32-c3-devkitm-1/firmware.factory.bin",
+      "sha256": "7c3a10ca4107a30ce5092b1c7e9112ae3a944c86a2a836cd0bc8dc9f69f0ba0f",
+      "size": 1255744
+    },
+    {
+      "path": "firmware/space-satellite-tracker/esp32-c3-devkitm-1/manifest.json",
+      "sha256": "bb5a499b2158cd45e5ddd2b7ff9bcd9405dba4f29c1b36c926f887a00b24cb76",
+      "size": 360
+    },
+    {
+      "path": "firmware/space-satellite-tracker/esp32-c3-devkitm-1/ota-manifest.json",
+      "sha256": "a1bc66624b16a119be7bbf55e27a13368090ccea28a204c0834d65a87fdf1d9a",
+      "size": 250
+    },
+    {
+      "path": "firmware/space-satellite-tracker/esp32-c6-devkitc-1/firmware.bin",
+      "sha256": "9291f8b0ba4d9734abcb1ea50de20e2f10bfab323c7e8d00863c4baa7eba3292",
+      "size": 1210288
+    },
+    {
+      "path": "firmware/space-satellite-tracker/esp32-c6-devkitc-1/firmware.factory.bin",
+      "sha256": "0c756b1241acf50adabf0a113445bf9a2469021cf297106143448c24b2ae8a1a",
+      "size": 1275824
+    },
+    {
+      "path": "firmware/space-satellite-tracker/esp32-c6-devkitc-1/manifest.json",
+      "sha256": "e31cdd4cfddfaeac23f40f213e119ade9fcadb5ab58d5f9959dbc2f49a87d32e",
+      "size": 360
+    },
+    {
+      "path": "firmware/space-satellite-tracker/esp32-c6-devkitc-1/ota-manifest.json",
+      "sha256": "da693d163e9cb0d4dfd3ead5fffdda085bcda9686300323a31cbef0b0fc64d3e",
+      "size": 250
+    },
+    {
+      "path": "firmware/space-satellite-tracker/esp32-devkit-v1/firmware.bin",
+      "sha256": "9796b9a4f592f62cd8b35a776022ad9549493b09042e318ee35df89697a5848c",
+      "size": 1108496
+    },
+    {
+      "path": "firmware/space-satellite-tracker/esp32-devkit-v1/firmware.factory.bin",
+      "sha256": "2b55a8272084c98746377804ff63099d649a8fe196f7b398cc87ba13f6f4546a",
+      "size": 1174032
+    },
+    {
+      "path": "firmware/space-satellite-tracker/esp32-devkit-v1/manifest.json",
+      "sha256": "3aac3e5adfd48a9a9a1e38f070dceb3f228893015c950efbff8a70699f838d7b",
+      "size": 354
+    },
+    {
+      "path": "firmware/space-satellite-tracker/esp32-devkit-v1/ota-manifest.json",
+      "sha256": "7f57742d5e9b4de5b427fbbdf80c228ae73d04cdfbbff49df631b5f45c56c486",
+      "size": 244
+    },
+    {
+      "path": "firmware/space-satellite-tracker/esp32-s3-devkitc-1/firmware.bin",
+      "sha256": "7bfdd89511f33a36503dd38d1ac29503f0f5defe83f1fe40cdeaeff61231a488",
+      "size": 1071920
+    },
+    {
+      "path": "firmware/space-satellite-tracker/esp32-s3-devkitc-1/firmware.factory.bin",
+      "sha256": "58ddf31b1f24310b26e22566563849d1da3a8ed7c9725b1f94c809d61109007e",
+      "size": 1137456
+    },
+    {
+      "path": "firmware/space-satellite-tracker/esp32-s3-devkitc-1/manifest.json",
+      "sha256": "16a0bfb3970599411ca7370d69693ec0a9107b6bd3e63380d38a7ca6c6e88aa1",
+      "size": 365
+    },
+    {
+      "path": "firmware/space-satellite-tracker/esp32-s3-devkitc-1/ota-manifest.json",
+      "sha256": "fa8ece6dd20abc0b05dea79d9b28818fa78d1d1f12d0ecdaabe5003dac1d4c51",
+      "size": 250
+    },
+    {
+      "path": "firmware/unifi-network-panel/esp32-c3-devkitm-1/firmware.bin",
+      "sha256": "f4df99b2b681ed5b4d31dfcb934e82a70b368df8ed18fb348f0a00784265e252",
+      "size": 1189920
+    },
+    {
+      "path": "firmware/unifi-network-panel/esp32-c3-devkitm-1/firmware.factory.bin",
+      "sha256": "8d7504e6e05369d19da72d81d7c9c309d2b3adfc434c2b148f73c0ca36f381f1",
+      "size": 1255456
+    },
+    {
+      "path": "firmware/unifi-network-panel/esp32-c3-devkitm-1/manifest.json",
+      "sha256": "6e6e09df9a42953ee5fd91eec66ad3a4472cb9324e69ee353d31e2b069cefc89",
+      "size": 352
+    },
+    {
+      "path": "firmware/unifi-network-panel/esp32-c3-devkitm-1/ota-manifest.json",
+      "sha256": "d2c78c29fd41cf8969d81f3ec712dd09d29afe75bc8262f58c0a7c43a4831d7b",
+      "size": 246
+    },
+    {
+      "path": "firmware/unifi-network-panel/esp32-c6-devkitc-1/firmware.bin",
+      "sha256": "b1eacb0d0cd7b15c6d55c35d323e3b7fb4490f451fe7e2a919ce7064cc767a53",
+      "size": 1210000
+    },
+    {
+      "path": "firmware/unifi-network-panel/esp32-c6-devkitc-1/firmware.factory.bin",
+      "sha256": "2da84a22d750b21e4839c9c00e07176ee28fc89b2f462139573bd7b881376361",
+      "size": 1275536
+    },
+    {
+      "path": "firmware/unifi-network-panel/esp32-c6-devkitc-1/manifest.json",
+      "sha256": "3ec1dd5bb6e42575f42c09a8a1fd15acc6388ed56a911ecee7a95ea9ca54ce1e",
+      "size": 352
+    },
+    {
+      "path": "firmware/unifi-network-panel/esp32-c6-devkitc-1/ota-manifest.json",
+      "sha256": "186b8a341a18d22faa43529ed178d2b1eed7c5e21ae4254ce2454a933946e70e",
+      "size": 246
+    },
+    {
+      "path": "firmware/unifi-network-panel/esp32-devkit-v1/firmware.bin",
+      "sha256": "4f41ff6ecbe3d77895a9e3acad270e9efdaf11d4d9d819f46de8d1affbb67b4c",
+      "size": 1108688
+    },
+    {
+      "path": "firmware/unifi-network-panel/esp32-devkit-v1/firmware.factory.bin",
+      "sha256": "fc9f493b022c4c82c45678e70f4442b508a88be93405ca0e81d33502f1601ce7",
+      "size": 1174224
+    },
+    {
+      "path": "firmware/unifi-network-panel/esp32-devkit-v1/manifest.json",
+      "sha256": "137189ef279e566ee051a78af08671ca4634a23a0ab6d82bd58d3b4d0b025bb2",
+      "size": 346
+    },
+    {
+      "path": "firmware/unifi-network-panel/esp32-devkit-v1/ota-manifest.json",
+      "sha256": "774774a808a3ff36dbe5c677b5a20fbc952d2eb55cae616fa22097901a0a7695",
+      "size": 240
+    },
+    {
+      "path": "firmware/unifi-network-panel/esp32-s3-devkitc-1/firmware.bin",
+      "sha256": "e07ae5bfd5f6b4cbd3ffee0b92ca350b75b83253ca3c833230a3807a9275d416",
+      "size": 1071984
+    },
+    {
+      "path": "firmware/unifi-network-panel/esp32-s3-devkitc-1/firmware.factory.bin",
+      "sha256": "2e7de23a6786324ec830f9b54f8801e5814a5da1f4e3b68b1fe909fc5a932f37",
+      "size": 1137520
+    },
+    {
+      "path": "firmware/unifi-network-panel/esp32-s3-devkitc-1/manifest.json",
+      "sha256": "dc4f518fe75f9b82e46c48ece8d9b4a1d8ded89b205054526d80dd75a98ad08f",
+      "size": 357
+    },
+    {
+      "path": "firmware/unifi-network-panel/esp32-s3-devkitc-1/ota-manifest.json",
+      "sha256": "cbc8e56a1e8378d3b56fb36d93ddd11ad06797328f0510e1be594bffa8279188",
+      "size": 246
+    },
+    {
+      "path": "firmware/wifi-surveyor/esp32-c3-devkitm-1/firmware.bin",
+      "sha256": "632bc4cda1cb4a8e99a505a6b33491380b6f827581b6735cb10c9472bddd3db6",
+      "size": 1026544
+    },
+    {
+      "path": "firmware/wifi-surveyor/esp32-c3-devkitm-1/firmware.factory.bin",
+      "sha256": "71f09e0c7064d1ade1c7b7a668653d7c5d0ee8d77c4f014c7be02374d9e5f7c0",
+      "size": 1092080
+    },
+    {
+      "path": "firmware/wifi-surveyor/esp32-c3-devkitm-1/manifest.json",
+      "sha256": "583f0ad38cfc0df782c8dea82ac4c17f184aa884d52053d65a81b808e92e08fd",
+      "size": 347
+    },
+    {
+      "path": "firmware/wifi-surveyor/esp32-c3-devkitm-1/ota-manifest.json",
+      "sha256": "bfb45fad92092648c9881a66777a2e42b2b92fb430801a5a5e66559f2d3c6e2f",
+      "size": 240
+    },
+    {
+      "path": "firmware/wifi-surveyor/esp32-c6-devkitc-1/firmware.bin",
+      "sha256": "a84114b13522889a897be9c1ccabae1c46f4e7c535ff744ed345ebd81d5a0301",
+      "size": 1051968
+    },
+    {
+      "path": "firmware/wifi-surveyor/esp32-c6-devkitc-1/firmware.factory.bin",
+      "sha256": "d37a773b960b14329512399cb7c7ef4e6792fd14b0eb8acf851b04c8daec4cc4",
+      "size": 1117504
+    },
+    {
+      "path": "firmware/wifi-surveyor/esp32-c6-devkitc-1/manifest.json",
+      "sha256": "4cec31371bfdaf6cba017257b81018071ba98bade69efcbc654fe3737be12e43",
+      "size": 347
+    },
+    {
+      "path": "firmware/wifi-surveyor/esp32-c6-devkitc-1/ota-manifest.json",
+      "sha256": "a4833de1701e096cd687d38dffa9123f2cb234fc83190a361eac49fa8153bb9f",
+      "size": 240
+    },
+    {
+      "path": "firmware/wifi-surveyor/esp32-devkit-v1/firmware.bin",
+      "sha256": "0799f9e0da30c19088d65370d8b60a0702a01054323b19b76edf81e90ab28d3e",
+      "size": 958688
+    },
+    {
+      "path": "firmware/wifi-surveyor/esp32-devkit-v1/firmware.factory.bin",
+      "sha256": "cc001957e36d92777cccdc8575a81ebedbd8446656edca09b84565d3088c110b",
+      "size": 1024224
+    },
+    {
+      "path": "firmware/wifi-surveyor/esp32-devkit-v1/manifest.json",
+      "sha256": "0ba2bf20684c8da46bbde971b678da8b43d05b92289790a9c2a234e550ab3966",
+      "size": 341
+    },
+    {
+      "path": "firmware/wifi-surveyor/esp32-devkit-v1/ota-manifest.json",
+      "sha256": "6376905d45195d79794f0d8833a1ac1fe91bde56cb4dbebff567a8a647ec674b",
+      "size": 233
+    },
+    {
+      "path": "firmware/wifi-surveyor/esp32-s3-devkitc-1/firmware.bin",
+      "sha256": "db84ecf7cd773b27f170b3f55c4ad8528479cb6d0c8c40f9e42af525c88f0ff2",
+      "size": 921632
+    },
+    {
+      "path": "firmware/wifi-surveyor/esp32-s3-devkitc-1/firmware.factory.bin",
+      "sha256": "c7939dc5e69b8b447ea06b1cd819f9079a4b8cb94710605bd2f9d0c3aa7217d0",
+      "size": 987168
+    },
+    {
+      "path": "firmware/wifi-surveyor/esp32-s3-devkitc-1/manifest.json",
+      "sha256": "3d3a3d4f37e473097738f773ad3191bd819abff12d2a37eed091827d20a7f025",
+      "size": 352
+    },
+    {
+      "path": "firmware/wifi-surveyor/esp32-s3-devkitc-1/ota-manifest.json",
+      "sha256": "9134fdf7e473d5b81d5e23d725d9a785a0050a257e091b58b7049b437e700ef7",
+      "size": 239
+    },
+    {
+      "path": "firmware/wifi-weather-station/esp32-c3-devkitm-1/firmware.bin",
+      "sha256": "08b4089ec05244f1aa905d5d9a3f58e65d839efa9833596b471107e646fbb9db",
+      "size": 1190688
+    },
+    {
+      "path": "firmware/wifi-weather-station/esp32-c3-devkitm-1/firmware.factory.bin",
+      "sha256": "3f6d489f094fee1c62e5054557110e8d0acb755a134bc9a3108dac5b4585a5a7",
+      "size": 1256224
+    },
+    {
+      "path": "firmware/wifi-weather-station/esp32-c3-devkitm-1/manifest.json",
+      "sha256": "a7aedc349566af0d220bf47e11fb19c3dde99260d5e15aede75550b8bdd674a2",
+      "size": 359
+    },
+    {
+      "path": "firmware/wifi-weather-station/esp32-c3-devkitm-1/ota-manifest.json",
+      "sha256": "14db09e8d4aede9efcad60e8eb43d1d71bd73c647200acb7e08abf7d7c397a00",
+      "size": 247
+    },
+    {
+      "path": "firmware/wifi-weather-station/esp32-c6-devkitc-1/firmware.bin",
+      "sha256": "228c5d695c5b099005f9d420b9a7bb1c90720fc8c47816bf508ad4c6d1e57092",
+      "size": 1210784
+    },
+    {
+      "path": "firmware/wifi-weather-station/esp32-c6-devkitc-1/firmware.factory.bin",
+      "sha256": "5a6614830fc7c3c25ef95d68b60057b90eaa96ce309a3f308cf34e56ddf2c3f5",
+      "size": 1276320
+    },
+    {
+      "path": "firmware/wifi-weather-station/esp32-c6-devkitc-1/manifest.json",
+      "sha256": "ede22215c3fad4e56731b9d5d04c3860350bf9343c280ae6ffcca8a41ca87e45",
+      "size": 359
+    },
+    {
+      "path": "firmware/wifi-weather-station/esp32-c6-devkitc-1/ota-manifest.json",
+      "sha256": "548fe2dce1cc3455aecff2c75d3319107836d21d53df7f860398e4437702d58d",
+      "size": 247
+    },
+    {
+      "path": "firmware/wifi-weather-station/esp32-devkit-v1/firmware.bin",
+      "sha256": "9bd3a0e2392b4a97c3ef9d010d6d465d61bf3e0cd180ea4372d9a3fcb806cf2a",
+      "size": 1109024
+    },
+    {
+      "path": "firmware/wifi-weather-station/esp32-devkit-v1/firmware.factory.bin",
+      "sha256": "0d02266123666d55fb8e11436bf510e6a3f660f0aa4228a7349ea3526ac53582",
+      "size": 1174560
+    },
+    {
+      "path": "firmware/wifi-weather-station/esp32-devkit-v1/manifest.json",
+      "sha256": "60f1d868b7c1c1bf00311b12d30cda09f135bb75dfee694c24d62a9e12f0157a",
+      "size": 353
+    },
+    {
+      "path": "firmware/wifi-weather-station/esp32-devkit-v1/ota-manifest.json",
+      "sha256": "acb7b1e1cf34c05eaf52879292d7b499b85f0445aaa72a9d30463f404bf57442",
+      "size": 241
+    },
+    {
+      "path": "firmware/wifi-weather-station/esp32-s3-devkitc-1/firmware.bin",
+      "sha256": "85f5329861de80945ebde7e436ec2099181b214eab4ab37e097e4d1544b3bb85",
+      "size": 1072416
+    },
+    {
+      "path": "firmware/wifi-weather-station/esp32-s3-devkitc-1/firmware.factory.bin",
+      "sha256": "fbdc8f0ff9306527f532255702b865253573161f83f45f8e9a2982c1e14a1491",
+      "size": 1137952
+    },
+    {
+      "path": "firmware/wifi-weather-station/esp32-s3-devkitc-1/manifest.json",
+      "sha256": "b463a71b4644d0b2015506c2b59a603160639eaa3e3d10e87e0cb22a93f416b4",
+      "size": 364
+    },
+    {
+      "path": "firmware/wifi-weather-station/esp32-s3-devkitc-1/ota-manifest.json",
+      "sha256": "9386b22df40e2673ca46d05eca69ac7bdff2c8f59c199cf61da95b3065219fb3",
+      "size": 247
+    },
+    {
+      "path": "index.html",
+      "sha256": "01f463bedb27145448311a016c9777800049b0ca4aaac73ad5a6b73c2d505dc8",
+      "size": 7124
+    },
+    {
+      "path": "projects.json",
+      "sha256": "2c3b14cdd6345cc5322283d9f5f3c9cd1c0ef507ad71da1145929e8f58a24ce0",
+      "size": 116471
+    },
+    {
+      "path": "styles.css",
+      "sha256": "ed55d379dbfaf7628f188b0158718350ce8add24dbd1e19be993d5d855be7bca",
+      "size": 10157
+    },
+    {
+      "path": "wiring/bme280-mqtt-sensor/esp32-c3-devkitm-1.svg",
+      "sha256": "44d9458c5468232753bc8e3ac4d1acd639eb1eee64bd66f9155fbd38e625774d",
+      "size": 13897
+    },
+    {
+      "path": "wiring/bme280-mqtt-sensor/esp32-c6-devkitc-1.svg",
+      "sha256": "ee12ebc198fb350a5c08ade2c3adc5f4b3cd5975b57b80769a5d4e92a65f4d36",
+      "size": 13905
+    },
+    {
+      "path": "wiring/bme280-mqtt-sensor/esp32-devkit-v1.svg",
+      "sha256": "b9ff45ae6fc06b72392ff4370e6aaccebb435eba3ab4e10c151b54f78dbfdeff",
+      "size": 13902
+    },
+    {
+      "path": "wiring/bme280-mqtt-sensor/esp32-s3-devkitc-1.svg",
+      "sha256": "276c14307fec05c5cf4ee27d3cebe9d47f68633dfef993b9388bdc749dd1b6f9",
+      "size": 13915
+    },
+    {
+      "path": "wiring/hc-sr04-parking/esp32-c3-devkitm-1.svg",
+      "sha256": "0c081b45411c4da145784ad32c824f67f8c74015e1bf3b863dade9bb78750409",
+      "size": 14554
+    },
+    {
+      "path": "wiring/hc-sr04-parking/esp32-c6-devkitc-1.svg",
+      "sha256": "d8c7dae8231361a59178556099516cde5a541aff927382854484e1cc016fd79d",
+      "size": 14554
+    },
+    {
+      "path": "wiring/hc-sr04-parking/esp32-devkit-v1.svg",
+      "sha256": "afbd2756f77577d802de5c2669fc60797cf2086412e365e100b3cdc19592866b",
+      "size": 14551
+    },
+    {
+      "path": "wiring/hc-sr04-parking/esp32-s3-devkitc-1.svg",
+      "sha256": "0b489df2b579185dbd7c836f521f26fcb5ee34e68f1458117926fda8b043585b",
+      "size": 14564
+    },
+    {
+      "path": "wiring/lcd1602-smart-dashboard/esp32-c3-devkitm-1.svg",
+      "sha256": "06182ddbd8bf506ebd5c21bc3eeb4c29c50f3c4aa42861c290ee97da9a7d36eb",
+      "size": 16967
+    },
+    {
+      "path": "wiring/lcd1602-smart-dashboard/esp32-c6-devkitc-1.svg",
+      "sha256": "732c5702e6b47e49517c9662e85eeb0809b33decff334f4194e5e3126066be46",
+      "size": 16967
+    },
+    {
+      "path": "wiring/lcd1602-smart-dashboard/esp32-devkit-v1.svg",
+      "sha256": "770d00f4c6d8af78e9f5f0db8781bc9c0adafa6b948be8546c95695a175f51f1",
+      "size": 16964
+    },
+    {
+      "path": "wiring/lcd1602-smart-dashboard/esp32-s3-devkitc-1.svg",
+      "sha256": "334c4029930702823c8577695ceeb353516f7184fc5dbb8e424805833c4b3779",
+      "size": 16977
+    },
+    {
+      "path": "wiring/mqtt-home-status-panel/esp32-c3-devkitm-1.svg",
+      "sha256": "e830936f442f579e9197ccbe40450860fd9fa7a879bc746cb7359de90e112e21",
+      "size": 16967
+    },
+    {
+      "path": "wiring/mqtt-home-status-panel/esp32-c6-devkitc-1.svg",
+      "sha256": "a4d31c6120b8c49ce55de3fd2a810798047c06200af0b0520e3a3f5c80e6f36f",
+      "size": 16967
+    },
+    {
+      "path": "wiring/mqtt-home-status-panel/esp32-devkit-v1.svg",
+      "sha256": "389a68a09b7bb5d25f510b07e2c18b76a443f578fdfd9e9a4be466a8a9812597",
+      "size": 16964
+    },
+    {
+      "path": "wiring/mqtt-home-status-panel/esp32-s3-devkitc-1.svg",
+      "sha256": "53b6c60ec9324717a6fc0fc57c5f9c90246dc13f005bb0df25de9afdb25125d5",
+      "size": 16977
+    },
+    {
+      "path": "wiring/ntp-desk-clock/esp32-c3-devkitm-1-lcd1602-i2c.svg",
+      "sha256": "1942e9fa0ac5867cff2f017f6078220f36c0b90f75c85b8eba39d9e2a5cca6b1",
+      "size": 16968
+    },
+    {
+      "path": "wiring/ntp-desk-clock/esp32-c3-devkitm-1.svg",
+      "sha256": "bcb1c042747292f131ea1f2c849b7b6f3e94679a003156722ea09157c8e06ba8",
+      "size": 13500
+    },
+    {
+      "path": "wiring/ntp-desk-clock/esp32-c6-devkitc-1-lcd1602-i2c.svg",
+      "sha256": "b899d86154ce788322e9da69b2f17f80189ff9648551ca5c414551474a632b9c",
+      "size": 16968
+    },
+    {
+      "path": "wiring/ntp-desk-clock/esp32-c6-devkitc-1.svg",
+      "sha256": "604c977903b60c8f8bcda88c2400d6801a55ba85d50defbab1a699bee90bc4c9",
+      "size": 13500
+    },
+    {
+      "path": "wiring/ntp-desk-clock/esp32-devkit-v1-lcd1602-i2c.svg",
+      "sha256": "7b83364c4ba148d8576247b46a507b0adb3b35a6b17a49cb59474a9f4c8e335f",
+      "size": 16965
+    },
+    {
+      "path": "wiring/ntp-desk-clock/esp32-devkit-v1.svg",
+      "sha256": "9f995bfa0c1c6e6c99f921ce15f70ec5e9ac4ab9cb1738eaf34980367b5f2420",
+      "size": 13497
+    },
+    {
+      "path": "wiring/ntp-desk-clock/esp32-s3-devkitc-1-lcd1602-i2c.svg",
+      "sha256": "e7d32b8dced73347c14e69a82513bf06f65267efca31ab733cff5e177d4e62b6",
+      "size": 16978
+    },
+    {
+      "path": "wiring/ntp-desk-clock/esp32-s3-devkitc-1.svg",
+      "sha256": "6101bcd8c9bc3d8c5e702f8cb16dd7bbe42b1a37ba6cfa949b5752b9c5cb3fbb",
+      "size": 13510
+    },
+    {
+      "path": "wiring/pir-occupancy-timer/esp32-c3-devkitm-1.svg",
+      "sha256": "ba97534d6a8b2a6bcce05af3a3b00446670e8d4f431f6face29d84fa852a008d",
+      "size": 12860
+    },
+    {
+      "path": "wiring/pir-occupancy-timer/esp32-c6-devkitc-1.svg",
+      "sha256": "7fa58fb06809bbf2d8ed03b792201d7bd48e1df5f6b41cea1707ab51ea63e6eb",
+      "size": 12860
+    },
+    {
+      "path": "wiring/pir-occupancy-timer/esp32-devkit-v1.svg",
+      "sha256": "275af09dee616d0bf8892ae9b29cb8c3a026028c2afe900e07b46a1166987294",
+      "size": 12854
+    },
+    {
+      "path": "wiring/pir-occupancy-timer/esp32-s3-devkitc-1.svg",
+      "sha256": "c05e6e35b05556bf07a153718680cdd118f70797cab69fb4e614134b2b263b95",
+      "size": 12870
+    },
+    {
+      "path": "wiring/space-satellite-tracker/esp32-c3-devkitm-1.svg",
+      "sha256": "586f531116f884210b4e171ed653ce13c6fa0201ffddec036e2f542012cc015e",
+      "size": 16971
+    },
+    {
+      "path": "wiring/space-satellite-tracker/esp32-c6-devkitc-1.svg",
+      "sha256": "7877f298417202eaf2553353a246b6acce89b2eced44e7377f24976c616bf040",
+      "size": 16971
+    },
+    {
+      "path": "wiring/space-satellite-tracker/esp32-devkit-v1.svg",
+      "sha256": "8ab50ca384e59cf120f42a39c42e817e99fab738fc3e9150d6e1f1a5fd4193f1",
+      "size": 16968
+    },
+    {
+      "path": "wiring/space-satellite-tracker/esp32-s3-devkitc-1.svg",
+      "sha256": "096665aa0870ed79ef0738a5775dbb436ab7ad6fa45699c6565cbfd80effd3a4",
+      "size": 16981
+    },
+    {
+      "path": "wiring/unifi-network-panel/esp32-c3-devkitm-1.svg",
+      "sha256": "b3f760629de2bd61b0ddd78984e8abb41b1e5c43cba9f0e303199c0cf1c9b047",
+      "size": 16963
+    },
+    {
+      "path": "wiring/unifi-network-panel/esp32-c6-devkitc-1.svg",
+      "sha256": "fd2d4c7487bcf7bb86cc8016a8d91f8822fee307ecf23dc15a6ef2574629188a",
+      "size": 16963
+    },
+    {
+      "path": "wiring/unifi-network-panel/esp32-devkit-v1.svg",
+      "sha256": "eb86867b6c8bdec6f69824fc38dac1a942f7e2043773af9763b4fbe5872f7886",
+      "size": 16960
+    },
+    {
+      "path": "wiring/unifi-network-panel/esp32-s3-devkitc-1.svg",
+      "sha256": "10bae9c267c7bec00962584c1ed03c6856766da7a24edbe86a0f1a90777f286a",
+      "size": 16973
+    },
+    {
+      "path": "wiring/wifi-weather-station/esp32-c3-devkitm-1.svg",
+      "sha256": "fa0ebbb4bd5f109da152bac65cadbc7d703675137de624d68d8dccb1fdc84853",
+      "size": 16973
+    },
+    {
+      "path": "wiring/wifi-weather-station/esp32-c6-devkitc-1.svg",
+      "sha256": "c8139527aaab1d37abb786bc4cdcf22e8af637e940ba9013a2cb37646888ddc9",
+      "size": 16973
+    },
+    {
+      "path": "wiring/wifi-weather-station/esp32-devkit-v1.svg",
+      "sha256": "6dffc6407b7d8e8313467ec22df67220b316fb1be58ac841155c236410941b0b",
+      "size": 16970
+    },
+    {
+      "path": "wiring/wifi-weather-station/esp32-s3-devkitc-1.svg",
+      "sha256": "f65cbf72a9b1c488c2241b2ddcb3de3df45904b134a21b9e53993c510d2f99fb",
+      "size": 16983
+    }
+  ],
+  "portal_version": "3.8.0",
+  "schema": 1,
+  "source_commit": "877eedd5e63ed7b29371948c284162ac6ae36dea",
+  "total_bytes": 201601284
+}

@@ -1,0 +1,9 @@
+{
+  "product": "hc-sr04-parking",
+  "target": "esp32-c6-devkitc-1",
+  "chip": "ESP32-C6",
+  "version": "1.0.0",
+  "firmware": "firmware.bin",
+  "size": 1076912,
+  "sha256": "d19b49ea537d2a2528304579cf23cc984ac3275534ff177bf92792da33ba7548"
+}

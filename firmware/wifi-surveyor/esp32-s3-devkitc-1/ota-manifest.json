@@ -1,0 +1,9 @@
+{
+  "product": "wifi-surveyor",
+  "target": "esp32-s3-devkitc-1",
+  "chip": "ESP32-S3",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 921632,
+  "sha256": "db84ecf7cd773b27f170b3f55c4ad8528479cb6d0c8c40f9e42af525c88f0ff2"
+}

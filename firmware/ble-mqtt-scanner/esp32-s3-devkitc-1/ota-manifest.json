@@ -1,0 +1,9 @@
+{
+  "product": "ble-mqtt-scanner",
+  "target": "esp32-s3-devkitc-1",
+  "chip": "ESP32-S3",
+  "version": "3.1.0",
+  "firmware": "firmware.bin",
+  "size": 1181792,
+  "sha256": "d0fb95e4eaf6c631497fced5bea2255edd503345a5df658eddb38e96291d49b4"
+}

@@ -1,0 +1,9 @@
+{
+  "product": "pomodoro-light",
+  "target": "esp32-s3-devkitc-1",
+  "chip": "ESP32-S3",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 311408,
+  "sha256": "82e12bdcc9036a514c7d076398d473ad52cb23fe6f6f6cdbee89483ad184782b"
+}

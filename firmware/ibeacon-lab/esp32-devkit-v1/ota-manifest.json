@@ -1,0 +1,9 @@
+{
+  "product": "ibeacon-lab",
+  "target": "esp32-devkit-v1",
+  "chip": "ESP32",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 592672,
+  "sha256": "5983f10b36cd8ff8236b2e25fc3d7cebf769f54a072e38f8ad6d864e4d8c1945"
+}

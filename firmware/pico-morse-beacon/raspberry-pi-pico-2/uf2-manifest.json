@@ -1,0 +1,9 @@
+{
+  "product": "pico-morse-beacon",
+  "target": "raspberry-pi-pico-2",
+  "chip": "RP2350",
+  "version": "1.0.0",
+  "firmware": "firmware.uf2",
+  "size": 92672,
+  "sha256": "3d35679c2cbc04c716c4ec871975109ef379120004ecf3b14376da5359e49408"
+}

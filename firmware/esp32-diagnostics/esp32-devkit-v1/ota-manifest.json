@@ -1,0 +1,9 @@
+{
+  "product": "esp32-diagnostics",
+  "target": "esp32-devkit-v1",
+  "chip": "ESP32",
+  "version": "1.0.0",
+  "firmware": "firmware.bin",
+  "size": 1009616,
+  "sha256": "e3d8c15da31966ec2de3bae23aee5460c95187d4ccbc0cda879d00aa47bd5d87"
+}

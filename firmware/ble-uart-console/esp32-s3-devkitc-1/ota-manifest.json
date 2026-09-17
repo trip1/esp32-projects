@@ -1,0 +1,9 @@
+{
+  "product": "ble-uart-console",
+  "target": "esp32-s3-devkitc-1",
+  "chip": "ESP32-S3",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 537936,
+  "sha256": "a95d444684007d8d582dd936a3380f7816734102754341f02a8402e80a30706e"
+}

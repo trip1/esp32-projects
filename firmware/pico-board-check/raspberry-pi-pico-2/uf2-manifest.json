@@ -1,0 +1,9 @@
+{
+  "product": "pico-board-check",
+  "target": "raspberry-pi-pico-2",
+  "chip": "RP2350",
+  "version": "1.0.0",
+  "firmware": "firmware.uf2",
+  "size": 92160,
+  "sha256": "390b3b7fa92592dd7b945c3f819143288e8fe3420322d3358d689e7904a47c81"
+}

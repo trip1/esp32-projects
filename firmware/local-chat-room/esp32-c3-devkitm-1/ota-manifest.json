@@ -1,0 +1,9 @@
+{
+  "product": "local-chat-room",
+  "target": "esp32-c3-devkitm-1",
+  "chip": "ESP32-C3",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 1051872,
+  "sha256": "92a27c67fa411bc0bb4c3c57cb7b1d0b5a86624ab3b20a63b79b1f1711160cc6"
+}

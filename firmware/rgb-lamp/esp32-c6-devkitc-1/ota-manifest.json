@@ -1,0 +1,9 @@
+{
+  "product": "rgb-lamp",
+  "target": "esp32-c6-devkitc-1",
+  "chip": "ESP32-C6",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 1071776,
+  "sha256": "7ce2b2187b64daa5a12c2b4a4c77529f474cfaf0ca1f2b3d9d17287f145d0e3b"
+}

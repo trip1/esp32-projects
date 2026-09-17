@@ -1,0 +1,9 @@
+{
+  "product": "wifi-weather-station",
+  "target": "esp32-c3-devkitm-1",
+  "chip": "ESP32-C3",
+  "version": "1.3.0",
+  "firmware": "firmware.bin",
+  "size": 1190688,
+  "sha256": "08b4089ec05244f1aa905d5d9a3f58e65d839efa9833596b471107e646fbb9db"
+}

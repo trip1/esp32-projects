@@ -1,0 +1,9 @@
+{
+  "product": "ble-presence-beacon",
+  "target": "esp32-c3-devkitm-1",
+  "chip": "ESP32-C3",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 570224,
+  "sha256": "3f4601a0b0549c449893b8dbb310e0140eadb38621d98cf76cc5800d5a6c0017"
+}

@@ -1,0 +1,9 @@
+{
+  "product": "decision-oracle",
+  "target": "esp32-devkit-v1",
+  "chip": "ESP32",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 958080,
+  "sha256": "2a2c33bb7337198ee6fb2fa7e121862cb8c7cb2c7074dda6ee8c787b56294ad9"
+}

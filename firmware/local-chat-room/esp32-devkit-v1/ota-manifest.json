@@ -1,0 +1,9 @@
+{
+  "product": "local-chat-room",
+  "target": "esp32-devkit-v1",
+  "chip": "ESP32",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 982944,
+  "sha256": "42b7e7013f8444150d3e07a48776425fdff7e195956a22fe81e9b155d2c342ac"
+}

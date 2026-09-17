@@ -1,0 +1,9 @@
+{
+  "product": "pico-wifi-surveyor",
+  "target": "raspberry-pi-pico-w",
+  "chip": "RP2040",
+  "version": "1.1.0",
+  "firmware": "firmware.uf2",
+  "size": 701952,
+  "sha256": "d5fb026ea6f97218623950b22f6bf6d07175d3e1730d88d85dd26f87fb7c0a25"
+}

@@ -1,0 +1,9 @@
+{
+  "product": "lcd1602-smart-dashboard",
+  "target": "esp32-s3-devkitc-1",
+  "chip": "ESP32-S3",
+  "version": "3.2.0",
+  "firmware": "firmware.bin",
+  "size": 1087168,
+  "sha256": "1394efb319041dd762e4c0b171a156004df9cf82d7a8237e66a7c33a46c9d38d"
+}

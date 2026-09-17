@@ -1,0 +1,9 @@
+{
+  "product": "cpu-benchmark",
+  "target": "esp32-c6-devkitc-1",
+  "chip": "ESP32-C6",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 1051408,
+  "sha256": "3d82c9e8685b051a2327e70af1fc3cbd580a84aed506b5dca04724c1b32bcafc"
+}

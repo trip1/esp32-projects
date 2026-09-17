@@ -1,0 +1,9 @@
+{
+  "product": "ble-alias-shuffler",
+  "target": "esp32-c6-devkitc-1",
+  "chip": "ESP32-C6",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 681104,
+  "sha256": "01d9a6c038ba5ec0146bb38a374f4d8f0a1681fa4c7f898b8eac03401958d4de"
+}

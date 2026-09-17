@@ -1,0 +1,9 @@
+{
+  "product": "lcd1602-smart-dashboard",
+  "target": "esp32-c6-devkitc-1",
+  "chip": "ESP32-C6",
+  "version": "3.2.0",
+  "firmware": "firmware.bin",
+  "size": 1229248,
+  "sha256": "9675ccf96c14b0047e1780a53157088b46e2f85611df1be5ab52e74da68606c1"
+}

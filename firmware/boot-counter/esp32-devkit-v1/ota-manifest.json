@@ -1,0 +1,9 @@
+{
+  "product": "boot-counter",
+  "target": "esp32-devkit-v1",
+  "chip": "ESP32",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 960672,
+  "sha256": "6fb4ce6e9c2136d2d19add62555dc6f633008687e9604b109cf10bdb66ce8c81"
+}

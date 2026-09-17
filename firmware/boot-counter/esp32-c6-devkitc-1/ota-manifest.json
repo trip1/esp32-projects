@@ -1,0 +1,9 @@
+{
+  "product": "boot-counter",
+  "target": "esp32-c6-devkitc-1",
+  "chip": "ESP32-C6",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 1054096,
+  "sha256": "92f4973944c44dd9909c79442aa355800b93a589b84d44dee83acb452ec1a71f"
+}

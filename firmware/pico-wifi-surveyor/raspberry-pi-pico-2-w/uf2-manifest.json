@@ -1,0 +1,9 @@
+{
+  "product": "pico-wifi-surveyor",
+  "target": "raspberry-pi-pico-2-w",
+  "chip": "RP2350",
+  "version": "1.1.0",
+  "firmware": "firmware.uf2",
+  "size": 695296,
+  "sha256": "6ed894a56374dbdbb2a6f43a4900a94a90838da69f3c4785e006e8b5305b10df"
+}

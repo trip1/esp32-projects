@@ -1,0 +1,9 @@
+{
+  "product": "unifi-network-panel",
+  "target": "esp32-c3-devkitm-1",
+  "chip": "ESP32-C3",
+  "version": "1.3.0",
+  "firmware": "firmware.bin",
+  "size": 1189920,
+  "sha256": "f4df99b2b681ed5b4d31dfcb934e82a70b368df8ed18fb348f0a00784265e252"
+}

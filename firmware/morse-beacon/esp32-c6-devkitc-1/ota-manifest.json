@@ -1,0 +1,9 @@
+{
+  "product": "morse-beacon",
+  "target": "esp32-c6-devkitc-1",
+  "chip": "ESP32-C6",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 293744,
+  "sha256": "20095c87a40035b704b649e4cf59b8aa3b25e610adac3a331ff455a703a9e408"
+}

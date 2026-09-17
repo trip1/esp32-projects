@@ -1,0 +1,9 @@
+{
+  "product": "local-chat-room",
+  "target": "esp32-c6-devkitc-1",
+  "chip": "ESP32-C6",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 1077312,
+  "sha256": "815ec92e7c57a6cf6c8c001eeb2348cdecde41c7d36c53c6cf0231eefa9c2251"
+}

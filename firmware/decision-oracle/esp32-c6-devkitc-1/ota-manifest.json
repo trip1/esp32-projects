@@ -1,0 +1,9 @@
+{
+  "product": "decision-oracle",
+  "target": "esp32-c6-devkitc-1",
+  "chip": "ESP32-C6",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 1051152,
+  "sha256": "21c7125ef26745dba4838188a4f3f10356fac2631b073314f2572c5194e0ba2d"
+}

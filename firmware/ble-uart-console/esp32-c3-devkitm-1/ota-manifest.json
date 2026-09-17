@@ -1,0 +1,9 @@
+{
+  "product": "ble-uart-console",
+  "target": "esp32-c3-devkitm-1",
+  "chip": "ESP32-C3",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 577648,
+  "sha256": "a521f7d6e0c55b5baa750f9e4b9cb87455684dcefbd9ef9d6bf9e67f36bc9e10"
+}

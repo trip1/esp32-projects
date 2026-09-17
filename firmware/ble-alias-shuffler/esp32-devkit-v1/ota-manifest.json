@@ -1,0 +1,9 @@
+{
+  "product": "ble-alias-shuffler",
+  "target": "esp32-devkit-v1",
+  "chip": "ESP32",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 592384,
+  "sha256": "771208b7ee77bb0004c95c50b1145c2c0a8bab3e49ab46818c92e8e6ffaa0b12"
+}

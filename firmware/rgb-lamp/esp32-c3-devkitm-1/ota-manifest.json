@@ -1,0 +1,9 @@
+{
+  "product": "rgb-lamp",
+  "target": "esp32-c3-devkitm-1",
+  "chip": "ESP32-C3",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 1046688,
+  "sha256": "fbb6838562dd9cf59c64cd4ccecb6c1d643279c0afe3d358ed814c333b80ec36"
+}

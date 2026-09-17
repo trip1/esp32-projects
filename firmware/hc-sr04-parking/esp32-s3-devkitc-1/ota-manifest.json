@@ -1,0 +1,9 @@
+{
+  "product": "hc-sr04-parking",
+  "target": "esp32-s3-devkitc-1",
+  "chip": "ESP32-S3",
+  "version": "1.0.0",
+  "firmware": "firmware.bin",
+  "size": 950656,
+  "sha256": "3b5970e66929d8a0a04eea62506b559d7c626448416de84f732e8cebabb62a69"
+}

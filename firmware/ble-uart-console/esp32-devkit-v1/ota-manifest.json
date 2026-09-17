@@ -1,0 +1,9 @@
+{
+  "product": "ble-uart-console",
+  "target": "esp32-devkit-v1",
+  "chip": "ESP32",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 597840,
+  "sha256": "b91f3ae6bc23514d9cd059ae0753ce0df8b7dd7aec950797aa7a1d79716de1eb"
+}

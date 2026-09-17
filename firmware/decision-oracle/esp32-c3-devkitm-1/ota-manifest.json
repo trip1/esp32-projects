@@ -1,0 +1,9 @@
+{
+  "product": "decision-oracle",
+  "target": "esp32-c3-devkitm-1",
+  "chip": "ESP32-C3",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 1025744,
+  "sha256": "28017858de9b527cefcea589a081b4bb01e605dbf97e08e931953f46acb0c667"
+}

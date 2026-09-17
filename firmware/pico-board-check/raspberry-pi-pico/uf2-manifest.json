@@ -1,0 +1,9 @@
+{
+  "product": "pico-board-check",
+  "target": "raspberry-pi-pico",
+  "chip": "RP2040",
+  "version": "1.0.0",
+  "firmware": "firmware.uf2",
+  "size": 93184,
+  "sha256": "7a0e309ee42eadde519a736ecaa3749ca69e93dcc327e51fb9a51a75c5a55e6a"
+}

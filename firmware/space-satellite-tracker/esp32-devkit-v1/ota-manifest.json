@@ -1,0 +1,9 @@
+{
+  "product": "space-satellite-tracker",
+  "target": "esp32-devkit-v1",
+  "chip": "ESP32",
+  "version": "1.3.0",
+  "firmware": "firmware.bin",
+  "size": 1108496,
+  "sha256": "9796b9a4f592f62cd8b35a776022ad9549493b09042e318ee35df89697a5848c"
+}

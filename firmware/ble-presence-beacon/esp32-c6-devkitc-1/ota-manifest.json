@@ -1,0 +1,9 @@
+{
+  "product": "ble-presence-beacon",
+  "target": "esp32-c6-devkitc-1",
+  "chip": "ESP32-C6",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 680240,
+  "sha256": "c5bc872911bc28a74ea53e16a8fcf9c776a6271302e5b4fa52864886bd751bb3"
+}

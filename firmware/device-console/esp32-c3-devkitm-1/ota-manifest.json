@@ -1,0 +1,9 @@
+{
+  "product": "device-console",
+  "target": "esp32-c3-devkitm-1",
+  "chip": "ESP32-C3",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 1026944,
+  "sha256": "bca536f31365b37eb168469a73cdeefd98e2634814fe51940c167bbfa92c21dc"
+}

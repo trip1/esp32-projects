@@ -1,0 +1,9 @@
+{
+  "product": "cpu-benchmark",
+  "target": "esp32-s3-devkitc-1",
+  "chip": "ESP32-S3",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 921296,
+  "sha256": "7293fbbddc87f587d799fb8215043590c9f4aeb7aeae6ee0a3145f7a5167aa81"
+}

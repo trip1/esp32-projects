@@ -1,0 +1,9 @@
+{
+  "product": "pir-occupancy-timer",
+  "target": "esp32-s3-devkitc-1",
+  "chip": "ESP32-S3",
+  "version": "1.0.0",
+  "firmware": "firmware.bin",
+  "size": 927536,
+  "sha256": "dba01b4900ed10e1001007bd089c79d3980a6fed821bfd6138c845530bed0f33"
+}

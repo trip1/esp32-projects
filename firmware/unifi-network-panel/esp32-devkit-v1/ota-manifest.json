@@ -1,0 +1,9 @@
+{
+  "product": "unifi-network-panel",
+  "target": "esp32-devkit-v1",
+  "chip": "ESP32",
+  "version": "1.3.0",
+  "firmware": "firmware.bin",
+  "size": 1108688,
+  "sha256": "4f41ff6ecbe3d77895a9e3acad270e9efdaf11d4d9d819f46de8d1affbb67b4c"
+}

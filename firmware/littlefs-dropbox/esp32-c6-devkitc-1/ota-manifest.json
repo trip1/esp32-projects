@@ -1,0 +1,9 @@
+{
+  "product": "littlefs-dropbox",
+  "target": "esp32-c6-devkitc-1",
+  "chip": "ESP32-C6",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 1108240,
+  "sha256": "9b6d6c2790cec4a6fbe28261be8a12943e76410a8303b22bf0e32fce5af049c4"
+}

@@ -1,0 +1,9 @@
+{
+  "product": "wifi-surveyor",
+  "target": "esp32-c6-devkitc-1",
+  "chip": "ESP32-C6",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 1051968,
+  "sha256": "a84114b13522889a897be9c1ccabae1c46f4e7c535ff744ed345ebd81d5a0301"
+}

@@ -1,0 +1,9 @@
+{
+  "product": "ble-presence-beacon",
+  "target": "esp32-devkit-v1",
+  "chip": "ESP32",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 591760,
+  "sha256": "cc4c98b8079ea434223f2041bda5d55be7a1e1189b27f5fb1467ad62188c11e5"
+}

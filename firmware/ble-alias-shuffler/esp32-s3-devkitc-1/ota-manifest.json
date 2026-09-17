@@ -1,0 +1,9 @@
+{
+  "product": "ble-alias-shuffler",
+  "target": "esp32-s3-devkitc-1",
+  "chip": "ESP32-S3",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 532704,
+  "sha256": "d74dfc6fec7a7b90b54545e7c396b6d40792c982a0fdb01c34d0b77b615999d9"
+}

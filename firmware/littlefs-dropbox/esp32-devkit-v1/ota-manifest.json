@@ -1,0 +1,9 @@
+{
+  "product": "littlefs-dropbox",
+  "target": "esp32-devkit-v1",
+  "chip": "ESP32",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 1007888,
+  "sha256": "e1cba96536e6bc6eaff9d5e1ca7cc6e7bd8e4f7bc05f47940599a812aafa04f6"
+}

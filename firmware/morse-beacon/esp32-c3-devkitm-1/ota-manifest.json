@@ -1,0 +1,9 @@
+{
+  "product": "morse-beacon",
+  "target": "esp32-c3-devkitm-1",
+  "chip": "ESP32-C3",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 315408,
+  "sha256": "da73bfca37f6f8971e227d6f255c4ca927d8ef3d4c61e49f3513b14153b9454a"
+}

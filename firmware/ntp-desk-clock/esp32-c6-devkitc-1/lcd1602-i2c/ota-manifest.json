@@ -1,0 +1,10 @@
+{
+  "product": "ntp-desk-clock",
+  "target": "esp32-c6-devkitc-1",
+  "chip": "ESP32-C6",
+  "version": "1.3.0",
+  "firmware": "firmware.bin",
+  "size": 1080448,
+  "sha256": "5435d7d45febf9315293e6611476ccd5dd6627c7bf395a76559b50ef8cb9342e",
+  "variant": "lcd1602-i2c"
+}

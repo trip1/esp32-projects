@@ -1,0 +1,9 @@
+{
+  "product": "bme280-mqtt-sensor",
+  "target": "esp32-devkit-v1",
+  "chip": "ESP32",
+  "version": "1.3.0",
+  "firmware": "firmware.bin",
+  "size": 1019872,
+  "sha256": "0cc13ae30af9b7a07caae74228fb7909605e9958765147c93b35ea26ae304562"
+}

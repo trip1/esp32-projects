@@ -1,0 +1,3277 @@
+[
+  {
+    "slug": "ble-mqtt-scanner",
+    "name": "BLE Proximity Scanner",
+    "version": "3.1.0",
+    "category": "Practical",
+    "description": "Scans nearby BLE advertisements, records bounded sighting history, and publishes sightings and retained proximity state over MQTT.",
+    "hardware": "Board only",
+    "features": [
+      "BLE scanning",
+      "MQTT",
+      "LittleFS logs",
+      "First-boot setup portal",
+      "Readable 8-character local password"
+    ],
+    "installable": true,
+    "extra_hardware": false,
+    "setup": {
+      "required": true,
+      "summary": "On first boot, read the 8-character password from USB serial, join the protected setup network, then enter Wi-Fi and MQTT settings.",
+      "fields": [
+        "Wi-Fi",
+        "MQTT",
+        "MQTT credentials",
+        "Topic prefix"
+      ]
+    },
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/ble-mqtt-scanner/esp32-devkit-v1/manifest.json"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/ble-mqtt-scanner/esp32-c3-devkitm-1/manifest.json"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/ble-mqtt-scanner/esp32-s3-devkitc-1/manifest.json"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/ble-mqtt-scanner/esp32-c6-devkitc-1/manifest.json"
+      }
+    ]
+  },
+  {
+    "slug": "wifi-surveyor",
+    "name": "Wi-Fi Surveyor",
+    "version": "2.0.0",
+    "category": "Practical",
+    "description": "Creates a local access point and dashboard showing nearby Wi-Fi networks, channels, security, and signal strength.",
+    "hardware": "Board only",
+    "features": [
+      "Wi-Fi scan",
+      "Channel survey",
+      "Local dashboard",
+      "No credentials"
+    ],
+    "installable": true,
+    "extra_hardware": false,
+    "setup": {
+      "required": false,
+      "summary": "No first-boot configuration is required; this firmware starts its local or offline function after flashing.",
+      "fields": []
+    },
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/wifi-surveyor/esp32-devkit-v1/manifest.json"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/wifi-surveyor/esp32-c3-devkitm-1/manifest.json"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/wifi-surveyor/esp32-s3-devkitc-1/manifest.json"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/wifi-surveyor/esp32-c6-devkitc-1/manifest.json"
+      }
+    ]
+  },
+  {
+    "slug": "rgb-lamp",
+    "name": "Pocket RGB Lamp",
+    "version": "2.0.0",
+    "category": "Practical",
+    "description": "Turns the DevKit's onboard RGB LED into a tiny browser-controlled lamp with color and brightness controls.",
+    "hardware": "Board only",
+    "features": [
+      "Onboard RGB LED",
+      "Local web control",
+      "No router",
+      "Color presets"
+    ],
+    "installable": true,
+    "extra_hardware": false,
+    "setup": {
+      "required": false,
+      "summary": "No first-boot configuration is required; this firmware starts its local or offline function after flashing.",
+      "fields": []
+    },
+    "targets": [
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/rgb-lamp/esp32-c3-devkitm-1/manifest.json"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/rgb-lamp/esp32-s3-devkitc-1/manifest.json"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/rgb-lamp/esp32-c6-devkitc-1/manifest.json"
+      }
+    ]
+  },
+  {
+    "slug": "device-console",
+    "name": "Device Console",
+    "version": "2.0.0",
+    "category": "Practical",
+    "description": "Hosts a local diagnostics console for chip details, uptime, heap, flash, reset reason, and Wi-Fi radio state.",
+    "hardware": "Board only",
+    "features": [
+      "System diagnostics",
+      "JSON status API",
+      "Restart control",
+      "Local access point"
+    ],
+    "installable": true,
+    "extra_hardware": false,
+    "setup": {
+      "required": false,
+      "summary": "No first-boot configuration is required; this firmware starts its local or offline function after flashing.",
+      "fields": []
+    },
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/device-console/esp32-devkit-v1/manifest.json"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/device-console/esp32-c3-devkitm-1/manifest.json"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/device-console/esp32-s3-devkitc-1/manifest.json"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/device-console/esp32-c6-devkitc-1/manifest.json"
+      }
+    ]
+  },
+  {
+    "slug": "ble-presence-beacon",
+    "name": "BLE Presence Beacon",
+    "version": "2.0.0",
+    "category": "Practical",
+    "description": "Advertises a stable BLE beacon name for experiments with room presence scanners and automations.",
+    "hardware": "Board only",
+    "features": [
+      "BLE advertising",
+      "Stable identity",
+      "Scanner testing",
+      "Serial status"
+    ],
+    "installable": true,
+    "extra_hardware": false,
+    "setup": {
+      "required": false,
+      "summary": "No first-boot configuration is required; this firmware starts its local or offline function after flashing.",
+      "fields": []
+    },
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/ble-presence-beacon/esp32-devkit-v1/manifest.json"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/ble-presence-beacon/esp32-c3-devkitm-1/manifest.json"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/ble-presence-beacon/esp32-s3-devkitc-1/manifest.json"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/ble-presence-beacon/esp32-c6-devkitc-1/manifest.json"
+      }
+    ]
+  },
+  {
+    "slug": "decision-oracle",
+    "name": "Decision Oracle",
+    "version": "2.0.0",
+    "category": "Fun",
+    "description": "Runs an offline pocket oracle over Wi-Fi for coin flips, dice rolls, yes-or-no answers, and questionable advice.",
+    "hardware": "Board only",
+    "features": [
+      "Hardware randomness",
+      "Dice and coins",
+      "Funny answers",
+      "Offline web app"
+    ],
+    "installable": true,
+    "extra_hardware": false,
+    "setup": {
+      "required": false,
+      "summary": "No first-boot configuration is required; this firmware starts its local or offline function after flashing.",
+      "fields": []
+    },
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/decision-oracle/esp32-devkit-v1/manifest.json"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/decision-oracle/esp32-c3-devkitm-1/manifest.json"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/decision-oracle/esp32-s3-devkitc-1/manifest.json"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/decision-oracle/esp32-c6-devkitc-1/manifest.json"
+      }
+    ]
+  },
+  {
+    "slug": "pomodoro-light",
+    "name": "Pomodoro Light",
+    "version": "2.0.0",
+    "category": "Fun",
+    "description": "Uses the onboard RGB LED as a self-running focus timer: green work sessions, blue breaks, and a short transition flash.",
+    "hardware": "Board only",
+    "features": [
+      "25-minute focus",
+      "5-minute break",
+      "Onboard RGB LED",
+      "Serial countdown"
+    ],
+    "installable": true,
+    "extra_hardware": false,
+    "setup": {
+      "required": false,
+      "summary": "No first-boot configuration is required; this firmware starts its local or offline function after flashing.",
+      "fields": []
+    },
+    "targets": [
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/pomodoro-light/esp32-c3-devkitm-1/manifest.json"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/pomodoro-light/esp32-s3-devkitc-1/manifest.json"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/pomodoro-light/esp32-c6-devkitc-1/manifest.json"
+      }
+    ]
+  },
+  {
+    "slug": "morse-beacon",
+    "name": "Morse Beacon",
+    "version": "2.0.0",
+    "category": "Fun",
+    "description": "Blinks HELLO WORLD forever in Morse code using only the onboard RGB LED, with decoded output on serial.",
+    "hardware": "Board only",
+    "features": [
+      "Morse code",
+      "Onboard RGB LED",
+      "Timing experiment",
+      "Serial decoder"
+    ],
+    "installable": true,
+    "extra_hardware": false,
+    "setup": {
+      "required": false,
+      "summary": "No first-boot configuration is required; this firmware starts its local or offline function after flashing.",
+      "fields": []
+    },
+    "targets": [
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/morse-beacon/esp32-c3-devkitm-1/manifest.json"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/morse-beacon/esp32-s3-devkitc-1/manifest.json"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/morse-beacon/esp32-c6-devkitc-1/manifest.json"
+      }
+    ]
+  },
+  {
+    "slug": "ble-alias-shuffler",
+    "name": "BLE Alias Shuffler",
+    "version": "2.0.0",
+    "category": "Fun",
+    "description": "Rotates through harmless ridiculous BLE names so you can test scanners or confuse your own Bluetooth dashboard.",
+    "hardware": "Board only",
+    "features": [
+      "Rotating BLE names",
+      "Scanner testing",
+      "No connections",
+      "Serial log"
+    ],
+    "installable": true,
+    "extra_hardware": false,
+    "setup": {
+      "required": false,
+      "summary": "No first-boot configuration is required; this firmware starts its local or offline function after flashing.",
+      "fields": []
+    },
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/ble-alias-shuffler/esp32-devkit-v1/manifest.json"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/ble-alias-shuffler/esp32-c3-devkitm-1/manifest.json"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/ble-alias-shuffler/esp32-s3-devkitc-1/manifest.json"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/ble-alias-shuffler/esp32-c6-devkitc-1/manifest.json"
+      }
+    ]
+  },
+  {
+    "slug": "littlefs-dropbox",
+    "name": "Pocket File Drop",
+    "version": "2.0.0",
+    "category": "Practical",
+    "description": "Creates a room-local Wi-Fi file drop backed by LittleFS for moving small files without a router or internet connection.",
+    "hardware": "Board only",
+    "features": [
+      "LittleFS storage",
+      "Upload and download",
+      "128 KiB file limit",
+      "Offline access point"
+    ],
+    "installable": true,
+    "extra_hardware": false,
+    "setup": {
+      "required": false,
+      "summary": "No first-boot configuration is required; this firmware starts its local or offline function after flashing.",
+      "fields": []
+    },
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/littlefs-dropbox/esp32-devkit-v1/manifest.json"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/littlefs-dropbox/esp32-c3-devkitm-1/manifest.json"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/littlefs-dropbox/esp32-s3-devkitc-1/manifest.json"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/littlefs-dropbox/esp32-c6-devkitc-1/manifest.json"
+      }
+    ]
+  },
+  {
+    "slug": "local-chat-room",
+    "name": "Pocket Chat Room",
+    "version": "2.0.0",
+    "category": "Fun",
+    "description": "Hosts a tiny real-time WebSocket chat room for nearby phones connected directly to the board's Wi-Fi network.",
+    "hardware": "Board only",
+    "features": [
+      "WebSocket chat",
+      "Local-only network",
+      "Four clients",
+      "No message history"
+    ],
+    "installable": true,
+    "extra_hardware": false,
+    "setup": {
+      "required": false,
+      "summary": "No first-boot configuration is required; this firmware starts its local or offline function after flashing.",
+      "fields": []
+    },
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/local-chat-room/esp32-devkit-v1/manifest.json"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/local-chat-room/esp32-c3-devkitm-1/manifest.json"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/local-chat-room/esp32-s3-devkitc-1/manifest.json"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/local-chat-room/esp32-c6-devkitc-1/manifest.json"
+      }
+    ]
+  },
+  {
+    "slug": "ble-uart-console",
+    "name": "BLE UART Console",
+    "version": "2.0.0",
+    "category": "Practical",
+    "description": "Exposes a Nordic-UART-compatible BLE service that echoes bounded text between a BLE terminal app and the USB serial console.",
+    "hardware": "Board only",
+    "features": [
+      "Nordic UART service",
+      "BLE notifications",
+      "Serial bridge",
+      "Bounded messages"
+    ],
+    "installable": true,
+    "extra_hardware": false,
+    "setup": {
+      "required": false,
+      "summary": "No first-boot configuration is required; this firmware starts its local or offline function after flashing.",
+      "fields": []
+    },
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/ble-uart-console/esp32-devkit-v1/manifest.json"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/ble-uart-console/esp32-c3-devkitm-1/manifest.json"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/ble-uart-console/esp32-s3-devkitc-1/manifest.json"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/ble-uart-console/esp32-c6-devkitc-1/manifest.json"
+      }
+    ]
+  },
+  {
+    "slug": "boot-counter",
+    "name": "Reboot Museum",
+    "version": "2.0.0",
+    "category": "Fun",
+    "description": "Uses non-volatile Preferences storage to count every boot and presents the board's increasingly dramatic reboot history.",
+    "hardware": "Board only",
+    "features": [
+      "Persistent boot count",
+      "NVS Preferences",
+      "Reset control",
+      "Local dashboard"
+    ],
+    "installable": true,
+    "extra_hardware": false,
+    "setup": {
+      "required": false,
+      "summary": "No first-boot configuration is required; this firmware starts its local or offline function after flashing.",
+      "fields": []
+    },
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/boot-counter/esp32-devkit-v1/manifest.json"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/boot-counter/esp32-c3-devkitm-1/manifest.json"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/boot-counter/esp32-s3-devkitc-1/manifest.json"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/boot-counter/esp32-c6-devkitc-1/manifest.json"
+      }
+    ]
+  },
+  {
+    "slug": "cpu-benchmark",
+    "name": "Tiny Benchmark Lab",
+    "version": "2.0.0",
+    "category": "Practical",
+    "description": "Runs bounded integer and volatile-memory-access benchmarks on demand and reports timings through a local browser dashboard.",
+    "hardware": "Board only",
+    "features": [
+      "CPU timing",
+      "Memory access timing",
+      "Repeatable workload",
+      "JSON results"
+    ],
+    "installable": true,
+    "extra_hardware": false,
+    "setup": {
+      "required": false,
+      "summary": "No first-boot configuration is required; this firmware starts its local or offline function after flashing.",
+      "fields": []
+    },
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/cpu-benchmark/esp32-devkit-v1/manifest.json"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/cpu-benchmark/esp32-c3-devkitm-1/manifest.json"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/cpu-benchmark/esp32-s3-devkitc-1/manifest.json"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/cpu-benchmark/esp32-c6-devkitc-1/manifest.json"
+      }
+    ]
+  },
+  {
+    "slug": "ibeacon-lab",
+    "name": "iBeacon Lab",
+    "version": "2.0.0",
+    "category": "Practical",
+    "description": "Advertises a standards-shaped iBeacon payload for testing mobile beacon scanners, distance estimates, and presence experiments.",
+    "hardware": "Board only",
+    "features": [
+      "iBeacon payload",
+      "100 ms advertising",
+      "Fixed lab UUID",
+      "Scanner testing"
+    ],
+    "installable": true,
+    "extra_hardware": false,
+    "setup": {
+      "required": false,
+      "summary": "No first-boot configuration is required; this firmware starts its local or offline function after flashing.",
+      "fields": []
+    },
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/ibeacon-lab/esp32-devkit-v1/manifest.json"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/ibeacon-lab/esp32-c3-devkitm-1/manifest.json"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/ibeacon-lab/esp32-s3-devkitc-1/manifest.json"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/ibeacon-lab/esp32-c6-devkitc-1/manifest.json"
+      }
+    ]
+  },
+  {
+    "slug": "bme280-mqtt-sensor",
+    "name": "BME280 MQTT Sleep Sensor",
+    "version": "1.3.0",
+    "category": "Practical",
+    "description": "Scans I\u00b2C and four-wire SPI for a BME280 before setup, waits for stable Wi-Fi, confirms MQTT delivery, and then enters configurable deep sleep.",
+    "hardware": "BME280 I\u00b2C/SPI breakout + four I\u00b2C or six SPI jumper wires",
+    "features": [
+      "BME280 forced-mode sampling",
+      "I\u00b2C/SPI sensor preflight",
+      "First-boot setup portal",
+      "Retained MQTT state",
+      "Broker-confirmed delivery retries",
+      "Configurable deep sleep",
+      "Readable 8-character local password"
+    ],
+    "installable": true,
+    "extra_hardware": true,
+    "parts": [
+      {
+        "quantity": 1,
+        "name": "BME280 I\u00b2C/SPI breakout",
+        "specification": "3.3 V-compatible six-pin breakout with installed 2.54 mm male header and onboard I\u00b2C pull-ups; exposes CS/CSB and SDO for four-wire SPI or I\u00b2C address selection",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=BME280+6+pin+I2C+SPI+sensor+module"
+      },
+      {
+        "quantity": 1,
+        "name": "Female-to-female jumper-wire set",
+        "specification": "2.54 mm Dupont socket jumpers; at least four conductors for I\u00b2C or six for four-wire SPI",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=female+to+female+dupont+jumper+wires"
+      },
+      {
+        "quantity": 1,
+        "name": "Solderless breadboard",
+        "specification": "Half-size or larger",
+        "required": false,
+        "url": "https://www.amazon.com/s?k=solderless+breadboard+electronics"
+      }
+    ],
+    "setup": {
+      "required": true,
+      "summary": "On first boot, read the 8-character password from USB serial, join the protected setup network, and review the I\u00b2C/SPI preflight before entering Wi-Fi, the broker's numeric IPv4 address, MQTT credentials, and wake settings. Upgrades from 1.2.x must replace hostname-based broker settings with numeric IPv4 before flashing.",
+      "fields": [
+        "Wi-Fi",
+        "MQTT",
+        "MQTT credentials",
+        "Topic prefix",
+        "Wake interval"
+      ]
+    },
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "wiring": {
+          "diagram": "./wiring/bme280-mqtt-sensor/esp32-devkit-v1.svg",
+          "connections": [
+            {
+              "from": "BME280 VIN",
+              "to": "3V3",
+              "wire": "red"
+            },
+            {
+              "from": "BME280 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "BME280 SDA",
+              "to": "GPIO21",
+              "wire": "green"
+            },
+            {
+              "from": "BME280 SCL",
+              "to": "GPIO22",
+              "wire": "yellow"
+            }
+          ],
+          "warnings": [
+            "Use 3.3 V power; confirm the breakout includes I\u00b2C pull-ups.",
+            "SPI alternative: SCK GPIO18 \u00b7 MISO GPIO19 \u00b7 MOSI GPIO23 \u00b7 CS GPIO27; use a six-pin breakout and see the project guide.",
+            "Wiring and sensor behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/bme280-mqtt-sensor/esp32-devkit-v1/manifest.json"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "wiring": {
+          "diagram": "./wiring/bme280-mqtt-sensor/esp32-c3-devkitm-1.svg",
+          "connections": [
+            {
+              "from": "BME280 VIN",
+              "to": "3V3",
+              "wire": "red"
+            },
+            {
+              "from": "BME280 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "BME280 SDA",
+              "to": "GPIO4",
+              "wire": "green"
+            },
+            {
+              "from": "BME280 SCL",
+              "to": "GPIO5",
+              "wire": "yellow"
+            }
+          ],
+          "warnings": [
+            "Use 3.3 V power; confirm the breakout includes I\u00b2C pull-ups.",
+            "SPI alternative: SCK GPIO4 \u00b7 MISO GPIO5 \u00b7 MOSI GPIO6 \u00b7 CS GPIO7; use a six-pin breakout and see the project guide.",
+            "Wiring and sensor behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/bme280-mqtt-sensor/esp32-c3-devkitm-1/manifest.json"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "wiring": {
+          "diagram": "./wiring/bme280-mqtt-sensor/esp32-s3-devkitc-1.svg",
+          "connections": [
+            {
+              "from": "BME280 VIN",
+              "to": "3V3",
+              "wire": "red"
+            },
+            {
+              "from": "BME280 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "BME280 SDA",
+              "to": "GPIO8",
+              "wire": "green"
+            },
+            {
+              "from": "BME280 SCL",
+              "to": "GPIO9",
+              "wire": "yellow"
+            }
+          ],
+          "warnings": [
+            "Use 3.3 V power; confirm the breakout includes I\u00b2C pull-ups.",
+            "SPI alternative: SCK GPIO12 \u00b7 MISO GPIO13 \u00b7 MOSI GPIO11 \u00b7 CS GPIO10; use a six-pin breakout and see the project guide.",
+            "Wiring and sensor behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/bme280-mqtt-sensor/esp32-s3-devkitc-1/manifest.json"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "wiring": {
+          "diagram": "./wiring/bme280-mqtt-sensor/esp32-c6-devkitc-1.svg",
+          "connections": [
+            {
+              "from": "BME280 VIN",
+              "to": "3V3",
+              "wire": "red"
+            },
+            {
+              "from": "BME280 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "BME280 SDA",
+              "to": "GPIO6",
+              "wire": "green"
+            },
+            {
+              "from": "BME280 SCL",
+              "to": "GPIO7",
+              "wire": "yellow"
+            }
+          ],
+          "warnings": [
+            "Use 3.3 V power; confirm the breakout includes I\u00b2C pull-ups.",
+            "SPI alternative: SCK GPIO21 \u00b7 MISO GPIO20 \u00b7 MOSI GPIO19 \u00b7 CS GPIO18; use a six-pin breakout and see the project guide.",
+            "Wiring and sensor behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/bme280-mqtt-sensor/esp32-c6-devkitc-1/manifest.json"
+      }
+    ]
+  },
+  {
+    "slug": "hc-sr04-parking",
+    "name": "Ultrasonic Parking Assistant",
+    "version": "1.0.0",
+    "category": "Practical",
+    "description": "Measures filtered HC-SR04 distance and serves a live parking or tank-level gauge from a local dashboard.",
+    "hardware": "HC-SR04 + Echo voltage divider + jumper wires",
+    "features": [
+      "Bounded ultrasonic ranging",
+      "Five-sample median",
+      "Live local gauge",
+      "No router"
+    ],
+    "installable": true,
+    "extra_hardware": true,
+    "parts": [
+      {
+        "quantity": 1,
+        "name": "HC-SR04 ultrasonic sensor",
+        "specification": "5 V module with TRIG and ECHO pins",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=HC-SR04+ultrasonic+distance+sensor"
+      },
+      {
+        "quantity": 1,
+        "name": "1 k\u03a9 and 2 k\u03a9 resistor assortment",
+        "specification": "One 1 k\u03a9 and one 2 k\u03a9 resistor, 1/4 W or greater, for the Echo divider",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=resistor+kit+1k+2k+ohm"
+      },
+      {
+        "quantity": 1,
+        "name": "Female-to-male jumper-wire set",
+        "specification": "2.54 mm Dupont jumpers; at least four conductors",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=female+to+male+dupont+jumper+wires"
+      },
+      {
+        "quantity": 1,
+        "name": "Solderless breadboard",
+        "specification": "Half-size or larger for the voltage divider",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=solderless+breadboard+electronics"
+      }
+    ],
+    "setup": {
+      "required": false,
+      "summary": "Join the open ESP32-Parking-Assistant network and open the local dashboard; no first-boot settings are required.",
+      "fields": []
+    },
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "wiring": {
+          "diagram": "./wiring/hc-sr04-parking/esp32-devkit-v1.svg",
+          "connections": [
+            {
+              "from": "HC-SR04 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "HC-SR04 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "HC-SR04 TRIG",
+              "to": "GPIO25",
+              "wire": "blue"
+            },
+            {
+              "from": "HC-SR04 ECHO",
+              "to": "GPIO26 through 1 k\u03a9/2 k\u03a9 divider",
+              "wire": "purple"
+            }
+          ],
+          "warnings": [
+            "Never connect the 5 V Echo output directly to an ESP32 GPIO; use the shown 1 k\u03a9 series and 2 k\u03a9-to-GND divider.",
+            "Wiring and distance behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/hc-sr04-parking/esp32-devkit-v1/manifest.json"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "wiring": {
+          "diagram": "./wiring/hc-sr04-parking/esp32-c3-devkitm-1.svg",
+          "connections": [
+            {
+              "from": "HC-SR04 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "HC-SR04 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "HC-SR04 TRIG",
+              "to": "GPIO4",
+              "wire": "blue"
+            },
+            {
+              "from": "HC-SR04 ECHO",
+              "to": "GPIO5 through 1 k\u03a9/2 k\u03a9 divider",
+              "wire": "purple"
+            }
+          ],
+          "warnings": [
+            "Never connect the 5 V Echo output directly to an ESP32 GPIO; use the shown 1 k\u03a9 series and 2 k\u03a9-to-GND divider.",
+            "Wiring and distance behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/hc-sr04-parking/esp32-c3-devkitm-1/manifest.json"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "wiring": {
+          "diagram": "./wiring/hc-sr04-parking/esp32-s3-devkitc-1.svg",
+          "connections": [
+            {
+              "from": "HC-SR04 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "HC-SR04 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "HC-SR04 TRIG",
+              "to": "GPIO4",
+              "wire": "blue"
+            },
+            {
+              "from": "HC-SR04 ECHO",
+              "to": "GPIO5 through 1 k\u03a9/2 k\u03a9 divider",
+              "wire": "purple"
+            }
+          ],
+          "warnings": [
+            "Never connect the 5 V Echo output directly to an ESP32 GPIO; use the shown 1 k\u03a9 series and 2 k\u03a9-to-GND divider.",
+            "Wiring and distance behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/hc-sr04-parking/esp32-s3-devkitc-1/manifest.json"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "wiring": {
+          "diagram": "./wiring/hc-sr04-parking/esp32-c6-devkitc-1.svg",
+          "connections": [
+            {
+              "from": "HC-SR04 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "HC-SR04 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "HC-SR04 TRIG",
+              "to": "GPIO6",
+              "wire": "blue"
+            },
+            {
+              "from": "HC-SR04 ECHO",
+              "to": "GPIO7 through 1 k\u03a9/2 k\u03a9 divider",
+              "wire": "purple"
+            }
+          ],
+          "warnings": [
+            "Never connect the 5 V Echo output directly to an ESP32 GPIO; use the shown 1 k\u03a9 series and 2 k\u03a9-to-GND divider.",
+            "Wiring and distance behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/hc-sr04-parking/esp32-c6-devkitc-1/manifest.json"
+      }
+    ]
+  },
+  {
+    "slug": "pir-occupancy-timer",
+    "name": "PIR Occupancy Timer",
+    "version": "1.0.0",
+    "category": "Practical",
+    "description": "Counts PIR motion events and maintains a rollover-safe occupied state for 30 seconds after the latest event.",
+    "hardware": "3.3 V-safe PIR module + three jumper wires",
+    "features": [
+      "Interrupt-driven motion",
+      "30-second occupancy hold",
+      "Live event counter",
+      "No router"
+    ],
+    "installable": true,
+    "extra_hardware": true,
+    "parts": [
+      {
+        "quantity": 1,
+        "name": "AM312 mini PIR sensor",
+        "specification": "3.3 V supply and 3.3 V-safe OUT signal",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=AM312+mini+PIR+motion+sensor"
+      },
+      {
+        "quantity": 1,
+        "name": "Female-to-female jumper-wire set",
+        "specification": "2.54 mm Dupont jumpers; at least three conductors",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=female+to+female+dupont+jumper+wires"
+      },
+      {
+        "quantity": 1,
+        "name": "Solderless breadboard",
+        "specification": "Half-size or larger",
+        "required": false,
+        "url": "https://www.amazon.com/s?k=solderless+breadboard+electronics"
+      }
+    ],
+    "setup": {
+      "required": false,
+      "summary": "Join the open ESP32-PIR-Occupancy network and open the local dashboard; no first-boot settings are required.",
+      "fields": []
+    },
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "wiring": {
+          "diagram": "./wiring/pir-occupancy-timer/esp32-devkit-v1.svg",
+          "connections": [
+            {
+              "from": "AM312 VCC",
+              "to": "3V3",
+              "wire": "red"
+            },
+            {
+              "from": "AM312 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "AM312 OUT",
+              "to": "GPIO27",
+              "wire": "orange"
+            }
+          ],
+          "warnings": [
+            "Use an AM312 or another PIR module with a 3.3 V-safe output; verify the module pin order.",
+            "Wiring and motion behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/pir-occupancy-timer/esp32-devkit-v1/manifest.json"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "wiring": {
+          "diagram": "./wiring/pir-occupancy-timer/esp32-c3-devkitm-1.svg",
+          "connections": [
+            {
+              "from": "AM312 VCC",
+              "to": "3V3",
+              "wire": "red"
+            },
+            {
+              "from": "AM312 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "AM312 OUT",
+              "to": "GPIO4",
+              "wire": "orange"
+            }
+          ],
+          "warnings": [
+            "Use an AM312 or another PIR module with a 3.3 V-safe output; verify the module pin order.",
+            "Wiring and motion behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/pir-occupancy-timer/esp32-c3-devkitm-1/manifest.json"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "wiring": {
+          "diagram": "./wiring/pir-occupancy-timer/esp32-s3-devkitc-1.svg",
+          "connections": [
+            {
+              "from": "AM312 VCC",
+              "to": "3V3",
+              "wire": "red"
+            },
+            {
+              "from": "AM312 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "AM312 OUT",
+              "to": "GPIO4",
+              "wire": "orange"
+            }
+          ],
+          "warnings": [
+            "Use an AM312 or another PIR module with a 3.3 V-safe output; verify the module pin order.",
+            "Wiring and motion behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/pir-occupancy-timer/esp32-s3-devkitc-1/manifest.json"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "wiring": {
+          "diagram": "./wiring/pir-occupancy-timer/esp32-c6-devkitc-1.svg",
+          "connections": [
+            {
+              "from": "AM312 VCC",
+              "to": "3V3",
+              "wire": "red"
+            },
+            {
+              "from": "AM312 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "AM312 OUT",
+              "to": "GPIO6",
+              "wire": "orange"
+            }
+          ],
+          "warnings": [
+            "Use an AM312 or another PIR module with a 3.3 V-safe output; verify the module pin order.",
+            "Wiring and motion behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/pir-occupancy-timer/esp32-c6-devkitc-1/manifest.json"
+      }
+    ]
+  },
+  {
+    "slug": "ntp-desk-clock",
+    "name": "NTP Desk Clock",
+    "version": "1.3.0",
+    "category": "Practical",
+    "description": "Synchronizes local time over NTP and drives either a TM1637 display or an Inland/common LCD1602 I2C display at configured address 0x27 with bounded PCF8574-range diagnostics.",
+    "hardware": "TM1637 four-digit display or LCD1602 I\u00b2C module + four jumper wires",
+    "features": [
+      "NTP synchronization",
+      "Timezone and DST",
+      "TM1637 or LCD1602 I\u00b2C display builds",
+      "First-boot setup portal",
+      "Readable 8-character local password",
+      "Bounded LCD1602 I2C responder scan"
+    ],
+    "installable": true,
+    "extra_hardware": true,
+    "parts": [
+      {
+        "quantity": 1,
+        "name": "TM1637 display or LCD1602 I\u00b2C module",
+        "specification": "Choose the display matching the selected firmware build; module must have an installed 2.54 mm male header. LCD variant supports the Inland KS0061 or a 16\u00d72 HD44780 display with the common PCF8574 mapping at configured address 0x27.",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=TM1637+or+LCD1602+I2C+display+module+3.3V"
+      },
+      {
+        "quantity": 10,
+        "name": "Female-to-female jumper-wire set",
+        "specification": "2.54 mm Dupont socket jumpers; at least ten conductors for the Inland LCD, level shifter, power rails, and both sides of SDA/SCL",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=female+to+female+dupont+jumper+wires"
+      },
+      {
+        "quantity": 1,
+        "name": "Solderless breadboard",
+        "specification": "Half-size or larger",
+        "required": false,
+        "url": "https://www.amazon.com/s?k=solderless+breadboard+electronics"
+      },
+      {
+        "quantity": 1,
+        "name": "Bidirectional I2C level shifter",
+        "specification": "Required for the 5 V Inland LCD selection; shift SDA and SCL between the ESP32 3.3 V side and LCD 5 V side",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=bidirectional+I2C+logic+level+converter+3.3V+5V"
+      }
+    ],
+    "setup": {
+      "required": true,
+      "summary": "On first boot, read the 8-character password from USB serial, join the protected setup network, then enter Wi-Fi and a POSIX timezone.",
+      "fields": [
+        "Wi-Fi",
+        "POSIX timezone"
+      ]
+    },
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "configuration_name": "TM1637 four-digit display",
+        "wiring": {
+          "diagram": "./wiring/ntp-desk-clock/esp32-devkit-v1.svg",
+          "connections": [
+            {
+              "from": "TM1637 VCC",
+              "to": "3V3",
+              "wire": "red"
+            },
+            {
+              "from": "TM1637 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "TM1637 CLK",
+              "to": "GPIO18",
+              "wire": "yellow"
+            },
+            {
+              "from": "TM1637 DIO",
+              "to": "GPIO19",
+              "wire": "green"
+            }
+          ],
+          "warnings": [
+            "Power the TM1637 module from 3.3 V so CLK/DIO pull-ups do not exceed ESP32 GPIO voltage.",
+            "Wiring and display behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/ntp-desk-clock/esp32-devkit-v1/manifest.json",
+        "variants": [
+          {
+            "id": "lcd1602-i2c",
+            "name": "Inland / 1602 I\u00b2C LCD (0x27)",
+            "hardware": "Inland KS0061 or compatible HD44780 16\u00d72 display with common PCF8574 I\u00b2C backpack at configured address 0x27, plus bidirectional level shifter and jumper wires",
+            "wiring": {
+              "diagram": "./wiring/ntp-desk-clock/esp32-devkit-v1-lcd1602-i2c.svg",
+              "connections": [
+                {
+                  "from": "LCD1602 VCC",
+                  "to": "5V",
+                  "wire": "red"
+                },
+                {
+                  "from": "LCD1602 GND",
+                  "to": "GND",
+                  "wire": "black"
+                },
+                {
+                  "from": "LCD1602 SDA",
+                  "to": "GPIO21 through bidirectional I2C level shifter (HV1 to LV1)",
+                  "wire": "green"
+                },
+                {
+                  "from": "LCD1602 SCL",
+                  "to": "GPIO22 through bidirectional I2C level shifter (HV2 to LV2)",
+                  "wire": "yellow"
+                },
+                {
+                  "from": "Level shifter HV",
+                  "to": "5V",
+                  "wire": "red"
+                },
+                {
+                  "from": "Level shifter LV",
+                  "to": "3V3",
+                  "wire": "blue"
+                },
+                {
+                  "from": "Level shifter GND",
+                  "to": "GND",
+                  "wire": "black"
+                }
+              ],
+              "warnings": [
+                "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+                "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+                "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
+              ]
+            },
+            "method": "esp-web-tools",
+            "manifest": "./firmware/ntp-desk-clock/esp32-devkit-v1/lcd1602-i2c/manifest.json"
+          }
+        ]
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "configuration_name": "TM1637 four-digit display",
+        "wiring": {
+          "diagram": "./wiring/ntp-desk-clock/esp32-c3-devkitm-1.svg",
+          "connections": [
+            {
+              "from": "TM1637 VCC",
+              "to": "3V3",
+              "wire": "red"
+            },
+            {
+              "from": "TM1637 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "TM1637 CLK",
+              "to": "GPIO4",
+              "wire": "yellow"
+            },
+            {
+              "from": "TM1637 DIO",
+              "to": "GPIO5",
+              "wire": "green"
+            }
+          ],
+          "warnings": [
+            "Power the TM1637 module from 3.3 V so CLK/DIO pull-ups do not exceed ESP32 GPIO voltage.",
+            "Wiring and display behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/ntp-desk-clock/esp32-c3-devkitm-1/manifest.json",
+        "variants": [
+          {
+            "id": "lcd1602-i2c",
+            "name": "Inland / 1602 I\u00b2C LCD (0x27)",
+            "hardware": "Inland KS0061 or compatible HD44780 16\u00d72 display with common PCF8574 I\u00b2C backpack at configured address 0x27, plus bidirectional level shifter and jumper wires",
+            "wiring": {
+              "diagram": "./wiring/ntp-desk-clock/esp32-c3-devkitm-1-lcd1602-i2c.svg",
+              "connections": [
+                {
+                  "from": "LCD1602 VCC",
+                  "to": "5V",
+                  "wire": "red"
+                },
+                {
+                  "from": "LCD1602 GND",
+                  "to": "GND",
+                  "wire": "black"
+                },
+                {
+                  "from": "LCD1602 SDA",
+                  "to": "GPIO4 through bidirectional I2C level shifter (HV1 to LV1)",
+                  "wire": "green"
+                },
+                {
+                  "from": "LCD1602 SCL",
+                  "to": "GPIO5 through bidirectional I2C level shifter (HV2 to LV2)",
+                  "wire": "yellow"
+                },
+                {
+                  "from": "Level shifter HV",
+                  "to": "5V",
+                  "wire": "red"
+                },
+                {
+                  "from": "Level shifter LV",
+                  "to": "3V3",
+                  "wire": "blue"
+                },
+                {
+                  "from": "Level shifter GND",
+                  "to": "GND",
+                  "wire": "black"
+                }
+              ],
+              "warnings": [
+                "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+                "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+                "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
+              ]
+            },
+            "method": "esp-web-tools",
+            "manifest": "./firmware/ntp-desk-clock/esp32-c3-devkitm-1/lcd1602-i2c/manifest.json"
+          }
+        ]
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "configuration_name": "TM1637 four-digit display",
+        "wiring": {
+          "diagram": "./wiring/ntp-desk-clock/esp32-s3-devkitc-1.svg",
+          "connections": [
+            {
+              "from": "TM1637 VCC",
+              "to": "3V3",
+              "wire": "red"
+            },
+            {
+              "from": "TM1637 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "TM1637 CLK",
+              "to": "GPIO4",
+              "wire": "yellow"
+            },
+            {
+              "from": "TM1637 DIO",
+              "to": "GPIO5",
+              "wire": "green"
+            }
+          ],
+          "warnings": [
+            "Power the TM1637 module from 3.3 V so CLK/DIO pull-ups do not exceed ESP32 GPIO voltage.",
+            "Wiring and display behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/ntp-desk-clock/esp32-s3-devkitc-1/manifest.json",
+        "variants": [
+          {
+            "id": "lcd1602-i2c",
+            "name": "Inland / 1602 I\u00b2C LCD (0x27)",
+            "hardware": "Inland KS0061 or compatible HD44780 16\u00d72 display with common PCF8574 I\u00b2C backpack at configured address 0x27, plus bidirectional level shifter and jumper wires",
+            "wiring": {
+              "diagram": "./wiring/ntp-desk-clock/esp32-s3-devkitc-1-lcd1602-i2c.svg",
+              "connections": [
+                {
+                  "from": "LCD1602 VCC",
+                  "to": "5V",
+                  "wire": "red"
+                },
+                {
+                  "from": "LCD1602 GND",
+                  "to": "GND",
+                  "wire": "black"
+                },
+                {
+                  "from": "LCD1602 SDA",
+                  "to": "GPIO8 through bidirectional I2C level shifter (HV1 to LV1)",
+                  "wire": "green"
+                },
+                {
+                  "from": "LCD1602 SCL",
+                  "to": "GPIO9 through bidirectional I2C level shifter (HV2 to LV2)",
+                  "wire": "yellow"
+                },
+                {
+                  "from": "Level shifter HV",
+                  "to": "5V",
+                  "wire": "red"
+                },
+                {
+                  "from": "Level shifter LV",
+                  "to": "3V3",
+                  "wire": "blue"
+                },
+                {
+                  "from": "Level shifter GND",
+                  "to": "GND",
+                  "wire": "black"
+                }
+              ],
+              "warnings": [
+                "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+                "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+                "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
+              ]
+            },
+            "method": "esp-web-tools",
+            "manifest": "./firmware/ntp-desk-clock/esp32-s3-devkitc-1/lcd1602-i2c/manifest.json"
+          }
+        ]
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "configuration_name": "TM1637 four-digit display",
+        "wiring": {
+          "diagram": "./wiring/ntp-desk-clock/esp32-c6-devkitc-1.svg",
+          "connections": [
+            {
+              "from": "TM1637 VCC",
+              "to": "3V3",
+              "wire": "red"
+            },
+            {
+              "from": "TM1637 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "TM1637 CLK",
+              "to": "GPIO6",
+              "wire": "yellow"
+            },
+            {
+              "from": "TM1637 DIO",
+              "to": "GPIO7",
+              "wire": "green"
+            }
+          ],
+          "warnings": [
+            "Power the TM1637 module from 3.3 V so CLK/DIO pull-ups do not exceed ESP32 GPIO voltage.",
+            "Wiring and display behavior are not yet physically verified.",
+            "Board and module positions are simplified; follow the printed pin labels and connection table."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/ntp-desk-clock/esp32-c6-devkitc-1/manifest.json",
+        "variants": [
+          {
+            "id": "lcd1602-i2c",
+            "name": "Inland / 1602 I\u00b2C LCD (0x27)",
+            "hardware": "Inland KS0061 or compatible HD44780 16\u00d72 display with common PCF8574 I\u00b2C backpack at configured address 0x27, plus bidirectional level shifter and jumper wires",
+            "wiring": {
+              "diagram": "./wiring/ntp-desk-clock/esp32-c6-devkitc-1-lcd1602-i2c.svg",
+              "connections": [
+                {
+                  "from": "LCD1602 VCC",
+                  "to": "5V",
+                  "wire": "red"
+                },
+                {
+                  "from": "LCD1602 GND",
+                  "to": "GND",
+                  "wire": "black"
+                },
+                {
+                  "from": "LCD1602 SDA",
+                  "to": "GPIO6 through bidirectional I2C level shifter (HV1 to LV1)",
+                  "wire": "green"
+                },
+                {
+                  "from": "LCD1602 SCL",
+                  "to": "GPIO7 through bidirectional I2C level shifter (HV2 to LV2)",
+                  "wire": "yellow"
+                },
+                {
+                  "from": "Level shifter HV",
+                  "to": "5V",
+                  "wire": "red"
+                },
+                {
+                  "from": "Level shifter LV",
+                  "to": "3V3",
+                  "wire": "blue"
+                },
+                {
+                  "from": "Level shifter GND",
+                  "to": "GND",
+                  "wire": "black"
+                }
+              ],
+              "warnings": [
+                "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+                "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+                "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
+              ]
+            },
+            "method": "esp-web-tools",
+            "manifest": "./firmware/ntp-desk-clock/esp32-c6-devkitc-1/lcd1602-i2c/manifest.json"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "pico-board-check",
+    "name": "Pico Board Check",
+    "version": "1.0.0",
+    "category": "Practical",
+    "description": "Confirms the selected Pico family, reports compile-time CPU and flash details over USB serial, and blinks the onboard status LED.",
+    "hardware": "Board only",
+    "features": [
+      "RP2040 and RP2350",
+      "USB serial diagnostics",
+      "Onboard LED heartbeat",
+      "No configuration"
+    ],
+    "installable": true,
+    "extra_hardware": false,
+    "setup": {
+      "required": false,
+      "summary": "No first-boot configuration is required; connect a USB serial monitor at 115200 baud after copying the UF2 file.",
+      "fields": []
+    },
+    "targets": [
+      {
+        "id": "raspberry-pi-pico",
+        "name": "Raspberry Pi Pico",
+        "chip": "RP2040",
+        "method": "uf2",
+        "download": "./firmware/pico-board-check/raspberry-pi-pico/firmware.uf2",
+        "size": 93184,
+        "sha256": "7a0e309ee42eadde519a736ecaa3749ca69e93dcc327e51fb9a51a75c5a55e6a"
+      },
+      {
+        "id": "raspberry-pi-pico-w",
+        "name": "Raspberry Pi Pico W",
+        "chip": "RP2040",
+        "method": "uf2",
+        "download": "./firmware/pico-board-check/raspberry-pi-pico-w/firmware.uf2",
+        "size": 612352,
+        "sha256": "e5bec0d23bf86e2068d6d09049c89c3aeb7700e33751463195ef4ba980a5374b"
+      },
+      {
+        "id": "raspberry-pi-pico-2",
+        "name": "Raspberry Pi Pico 2",
+        "chip": "RP2350",
+        "method": "uf2",
+        "download": "./firmware/pico-board-check/raspberry-pi-pico-2/firmware.uf2",
+        "size": 92160,
+        "sha256": "390b3b7fa92592dd7b945c3f819143288e8fe3420322d3358d689e7904a47c81"
+      },
+      {
+        "id": "raspberry-pi-pico-2-w",
+        "name": "Raspberry Pi Pico 2 W",
+        "chip": "RP2350",
+        "method": "uf2",
+        "download": "./firmware/pico-board-check/raspberry-pi-pico-2-w/firmware.uf2",
+        "size": 609792,
+        "sha256": "2fff88aa249842944d6be19e3ef340eab9b50d98ebcc118d3181aedbf4c061e7"
+      }
+    ]
+  },
+  {
+    "slug": "pico-morse-beacon",
+    "name": "Pico Morse Beacon",
+    "version": "1.0.0",
+    "category": "Fun",
+    "description": "Blinks HELLO WORLD forever in Morse code on the Pico's onboard status LED and prints decoded characters over USB serial.",
+    "hardware": "Board only",
+    "features": [
+      "Morse code",
+      "Onboard status LED",
+      "USB serial decoder",
+      "No configuration"
+    ],
+    "installable": true,
+    "extra_hardware": false,
+    "setup": {
+      "required": false,
+      "summary": "No first-boot configuration is required; the beacon starts after the UF2 file is copied to the board.",
+      "fields": []
+    },
+    "targets": [
+      {
+        "id": "raspberry-pi-pico",
+        "name": "Raspberry Pi Pico",
+        "chip": "RP2040",
+        "method": "uf2",
+        "download": "./firmware/pico-morse-beacon/raspberry-pi-pico/firmware.uf2",
+        "size": 94208,
+        "sha256": "96aa3b26edaaf6a353b3547dede62dcb7815c51e780d528ae10c1219fedb8d28"
+      },
+      {
+        "id": "raspberry-pi-pico-w",
+        "name": "Raspberry Pi Pico W",
+        "chip": "RP2040",
+        "method": "uf2",
+        "download": "./firmware/pico-morse-beacon/raspberry-pi-pico-w/firmware.uf2",
+        "size": 613376,
+        "sha256": "63de4361ad21e498579bd10e6d5619d8f0ac2e111034b7e300c8c9400826f52d"
+      },
+      {
+        "id": "raspberry-pi-pico-2",
+        "name": "Raspberry Pi Pico 2",
+        "chip": "RP2350",
+        "method": "uf2",
+        "download": "./firmware/pico-morse-beacon/raspberry-pi-pico-2/firmware.uf2",
+        "size": 92672,
+        "sha256": "3d35679c2cbc04c716c4ec871975109ef379120004ecf3b14376da5359e49408"
+      },
+      {
+        "id": "raspberry-pi-pico-2-w",
+        "name": "Raspberry Pi Pico 2 W",
+        "chip": "RP2350",
+        "method": "uf2",
+        "download": "./firmware/pico-morse-beacon/raspberry-pi-pico-2-w/firmware.uf2",
+        "size": 610816,
+        "sha256": "500a6ce177c1943871c43ac1b61fa8f49422c58681f07eeb6157478a7bf74e3d"
+      }
+    ]
+  },
+  {
+    "slug": "pico-wifi-surveyor",
+    "name": "Pico W Wi-Fi Surveyor",
+    "version": "1.1.0",
+    "category": "Practical",
+    "description": "Creates a local access point on Pico W or Pico 2 W and serves a read-only survey of nearby Wi-Fi networks, channels, and signal strength.",
+    "hardware": "Board only",
+    "features": [
+      "Pico W wireless",
+      "Bounded boot-time scan",
+      "Protected local dashboard",
+      "No router credentials",
+      "Readable 8-character local password"
+    ],
+    "installable": true,
+    "extra_hardware": false,
+    "setup": {
+      "required": false,
+      "summary": "No user settings are required; read the 8-character per-boot password from USB serial, join Pico-W-Surveyor, and open http://192.168.4.1/.",
+      "fields": []
+    },
+    "targets": [
+      {
+        "id": "raspberry-pi-pico-w",
+        "name": "Raspberry Pi Pico W",
+        "chip": "RP2040",
+        "method": "uf2",
+        "download": "./firmware/pico-wifi-surveyor/raspberry-pi-pico-w/firmware.uf2",
+        "size": 701952,
+        "sha256": "d5fb026ea6f97218623950b22f6bf6d07175d3e1730d88d85dd26f87fb7c0a25"
+      },
+      {
+        "id": "raspberry-pi-pico-2-w",
+        "name": "Raspberry Pi Pico 2 W",
+        "chip": "RP2350",
+        "method": "uf2",
+        "download": "./firmware/pico-wifi-surveyor/raspberry-pi-pico-2-w/firmware.uf2",
+        "size": 695296,
+        "sha256": "6ed894a56374dbdbb2a6f43a4900a94a90838da69f3c4785e006e8b5305b10df"
+      }
+    ]
+  },
+  {
+    "slug": "esp32-diagnostics",
+    "name": "ESP32 Diagnostic Console",
+    "version": "1.0.0",
+    "category": "Practical",
+    "description": "Connects to your Wi-Fi and serves a clean real-time dashboard for chip, memory, flash, reset, network, I\u00b2C, SPI, and interface diagnostics.",
+    "hardware": "Board only",
+    "features": [
+      "Minimal protected Wi-Fi setup",
+      "Live memory, RSSI, and temperature charts",
+      "Chip, flash, reset, and network inspection",
+      "Bounded I\u00b2C address scanning",
+      "Board-specific SPI and interface map",
+      "Responsive self-contained dashboard"
+    ],
+    "installable": true,
+    "extra_hardware": false,
+    "setup": {
+      "required": true,
+      "summary": "On first boot, read the randomized 8-character setup password from USB serial, join the protected setup network, and open http://192.168.4.1/ if setup does not appear. Enter only the Wi-Fi name and password; the dashboard address is printed after connection.",
+      "fields": [
+        "Wi-Fi"
+      ]
+    },
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/esp32-diagnostics/esp32-devkit-v1/manifest.json"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/esp32-diagnostics/esp32-c3-devkitm-1/manifest.json"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/esp32-diagnostics/esp32-s3-devkitc-1/manifest.json"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "method": "esp-web-tools",
+        "manifest": "./firmware/esp32-diagnostics/esp32-c6-devkitc-1/manifest.json"
+      }
+    ]
+  },
+  {
+    "slug": "mqtt-home-status-panel",
+    "name": "MQTT Home Status Panel",
+    "version": "1.3.0",
+    "category": "Practical",
+    "description": "Subscribes to one exact MQTT topic and shows a configured label with bounded text or common temperature and humidity JSON values on an LCD1602.",
+    "hardware": "Inland KS0061 LCD1602 or compatible HD44780 16x2 LCD with common PCF8574 mapping at configured address 0x27, powered through a bidirectional I2C level shifter",
+    "features": [
+      "Exact-topic MQTT subscription",
+      "Common environmental JSON formatting",
+      "Bounded payload handling",
+      "Stale-data indication",
+      "Protected first-boot setup",
+      "Bounded LCD1602 I2C responder scan"
+    ],
+    "installable": true,
+    "extra_hardware": true,
+    "parts": [
+      {
+        "quantity": 1,
+        "name": "LCD1602 I2C display module",
+        "specification": "Inland KS0061 or compatible 16x2 HD44780 LCD with common PCF8574 backpack mapping at configured address 0x27; power at 5 V through an I2C level shifter",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=Inland+KS0061+LCD1602+I2C+display"
+      },
+      {
+        "quantity": 10,
+        "name": "Female-to-female jumper wires",
+        "specification": "2.54 mm Dupont leads for ESP32, level-shifter, power, and LCD connections",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=female+to+female+dupont+jumper+wires"
+      },
+      {
+        "quantity": 1,
+        "name": "Bidirectional I2C level shifter",
+        "specification": "Two-channel or four-channel bidirectional module rated for 3.3 V LV and 5 V HV I2C operation",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=bidirectional+I2C+logic+level+converter+3.3V+5V"
+      }
+    ],
+    "setup": {
+      "required": true,
+      "summary": "Read the temporary setup password from USB serial, then enter Wi-Fi, a numeric private-IPv4 trusted-LAN MQTT broker, one exact topic, and a display label.",
+      "fields": [
+        "Wi-Fi",
+        "MQTT broker",
+        "Exact MQTT topic",
+        "Display label"
+      ]
+    },
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "wiring": {
+          "diagram": "./wiring/mqtt-home-status-panel/esp32-devkit-v1.svg",
+          "connections": [
+            {
+              "from": "LCD1602 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "LCD1602 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "LCD1602 SDA",
+              "to": "GPIO21 through bidirectional I2C level shifter (HV1 to LV1)",
+              "wire": "green"
+            },
+            {
+              "from": "LCD1602 SCL",
+              "to": "GPIO22 through bidirectional I2C level shifter (HV2 to LV2)",
+              "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
+            }
+          ],
+          "warnings": [
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/mqtt-home-status-panel/esp32-devkit-v1/manifest.json"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "wiring": {
+          "diagram": "./wiring/mqtt-home-status-panel/esp32-c3-devkitm-1.svg",
+          "connections": [
+            {
+              "from": "LCD1602 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "LCD1602 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "LCD1602 SDA",
+              "to": "GPIO4 through bidirectional I2C level shifter (HV1 to LV1)",
+              "wire": "green"
+            },
+            {
+              "from": "LCD1602 SCL",
+              "to": "GPIO5 through bidirectional I2C level shifter (HV2 to LV2)",
+              "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
+            }
+          ],
+          "warnings": [
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/mqtt-home-status-panel/esp32-c3-devkitm-1/manifest.json"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "wiring": {
+          "diagram": "./wiring/mqtt-home-status-panel/esp32-s3-devkitc-1.svg",
+          "connections": [
+            {
+              "from": "LCD1602 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "LCD1602 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "LCD1602 SDA",
+              "to": "GPIO8 through bidirectional I2C level shifter (HV1 to LV1)",
+              "wire": "green"
+            },
+            {
+              "from": "LCD1602 SCL",
+              "to": "GPIO9 through bidirectional I2C level shifter (HV2 to LV2)",
+              "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
+            }
+          ],
+          "warnings": [
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/mqtt-home-status-panel/esp32-s3-devkitc-1/manifest.json"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "wiring": {
+          "diagram": "./wiring/mqtt-home-status-panel/esp32-c6-devkitc-1.svg",
+          "connections": [
+            {
+              "from": "LCD1602 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "LCD1602 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "LCD1602 SDA",
+              "to": "GPIO6 through bidirectional I2C level shifter (HV1 to LV1)",
+              "wire": "green"
+            },
+            {
+              "from": "LCD1602 SCL",
+              "to": "GPIO7 through bidirectional I2C level shifter (HV2 to LV2)",
+              "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
+            }
+          ],
+          "warnings": [
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/mqtt-home-status-panel/esp32-c6-devkitc-1/manifest.json"
+      }
+    ]
+  },
+  {
+    "slug": "unifi-network-panel",
+    "name": "UniFi Network Panel",
+    "version": "1.3.0",
+    "category": "Practical",
+    "description": "Shows WAN state, latency, connected clients, and access-point count from a sanitized read-only UniFi metrics bridge without storing a controller API key on the display.",
+    "hardware": "Inland KS0061 LCD1602 or compatible HD44780 16x2 LCD with common PCF8574 mapping at configured address 0x27, powered through a bidirectional I2C level shifter",
+    "features": [
+      "Sanitized metrics-bridge input",
+      "WAN and latency status",
+      "Client and AP counts",
+      "Strict response bounds",
+      "Protected first-boot setup",
+      "Bounded LCD1602 I2C responder scan"
+    ],
+    "installable": true,
+    "extra_hardware": true,
+    "parts": [
+      {
+        "quantity": 1,
+        "name": "LCD1602 I2C display module",
+        "specification": "Inland KS0061 or compatible 16x2 HD44780 LCD with common PCF8574 backpack mapping at configured address 0x27; power at 5 V through an I2C level shifter",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=Inland+KS0061+LCD1602+I2C+display"
+      },
+      {
+        "quantity": 10,
+        "name": "Female-to-female jumper wires",
+        "specification": "2.54 mm Dupont leads for ESP32, level-shifter, power, and LCD connections",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=female+to+female+dupont+jumper+wires"
+      },
+      {
+        "quantity": 1,
+        "name": "Bidirectional I2C level shifter",
+        "specification": "Two-channel or four-channel bidirectional module rated for 3.3 V LV and 5 V HV I2C operation",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=bidirectional+I2C+logic+level+converter+3.3V+5V"
+      }
+    ],
+    "setup": {
+      "required": true,
+      "summary": "Read the setup password from USB serial, then enter Wi-Fi and a normalized metrics-bridge URL. The bridge retains the UniFi API key; the display never receives it.",
+      "fields": [
+        "Wi-Fi",
+        "UniFi metrics bridge URL"
+      ]
+    },
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "wiring": {
+          "diagram": "./wiring/unifi-network-panel/esp32-devkit-v1.svg",
+          "connections": [
+            {
+              "from": "LCD1602 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "LCD1602 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "LCD1602 SDA",
+              "to": "GPIO21 through bidirectional I2C level shifter (HV1 to LV1)",
+              "wire": "green"
+            },
+            {
+              "from": "LCD1602 SCL",
+              "to": "GPIO22 through bidirectional I2C level shifter (HV2 to LV2)",
+              "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
+            }
+          ],
+          "warnings": [
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/unifi-network-panel/esp32-devkit-v1/manifest.json"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "wiring": {
+          "diagram": "./wiring/unifi-network-panel/esp32-c3-devkitm-1.svg",
+          "connections": [
+            {
+              "from": "LCD1602 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "LCD1602 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "LCD1602 SDA",
+              "to": "GPIO4 through bidirectional I2C level shifter (HV1 to LV1)",
+              "wire": "green"
+            },
+            {
+              "from": "LCD1602 SCL",
+              "to": "GPIO5 through bidirectional I2C level shifter (HV2 to LV2)",
+              "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
+            }
+          ],
+          "warnings": [
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/unifi-network-panel/esp32-c3-devkitm-1/manifest.json"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "wiring": {
+          "diagram": "./wiring/unifi-network-panel/esp32-s3-devkitc-1.svg",
+          "connections": [
+            {
+              "from": "LCD1602 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "LCD1602 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "LCD1602 SDA",
+              "to": "GPIO8 through bidirectional I2C level shifter (HV1 to LV1)",
+              "wire": "green"
+            },
+            {
+              "from": "LCD1602 SCL",
+              "to": "GPIO9 through bidirectional I2C level shifter (HV2 to LV2)",
+              "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
+            }
+          ],
+          "warnings": [
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/unifi-network-panel/esp32-s3-devkitc-1/manifest.json"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "wiring": {
+          "diagram": "./wiring/unifi-network-panel/esp32-c6-devkitc-1.svg",
+          "connections": [
+            {
+              "from": "LCD1602 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "LCD1602 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "LCD1602 SDA",
+              "to": "GPIO6 through bidirectional I2C level shifter (HV1 to LV1)",
+              "wire": "green"
+            },
+            {
+              "from": "LCD1602 SCL",
+              "to": "GPIO7 through bidirectional I2C level shifter (HV2 to LV2)",
+              "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
+            }
+          ],
+          "warnings": [
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/unifi-network-panel/esp32-c6-devkitc-1/manifest.json"
+      }
+    ]
+  },
+  {
+    "slug": "space-satellite-tracker",
+    "name": "Space and Satellite Tracker",
+    "version": "1.3.0",
+    "category": "Fun",
+    "description": "Polls the public Where the ISS at API over validated HTTPS and displays the ISS latitude, longitude, and altitude on an LCD1602.",
+    "hardware": "Inland KS0061 LCD1602 or compatible HD44780 16x2 LCD with common PCF8574 mapping at configured address 0x27, powered through a bidirectional I2C level shifter",
+    "features": [
+      "Live ISS position",
+      "Altitude display",
+      "Validated HTTPS",
+      "Timestamp freshness checks",
+      "Protected first-boot setup",
+      "Bounded LCD1602 I2C responder scan"
+    ],
+    "installable": true,
+    "extra_hardware": true,
+    "parts": [
+      {
+        "quantity": 1,
+        "name": "LCD1602 I2C display module",
+        "specification": "Inland KS0061 or compatible 16x2 HD44780 LCD with common PCF8574 backpack mapping at configured address 0x27; power at 5 V through an I2C level shifter",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=Inland+KS0061+LCD1602+I2C+display"
+      },
+      {
+        "quantity": 10,
+        "name": "Female-to-female jumper wires",
+        "specification": "2.54 mm Dupont leads for ESP32, level-shifter, power, and LCD connections",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=female+to+female+dupont+jumper+wires"
+      },
+      {
+        "quantity": 1,
+        "name": "Bidirectional I2C level shifter",
+        "specification": "Two-channel or four-channel bidirectional module rated for 3.3 V LV and 5 V HV I2C operation",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=bidirectional+I2C+logic+level+converter+3.3V+5V"
+      }
+    ],
+    "setup": {
+      "required": true,
+      "summary": "Read the temporary setup password from USB serial and enter Wi-Fi. ISS data needs outbound HTTPS and NTP access.",
+      "fields": [
+        "Wi-Fi"
+      ]
+    },
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "wiring": {
+          "diagram": "./wiring/space-satellite-tracker/esp32-devkit-v1.svg",
+          "connections": [
+            {
+              "from": "LCD1602 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "LCD1602 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "LCD1602 SDA",
+              "to": "GPIO21 through bidirectional I2C level shifter (HV1 to LV1)",
+              "wire": "green"
+            },
+            {
+              "from": "LCD1602 SCL",
+              "to": "GPIO22 through bidirectional I2C level shifter (HV2 to LV2)",
+              "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
+            }
+          ],
+          "warnings": [
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/space-satellite-tracker/esp32-devkit-v1/manifest.json"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "wiring": {
+          "diagram": "./wiring/space-satellite-tracker/esp32-c3-devkitm-1.svg",
+          "connections": [
+            {
+              "from": "LCD1602 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "LCD1602 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "LCD1602 SDA",
+              "to": "GPIO4 through bidirectional I2C level shifter (HV1 to LV1)",
+              "wire": "green"
+            },
+            {
+              "from": "LCD1602 SCL",
+              "to": "GPIO5 through bidirectional I2C level shifter (HV2 to LV2)",
+              "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
+            }
+          ],
+          "warnings": [
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/space-satellite-tracker/esp32-c3-devkitm-1/manifest.json"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "wiring": {
+          "diagram": "./wiring/space-satellite-tracker/esp32-s3-devkitc-1.svg",
+          "connections": [
+            {
+              "from": "LCD1602 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "LCD1602 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "LCD1602 SDA",
+              "to": "GPIO8 through bidirectional I2C level shifter (HV1 to LV1)",
+              "wire": "green"
+            },
+            {
+              "from": "LCD1602 SCL",
+              "to": "GPIO9 through bidirectional I2C level shifter (HV2 to LV2)",
+              "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
+            }
+          ],
+          "warnings": [
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/space-satellite-tracker/esp32-s3-devkitc-1/manifest.json"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "wiring": {
+          "diagram": "./wiring/space-satellite-tracker/esp32-c6-devkitc-1.svg",
+          "connections": [
+            {
+              "from": "LCD1602 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "LCD1602 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "LCD1602 SDA",
+              "to": "GPIO6 through bidirectional I2C level shifter (HV1 to LV1)",
+              "wire": "green"
+            },
+            {
+              "from": "LCD1602 SCL",
+              "to": "GPIO7 through bidirectional I2C level shifter (HV2 to LV2)",
+              "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
+            }
+          ],
+          "warnings": [
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/space-satellite-tracker/esp32-c6-devkitc-1/manifest.json"
+      }
+    ]
+  },
+  {
+    "slug": "wifi-weather-station",
+    "name": "Wi-Fi Weather Desk Station",
+    "version": "1.3.0",
+    "category": "Practical",
+    "description": "Fetches current Open-Meteo temperature in Fahrenheit, humidity, and WMO condition data for configured coordinates and presents it on an LCD1602.",
+    "hardware": "Inland KS0061 LCD1602 or compatible HD44780 16x2 LCD with common PCF8574 mapping at configured address 0x27, powered through a bidirectional I2C level shifter",
+    "features": [
+      "Current temperature and humidity",
+      "Compact WMO conditions",
+      "No weather API key",
+      "Validated HTTPS",
+      "Protected first-boot setup",
+      "Bounded LCD1602 I2C responder scan"
+    ],
+    "installable": true,
+    "extra_hardware": true,
+    "parts": [
+      {
+        "quantity": 1,
+        "name": "LCD1602 I2C display module",
+        "specification": "Inland KS0061 or compatible 16x2 HD44780 LCD with common PCF8574 backpack mapping at configured address 0x27; power at 5 V through an I2C level shifter",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=Inland+KS0061+LCD1602+I2C+display"
+      },
+      {
+        "quantity": 10,
+        "name": "Female-to-female jumper wires",
+        "specification": "2.54 mm Dupont leads for ESP32, level-shifter, power, and LCD connections",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=female+to+female+dupont+jumper+wires"
+      },
+      {
+        "quantity": 1,
+        "name": "Bidirectional I2C level shifter",
+        "specification": "Two-channel or four-channel bidirectional module rated for 3.3 V LV and 5 V HV I2C operation",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=bidirectional+I2C+logic+level+converter+3.3V+5V"
+      }
+    ],
+    "setup": {
+      "required": true,
+      "summary": "Read the temporary setup password from USB serial, then enter Wi-Fi and WGS84 latitude/longitude. No weather API key is required.",
+      "fields": [
+        "Wi-Fi",
+        "Latitude",
+        "Longitude"
+      ]
+    },
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "wiring": {
+          "diagram": "./wiring/wifi-weather-station/esp32-devkit-v1.svg",
+          "connections": [
+            {
+              "from": "LCD1602 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "LCD1602 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "LCD1602 SDA",
+              "to": "GPIO21 through bidirectional I2C level shifter (HV1 to LV1)",
+              "wire": "green"
+            },
+            {
+              "from": "LCD1602 SCL",
+              "to": "GPIO22 through bidirectional I2C level shifter (HV2 to LV2)",
+              "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
+            }
+          ],
+          "warnings": [
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/wifi-weather-station/esp32-devkit-v1/manifest.json"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "wiring": {
+          "diagram": "./wiring/wifi-weather-station/esp32-c3-devkitm-1.svg",
+          "connections": [
+            {
+              "from": "LCD1602 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "LCD1602 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "LCD1602 SDA",
+              "to": "GPIO4 through bidirectional I2C level shifter (HV1 to LV1)",
+              "wire": "green"
+            },
+            {
+              "from": "LCD1602 SCL",
+              "to": "GPIO5 through bidirectional I2C level shifter (HV2 to LV2)",
+              "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
+            }
+          ],
+          "warnings": [
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/wifi-weather-station/esp32-c3-devkitm-1/manifest.json"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "wiring": {
+          "diagram": "./wiring/wifi-weather-station/esp32-s3-devkitc-1.svg",
+          "connections": [
+            {
+              "from": "LCD1602 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "LCD1602 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "LCD1602 SDA",
+              "to": "GPIO8 through bidirectional I2C level shifter (HV1 to LV1)",
+              "wire": "green"
+            },
+            {
+              "from": "LCD1602 SCL",
+              "to": "GPIO9 through bidirectional I2C level shifter (HV2 to LV2)",
+              "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
+            }
+          ],
+          "warnings": [
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/wifi-weather-station/esp32-s3-devkitc-1/manifest.json"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "wiring": {
+          "diagram": "./wiring/wifi-weather-station/esp32-c6-devkitc-1.svg",
+          "connections": [
+            {
+              "from": "LCD1602 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "LCD1602 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "LCD1602 SDA",
+              "to": "GPIO6 through bidirectional I2C level shifter (HV1 to LV1)",
+              "wire": "green"
+            },
+            {
+              "from": "LCD1602 SCL",
+              "to": "GPIO7 through bidirectional I2C level shifter (HV2 to LV2)",
+              "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
+            }
+          ],
+          "warnings": [
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/wifi-weather-station/esp32-c6-devkitc-1/manifest.json"
+      }
+    ]
+  },
+  {
+    "slug": "lcd1602-smart-dashboard",
+    "name": "LCD1602 Smart Dashboard",
+    "version": "3.2.0",
+    "category": "Practical",
+    "description": "Rotates clock, ISS, weather, next launch, Moon, solar activity, planet visibility, near-Earth object, and deep-space mission screens on one LCD1602.",
+    "hardware": "Inland KS0061 LCD1602 or compatible HD44780 16x2 LCD with common PCF8574 mapping at configured address 0x27, powered through a bidirectional I2C level shifter",
+    "features": [
+      "Nine configurable LCD1602 screens",
+      "Next launch from the DS9 launch tracker",
+      "Moon, solar, planet, asteroid, and Voyager status",
+      "Web-configured screen order",
+      "Per-screen duration from 5 to 3600 seconds",
+      "Protected first-boot setup",
+      "Bounded HTTPS and I2C behavior",
+      "Visible startup and configuration status"
+    ],
+    "installable": true,
+    "extra_hardware": true,
+    "parts": [
+      {
+        "quantity": 1,
+        "name": "LCD1602 I2C display module",
+        "specification": "Inland KS0061 or compatible 16x2 HD44780 LCD with common PCF8574 backpack mapping at configured address 0x27; power at 5 V through an I2C level shifter",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=Inland+KS0061+LCD1602+I2C+display"
+      },
+      {
+        "quantity": 10,
+        "name": "Female-to-female jumper wires",
+        "specification": "2.54 mm Dupont leads for ESP32, level-shifter, power, and LCD connections",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=female+to+female+dupont+jumper+wires"
+      },
+      {
+        "quantity": 1,
+        "name": "Bidirectional I2C level shifter",
+        "specification": "Two-channel or four-channel bidirectional module rated for 3.3 V LV and 5 V HV I2C operation",
+        "required": true,
+        "url": "https://www.amazon.com/s?k=bidirectional+I2C+logic+level+converter+3.3V+5V"
+      }
+    ],
+    "setup": {
+      "required": true,
+      "summary": "Open the protected setup page to enter Wi-Fi, weather coordinates, timezone, nine-screen order, and a 5-3600 second duration for each screen. Coarse coordinates are sent to the DS9 space-summary endpoint for planet visibility.",
+      "fields": [
+        "Wi-Fi",
+        "Timezone",
+        "Weather and planet coordinates",
+        "Nine-screen order",
+        "Duration for each screen"
+      ]
+    },
+    "targets": [
+      {
+        "id": "esp32-devkit-v1",
+        "name": "ESP32 DevKit V1",
+        "chip": "ESP32",
+        "wiring": {
+          "diagram": "./wiring/lcd1602-smart-dashboard/esp32-devkit-v1.svg",
+          "connections": [
+            {
+              "from": "LCD1602 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "LCD1602 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "LCD1602 SDA",
+              "to": "GPIO21 through bidirectional I2C level shifter (HV1 to LV1)",
+              "wire": "green"
+            },
+            {
+              "from": "LCD1602 SCL",
+              "to": "GPIO22 through bidirectional I2C level shifter (HV2 to LV2)",
+              "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
+            }
+          ],
+          "warnings": [
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/lcd1602-smart-dashboard/esp32-devkit-v1/manifest.json"
+      },
+      {
+        "id": "esp32-c3-devkitm-1",
+        "name": "ESP32-C3-DevKitM-1",
+        "chip": "ESP32-C3",
+        "wiring": {
+          "diagram": "./wiring/lcd1602-smart-dashboard/esp32-c3-devkitm-1.svg",
+          "connections": [
+            {
+              "from": "LCD1602 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "LCD1602 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "LCD1602 SDA",
+              "to": "GPIO4 through bidirectional I2C level shifter (HV1 to LV1)",
+              "wire": "green"
+            },
+            {
+              "from": "LCD1602 SCL",
+              "to": "GPIO5 through bidirectional I2C level shifter (HV2 to LV2)",
+              "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
+            }
+          ],
+          "warnings": [
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/lcd1602-smart-dashboard/esp32-c3-devkitm-1/manifest.json"
+      },
+      {
+        "id": "esp32-s3-devkitc-1",
+        "name": "ESP32-S3-DevKitC-1 v1.0",
+        "chip": "ESP32-S3",
+        "wiring": {
+          "diagram": "./wiring/lcd1602-smart-dashboard/esp32-s3-devkitc-1.svg",
+          "connections": [
+            {
+              "from": "LCD1602 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "LCD1602 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "LCD1602 SDA",
+              "to": "GPIO8 through bidirectional I2C level shifter (HV1 to LV1)",
+              "wire": "green"
+            },
+            {
+              "from": "LCD1602 SCL",
+              "to": "GPIO9 through bidirectional I2C level shifter (HV2 to LV2)",
+              "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
+            }
+          ],
+          "warnings": [
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/lcd1602-smart-dashboard/esp32-s3-devkitc-1/manifest.json"
+      },
+      {
+        "id": "esp32-c6-devkitc-1",
+        "name": "ESP32-C6-DevKitC-1",
+        "chip": "ESP32-C6",
+        "wiring": {
+          "diagram": "./wiring/lcd1602-smart-dashboard/esp32-c6-devkitc-1.svg",
+          "connections": [
+            {
+              "from": "LCD1602 VCC",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "LCD1602 GND",
+              "to": "GND",
+              "wire": "black"
+            },
+            {
+              "from": "LCD1602 SDA",
+              "to": "GPIO6 through bidirectional I2C level shifter (HV1 to LV1)",
+              "wire": "green"
+            },
+            {
+              "from": "LCD1602 SCL",
+              "to": "GPIO7 through bidirectional I2C level shifter (HV2 to LV2)",
+              "wire": "yellow"
+            },
+            {
+              "from": "Level shifter HV",
+              "to": "5V",
+              "wire": "red"
+            },
+            {
+              "from": "Level shifter LV",
+              "to": "3V3",
+              "wire": "blue"
+            },
+            {
+              "from": "Level shifter GND",
+              "to": "GND",
+              "wire": "black"
+            }
+          ],
+          "warnings": [
+            "The Inland KS0061 LCD is a 5 V module. Use the documented bidirectional I2C level shifter with LV at 3.3 V; never connect 5 V SDA/SCL pull-ups directly to ESP32 GPIO.",
+            "The scan reports possible responders only. PCF8574 has no device ID, so display writes remain restricted to the explicitly configured address 0x27.",
+            "Wiring, voltage behavior, address, and LCD operation are not yet physically verified on the named board."
+          ]
+        },
+        "method": "esp-web-tools",
+        "manifest": "./firmware/lcd1602-smart-dashboard/esp32-c6-devkitc-1/manifest.json"
+      }
+    ]
+  }
+]

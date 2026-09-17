@@ -1,0 +1,9 @@
+{
+  "product": "ble-uart-console",
+  "target": "esp32-c6-devkitc-1",
+  "chip": "ESP32-C6",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 687904,
+  "sha256": "f504fc5401c5d1b4ee1dd7ef697ebfeccd1c40cc10a7917fa3307aead14a597a"
+}

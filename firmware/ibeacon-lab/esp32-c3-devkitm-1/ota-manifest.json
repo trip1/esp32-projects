@@ -1,0 +1,9 @@
+{
+  "product": "ibeacon-lab",
+  "target": "esp32-c3-devkitm-1",
+  "chip": "ESP32-C3",
+  "version": "2.0.0",
+  "firmware": "firmware.bin",
+  "size": 571488,
+  "sha256": "405984379dfab9b8123ac46b364ac6061e274d20ded5899adafeb563e821e4b0"
+}
